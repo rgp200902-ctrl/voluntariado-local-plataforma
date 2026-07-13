@@ -31,6 +31,7 @@
                                 <td>
                                     <a href="{% url 'accounts:editar_oportunidade' op.id %}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
                                     <a href="{% url 'accounts:gerir_inscricoes' op.id %}" class="btn btn-sm btn-outline-info" title="Inscrições"><i class="bi bi-people"></i></a>
+                                    <a href="{% url 'accounts:apagar_oportunidade' op.id %}" class="btn btn-sm btn-outline-danger" title="Apagar"><i class="bi bi-trash"></i></a>
                                 </td>
                             </tr>
                             {% empty %}<tr><td colspan="6" class="text-center text-muted py-4">Nenhuma oportunidade criada.</td></tr>{% endfor %}

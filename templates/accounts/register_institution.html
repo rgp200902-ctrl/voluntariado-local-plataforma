@@ -8,57 +8,77 @@
                 <div class="card-body p-4">
                     <h3 class="fw-bold mb-1">Registo Instituição</h3>
                     <p class="text-muted mb-4">Cria a conta da tua instituição para publicar oportunidades</p>
-                    <form method="post">
+                    <form method="post" novalidate>
                         {% csrf_token %}
                         <h6 class="fw-bold mb-3">Conta</h6>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ form.first_name.label }}</label>{{ form.first_name }}
+                                <label class="form-label fw-medium">{{ form.first_name.label }}</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>{% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ form.email.label }}</label>{{ form.email }}
+                                <label class="form-label fw-medium">{{ form.email.label }}</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ form.password1.label }}</label>{{ form.password1 }}
+                                <label class="form-label fw-medium">{{ form.password1.label }}</label>
+                                {{ form.password1 }}
+                                {% if form.password1.errors %}<div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>{% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ form.password2.label }}</label>{{ form.password2 }}
+                                <label class="form-label fw-medium">{{ form.password2.label }}</label>
+                                {{ form.password2 }}
+                                {% if form.password2.errors %}<div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>{% endif %}
                             </div>
                         </div>
                         <hr>
                         <h6 class="fw-bold mb-3">Instituição</h6>
                         <div class="mb-3">
-                            <label class="form-label">{{ form.nome.label }}</label>{{ form.nome }}
+                            <label class="form-label fw-medium">{{ form.nome.label }}</label>
+                            {{ form.nome }}
+                            {% if form.nome.errors %}<div class="text-danger small mt-1">{{ form.nome.errors.0 }}</div>{% endif %}
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ form.nif.label }}</label>{{ form.nif }}
+                                <label class="form-label fw-medium">{{ form.nif.label }}</label>
+                                {{ form.nif }}
+                                {% if form.nif.errors %}<div class="text-danger small mt-1">{{ form.nif.errors.0 }}</div>{% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ form.tipo.label }}</label>{{ form.tipo }}
+                                <label class="form-label fw-medium">{{ form.tipo.label }}</label>
+                                {{ form.tipo }}
+                                {% if form.tipo.errors %}<div class="text-danger small mt-1">{{ form.tipo.errors.0 }}</div>{% endif %}
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">{{ form.descricao.label }}</label>{{ form.descricao }}
+                            <label class="form-label fw-medium">{{ form.descricao.label }}</label>
+                            {{ form.descricao }}
+                            {% if form.descricao.errors %}<div class="text-danger small mt-1">{{ form.descricao.errors.0 }}</div>{% endif %}
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ form.morada.label }}</label>{{ form.morada }}
+                                <label class="form-label fw-medium">{{ form.morada.label }}</label>
+                                {{ form.morada }}
+                                {% if form.morada.errors %}<div class="text-danger small mt-1">{{ form.morada.errors.0 }}</div>{% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ form.telefone.label }}</label>{{ form.telefone }}
+                                <label class="form-label fw-medium">{{ form.telefone.label }}</label>
+                                {{ form.telefone }}
+                                {% if form.telefone.errors %}<div class="text-danger small mt-1">{{ form.telefone.errors.0 }}</div>{% endif %}
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">{{ form.website.label }}</label>{{ form.website }}
+                            <label class="form-label fw-medium">{{ form.website.label }}</label>
+                            {{ form.website }}
+                            {% if form.website.errors %}<div class="text-danger small mt-1">{{ form.website.errors.0 }}</div>{% endif %}
                         </div>
-                        {% if form.errors %}
+                        {% if form.non_field_errors %}
                         <div class="alert alert-danger py-2">
-                            {% for field, errors in form.errors.items %}
-                                {% for error in errors %}<small>{{ error }}</small><br>{% endfor %}
-                            {% endfor %}
+                            {% for error in form.non_field_errors %}<small>{{ error }}</small><br>{% endfor %}
                         </div>
                         {% endif %}
                         <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Criar Conta</button>

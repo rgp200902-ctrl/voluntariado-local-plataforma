@@ -17,6 +17,7 @@ urlpatterns = [
     path('dashboard/instituicao/perfil/', views.institution_profile, name='institution_profile'),
     path('dashboard/instituicao/oportunidades/nova/', views.criar_oportunidade, name='criar_oportunidade'),
     path('dashboard/instituicao/oportunidades/<int:id>/editar/', views.editar_oportunidade, name='editar_oportunidade'),
+    path('dashboard/instituicao/oportunidades/<int:id>/apagar/', views.apagar_oportunidade, name='apagar_oportunidade'),
     path('dashboard/instituicao/oportunidades/<int:id>/inscricoes/', views.gerir_inscricoes, name='gerir_inscricoes'),
     path('dashboard/instituicao/oportunidades/<int:id>/inscricoes/exportar/', views.exportar_inscricoes, name='exportar_inscricoes'),
     path('dashboard/admin/', views.admin_dashboard, name='admin_dashboard'),
@@ -24,4 +25,5 @@ urlpatterns = [
     path('dashboard/admin/instituicoes/', views.admin_institutions, name='admin_institutions'),
     path('dashboard/admin/categorias/', views.admin_categories, name='admin_categories'),
     path('dashboard/admin/relatorios/', views.admin_reports, name='admin_reports'),
+    path('password-reset/', views.password_reset, name='password_reset'),
 ]

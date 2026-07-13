@@ -295,6 +295,20 @@ def editar_oportunidade(request, id):
     })
 
 @login_required
+def apagar_oportunidade(request, id):
+    if request.user.perfil != 'instituicao':
+        messages.error(request, 'Acesso negado.')
+        return redirect('core:home')
+    institution = get_object_or_404(Institution, user=request.user)
+    oportunidade = get_object_or_404(Oportunidade, id=id, instituicao=institution)
+    if request.method == 'POST':
+        titulo = oportunidade.titulo
+        oportunidade.delete()
+        messages.success(request, f'Oportunidade "{titulo}" apagada com sucesso.')
+        return redirect('accounts:institution_dashboard')
+    return render(request, 'dashboard/institution/confirm_delete.html', {'oportunidade': oportunidade})
+
+@login_required
 def gerir_inscricoes(request, id):
     if request.user.perfil != 'instituicao':
         messages.error(request, 'Acesso negado.')
@@ -345,3 +359,18 @@ def exportar_inscricoes(request, id):
             i.mensagem or '',
         ])
     return response
+
+def password_reset(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        try:
+            user = User.objects.get(email=email)
+            import secrets
+            nova_password = secrets.token_urlsafe(10)
+            user.set_password(nova_password)
+            user.save()
+            messages.success(request, f'Nova palavra-passe gerada para {email}: <strong>{nova_password}</strong>. Guarda-a e altera-a após o login.')
+        except User.DoesNotExist:
+            messages.warning(request, 'Email não encontrado na plataforma.')
+        return redirect('accounts:login')
+    return render(request, 'accounts/password_reset.html')

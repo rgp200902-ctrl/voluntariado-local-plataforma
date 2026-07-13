@@ -8,31 +8,70 @@
             <h3 class="fw-bold mb-4">Nova Oportunidade</h3>
             <div class="card dashboard-card">
                 <div class="card-body p-4">
-                    <form method="post">
+                    <form method="post" novalidate>
                         {% csrf_token %}
-                        <div class="mb-3"><label class="form-label">Título</label><input type="text" name="titulo" class="form-control" required></div>
-                        <div class="mb-3"><label class="form-label">Descrição</label><textarea name="descricao" class="form-control" rows="4" required></textarea></div>
+                        {% if form.errors %}
+                        <div class="alert alert-danger py-2 mb-3">
+                            <small>Corrige os erros abaixo.</small>
+                        </div>
+                        {% endif %}
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Título <span class="text-danger">*</span></label>
+                            <input type="text" name="titulo" class="form-control {% if form.titulo.errors %}is-invalid{% endif %}" value="{{ form.titulo.value|default:'' }}" required>
+                            {% if form.titulo.errors %}<div class="invalid-feedback">{{ form.titulo.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Descrição <span class="text-danger">*</span></label>
+                            <textarea name="descricao" class="form-control {% if form.descricao.errors %}is-invalid{% endif %}" rows="4" required>{{ form.descricao.value|default:'' }}</textarea>
+                            {% if form.descricao.errors %}<div class="invalid-feedback">{{ form.descricao.errors.0 }}</div>{% endif %}
+                        </div>
                         <div class="row">
-                            <div class="col-md-4 mb-3"><label class="form-label">Categoria</label>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-medium">Categoria</label>
                                 <select name="categoria" class="form-select">
                                     <option value="">Sem categoria</option>
                                     {% for cat in categorias %}<option value="{{ cat.id }}">{{ cat.nome }}</option>{% endfor %}
                                 </select>
                             </div>
-                            <div class="col-md-4 mb-3"><label class="form-label">Local</label><input type="text" name="local" class="form-control"></div>
-                            <div class="col-md-4 mb-3"><label class="form-label">Freguesia</label><input type="text" name="freguesia" class="form-control"></div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-medium">Local</label>
+                                <input type="text" name="local" class="form-control" value="{{ form.local.value|default:'' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-medium">Freguesia</label>
+                                <input type="text" name="freguesia" class="form-control" value="{{ form.freguesia.value|default:'' }}">
+                            </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-4 mb-3"><label class="form-label">Data Início</label><input type="date" name="data_inicio" class="form-control"></div>
-                            <div class="col-md-4 mb-3"><label class="form-label">Data Fim</label><input type="date" name="data_fim" class="form-control"></div>
-                            <div class="col-md-4 mb-3"><label class="form-label">Horário</label><input type="text" name="horario" class="form-control" placeholder="Ex: Sábados das 10h às 13h"></div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-medium">Data Início</label>
+                                <input type="date" name="data_inicio" class="form-control" value="{{ form.data_inicio.value|default:'' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-medium">Data Fim</label>
+                                <input type="date" name="data_fim" class="form-control" value="{{ form.data_fim.value|default:'' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-medium">Horário</label>
+                                <input type="text" name="horario" class="form-control" placeholder="Ex: Sábados das 10h às 13h" value="{{ form.horario.value|default:'' }}">
+                            </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-4 mb-3"><label class="form-label">Vagas</label><input type="number" name="vagas" class="form-control" value="1" min="1"></div>
-                            <div class="col-md-4 mb-3"><label class="form-label">Idade Mínima</label><input type="number" name="idade_minima" class="form-control" min="0"></div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-medium">Vagas <span class="text-danger">*</span></label>
+                                <input type="number" name="vagas" class="form-control" value="{{ form.vagas.value|default:'1' }}" min="1" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-medium">Idade Mínima</label>
+                                <input type="number" name="idade_minima" class="form-control" value="{{ form.idade_minima.value|default:'' }}" min="0">
+                            </div>
                         </div>
-                        <div class="mb-3"><label class="form-label">Requisitos</label><textarea name="requisitos" class="form-control" rows="2"></textarea></div>
-                        <button type="submit" class="btn btn-primary px-4">Criar Oportunidade</button>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Requisitos</label>
+                            <textarea name="requisitos" class="form-control" rows="2">{{ form.requisitos.value|default:'' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">Criar Oportunidade</button>
+                        <a href="{% url 'accounts:institution_dashboard' %}" class="btn btn-outline-secondary px-4 py-2">Cancelar</a>
                     </form>
                 </div>
             </div>
