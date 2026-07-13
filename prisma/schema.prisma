@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 13.1. Utilizador
+model User {
+  id            String    @id @default(cuid())
+  nome          String
+  email         String    @unique
+  password_hash String
+  perfil        String    // administrador, instituicao, voluntario
+  ativo         Boolean   @default(true)
+  data_criacao  DateTime  @default(now())
+  ultimo_acesso DateTime?
+
+  institution   Institution? @relation("InstitutionUser")
+  volunteer     Volunteer?  @relation("VolunteerUser")
+  registrations Inscricao[] @relation("VoluntarioInscricoes")
+  activities    RegistoAtividade[]
+
+  @@index([perfil])
+}
+
+// 13.2. Voluntário
+model Volunteer {
+  id                   String    @id @default(cuid())
+  user_id              String    @unique
+  telefone             String?
+  localidade           String?
+  data_nascimento      DateTime?
+  faixa_etaria         String?
+  disponibilidade      String?
+  interesses           String?
+  competencias         String?
+  consentimento_rgpd   Boolean   @default(false)
+  data_consentimento   DateTime?
+  avatar              String?
+  data_criacao         DateTime  @default(now())
+  atualizado_em        DateTime  @updatedAt
+
+  user                 User      @relation("VolunteerUser", fields: [user_id], references: [id])
+}
+
+// 13.3. Instituição
+model Institution {
+  id                String            @id @default(cuid())
+  user_id           String            @unique
+  nome              String
+  nif               String?
+  tipo              String?
+  morada            String?
+  email             String?
+  telefone          String?
+  pessoa_contacto   String?
+  descricao         String?
+  estado_validacao  String            @default("pendente") // pendente, aprovada, recusada, suspensa
+  logotipo          String?
+  website           String?
+  categoria         String?
+  data_criacao      DateTime          @default(now())
+  atualizado_em     DateTime          @updatedAt
+
+  user              User              @relation("InstitutionUser", fields: [user_id], references: [id])
+  opportunities     Oportunidade[]
+
+  @@index([estado_validacao])
+}
+
+// 13.4. Categoria
+model Categoria {
+  id          String    @id @default(cuid())
+  nome        String    @unique
+  descricao   String?
+  ativa       Boolean   @default(true)
+  data_criacao DateTime @default(now())
+
+  opportunities Oportunidade[]
+}
+
+// 13.5. Oportunidade
+model Oportunidade {
+  id               String           @id @default(cuid())
+  instituicao_id   String
+  categoria_id     String?
+  titulo           String
+  descricao        String
+  local            String?
+  freguesia        String?
+  data_inicio      DateTime?
+  data_fim         DateTime?
+  horario          String?
+  vagas            Int              @default(1)
+  requisitos       String?
+  idade_minima     Int?
+  estado           String           @default("rascunho") // rascunho, aberta, publicada, inscricoes_encerradas, concluida, cancelada
+  criada_em        DateTime         @default(now())
+  publicada_em     DateTime?
+
+  institution      Institution      @relation(fields: [instituicao_id], references: [id])
+  category         Categoria?       @relation(fields: [categoria_id], references: [id])
+  registrations    Inscricao[]
+
+  @@index([estado])
+  @@index([instituicao_id])
+}
+
+// 13.6. Inscrição
+model Inscricao {
+  id                      String             @id @default(cuid())
+  oportunidade_id         String
+  voluntario_id           String
+  mensagem                String?
+  estado                  String             @default("submetida") // submetida, aceite, recusada, cancelada, concluida
+  data_inscricao          DateTime           @default(now())
+  data_decisao            DateTime?
+  observacoes_instituicao String?
+
+  opportunity             Oportunidade       @relation(fields: [oportunidade_id], references: [id])
+  volunteer               User               @relation("VoluntarioInscricoes", fields: [voluntario_id], references: [id])
+
+  @@unique([oportunidade_id, voluntario_id])
+  @@index([estado])
+}
+
+// 13.7. Registo de atividade
+model RegistoAtividade {
+  id            String   @id @default(cuid())
+  utilizador_id String?
+  acao          String
+  entidade      String
+  entidade_id   String?
+  data_hora     DateTime @default(now())
+  detalhe       String?
+
+  user          User?    @relation(fields: [utilizador_id], references: [id])
+
+  @@index([acao])
+  @@index([entidade])
+}
