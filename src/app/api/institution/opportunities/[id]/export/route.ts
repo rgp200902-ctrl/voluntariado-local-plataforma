@@ -42,16 +42,7 @@ export async function GET(
     const registrations = await prisma.inscricao.findMany({
       where: { oportunidade_id: params.id },
       include: {
-        volunteer: {
-          include: {
-            user: {
-              select: {
-                nome: true,
-                email: true,
-              },
-            },
-          },
-        },
+        volunteer: true,
       },
       orderBy: { data_inscricao: 'desc' },
     });
@@ -60,16 +51,13 @@ export async function GET(
     const format = searchParams.get('format') || 'csv';
 
     if (format === 'csv') {
-      const headers = ['Nome', 'Email', 'Telefone', 'Localidade', 'Estado', 'Data Inscrição', 'Competências', 'Disponibilidade'];
+      const headers = ['Nome', 'Email', 'Estado', 'Data Inscrição', 'Mensagem'];
       const rows = registrations.map((reg) => [
-        reg.volunteer.user.nome,
-        reg.volunteer.user.email,
-        reg.volunteer.telefone || '',
-        reg.volunteer.localidade || '',
+        (reg.volunteer as any).nome || '',
+        (reg.volunteer as any).email || '',
         reg.estado,
         new Date(reg.data_inscricao).toLocaleDateString('pt-PT'),
-        reg.volunteer.competencias || '',
-        reg.volunteer.disponibilidade || '',
+        reg.mensagem || '',
       ]);
 
       const csvContent = [

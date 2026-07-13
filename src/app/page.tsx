@@ -1,55 +1,53 @@
+'use client';
+
 import Link from 'next/link';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { ScrollAnimation } from '@/components/ScrollAnimation';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { ParticlesBackground } from '@/components/ParticlesBackground';
 
-async function getStats() {
-  return {
-    activeOpportunities: 25,
-    registeredInstitutions: 8,
-    registeredVolunteers: 45,
-    totalHours: 1200,
-  };
-}
+const stats = {
+  activeOpportunities: 25,
+  registeredInstitutions: 8,
+  registeredVolunteers: 45,
+  totalHours: 1200,
+};
 
-async function getHighlightedOpportunities() {
-  return [
-    {
-      id: '1',
-      title: 'Ajuda no Centro Comunitário',
-      institution: 'Associação Solidariedade',
-      location: 'Lisboa',
-      date: '2026-07-15',
-      description: 'Procuramos voluntários para ajudar no centro comunitário local.',
-      slots: 10,
-      registrations: 4,
-      category: 'Ação Social',
-    },
-    {
-      id: '2',
-      title: 'Campanha de Recolha de Alimentos',
-      institution: 'IPSS Esperança',
-      location: 'Porto',
-      date: '2026-08-01',
-      description: 'Ajude-nos na campanha anual de recolha de alimentos.',
-      slots: 15,
-      registrations: 8,
-      category: 'Ação Social',
-    },
-    {
-      id: '3',
-      title: 'Limpeza da Praia de Carcavelos',
-      institution: 'Associação Solidariedade',
-      location: 'Oeiras',
-      date: '2026-07-20',
-      description: 'Organizamos limpezas mensais da praia para proteger o ecossistema marinho.',
-      slots: 30,
-      registrations: 12,
-      category: 'Ambiente',
-    },
-  ];
-}
+const opportunities = [
+  {
+    id: '1',
+    title: 'Ajuda no Centro Comunitário',
+    institution: 'Associação Solidariedade',
+    location: 'Lisboa',
+    date: '2026-07-15',
+    description: 'Procuramos voluntários para ajudar no centro comunitário local.',
+    slots: 10,
+    registrations: 4,
+    category: 'Ação Social',
+  },
+  {
+    id: '2',
+    title: 'Campanha de Recolha de Alimentos',
+    institution: 'IPSS Esperança',
+    location: 'Porto',
+    date: '2026-08-01',
+    description: 'Ajude-nos na campanha anual de recolha de alimentos.',
+    slots: 15,
+    registrations: 8,
+    category: 'Ação Social',
+  },
+  {
+    id: '3',
+    title: 'Limpeza da Praia de Carcavelos',
+    institution: 'Associação Solidariedade',
+    location: 'Oeiras',
+    date: '2026-07-20',
+    description: 'Organizamos limpezas mensais da praia para proteger o ecossistema marinho.',
+    slots: 30,
+    registrations: 12,
+    category: 'Ambiente',
+  },
+];
 
 const testimonials = [
   {
@@ -67,15 +65,12 @@ const testimonials = [
   {
     name: 'Ana Oliveira',
     role: 'Coordenadora de projetos',
-    text: 'Através desta plataforma consegui reunir mais de 50 voluntários para o nosso projeto de re florestação. Incrível!',
+    text: 'Através desta plataforma consegui reunir mais de 50 voluntários para o nosso projeto de reflorestação. Incrível!',
     avatar: '👩‍🦱',
   },
 ];
 
-export default async function HomePage() {
-  const stats = await getStats();
-  const opportunities = await getHighlightedOpportunities();
-
+export default function HomePage() {
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
