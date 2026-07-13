@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Registo{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <h2 class="fw-bold mb-5">Escolhe o tipo de conta</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card op-card border-0 shadow-sm p-4 h-100" onclick="window.location='{% url 'accounts:register_volunteer' %}'" style="cursor:pointer;">
+                        <div class="display-3 mb-3">🙋</div>
+                        <h5 class="fw-bold">Sou Voluntário</h5>
+                        <p class="text-muted small">Quero ajudar e participar em atividades de voluntariado</p>
+                        <a href="{% url 'accounts:register_volunteer' %}" class="btn btn-primary mt-auto">Criar Conta</a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card op-card border-0 shadow-sm p-4 h-100" onclick="window.location='{% url 'accounts:register_institution' %}'" style="cursor:pointer;">
+                        <div class="display-3 mb-3">🏛️</div>
+                        <h5 class="fw-bold">Sou Instituição</h5>
+                        <p class="text-muted small">Quero publicar oportunidades e encontrar voluntários</p>
+                        <a href="{% url 'accounts:register_institution' %}" class="btn btn-outline-primary mt-auto">Criar Conta</a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4"><small>Já tens conta? <a href="{% url 'accounts:login' %}">Entrar</a></small></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

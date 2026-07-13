@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Editar Oportunidade{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">{% include 'dashboard/sidebar_institution.html' %}</div>
+        <div class="col-md-9">
+            <h3 class="fw-bold mb-4">Editar Oportunidade</h3>
+            <div class="card dashboard-card">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3"><label class="form-label">Título</label><input type="text" name="titulo" class="form-control" value="{{ oportunidade.titulo }}" required></div>
+                        <div class="mb-3"><label class="form-label">Descrição</label><textarea name="descricao" class="form-control" rows="4" required>{{ oportunidade.descricao }}</textarea></div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3"><label class="form-label">Categoria</label>
+                                <select name="categoria" class="form-select">
+                                    <option value="">Sem categoria</option>
+                                    {% for cat in categorias %}<option value="{{ cat.id }}" {% if oportunidade.categoria_id == cat.id %}selected{% endif %}>{{ cat.nome }}</option>{% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Local</label><input type="text" name="local" class="form-control" value="{{ oportunidade.local|default:'' }}"></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Freguesia</label><input type="text" name="freguesia" class="form-control" value="{{ oportunidade.freguesia|default:'' }}"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3"><label class="form-label">Data Início</label><input type="date" name="data_inicio" class="form-control" value="{% if oportunidade.data_inicio %}{{ oportunidade.data_inicio|date:'Y-m-d' }}{% endif %}"></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Data Fim</label><input type="date" name="data_fim" class="form-control" value="{% if oportunidade.data_fim %}{{ oportunidade.data_fim|date:'Y-m-d' }}{% endif %}"></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Horário</label><input type="text" name="horario" class="form-control" value="{{ oportunidade.horario|default:'' }}"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3"><label class="form-label">Vagas</label><input type="number" name="vagas" class="form-control" value="{{ oportunidade.vagas }}" min="1"></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Idade Mínima</label><input type="number" name="idade_minima" class="form-control" value="{{ oportunidade.idade_minima|default:'' }}" min="0"></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Estado</label>
+                                <select name="estado" class="form-select">
+                                    {% for k, v in estado_choices %}<option value="{{ k }}" {% if oportunidade.estado == k %}selected{% endif %}>{{ v }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3"><label class="form-label">Requisitos</label><textarea name="requisitos" class="form-control" rows="2">{{ oportunidade.requisitos|default:'' }}</textarea></div>
+                        <button type="submit" class="btn btn-primary px-4">Guardar Alterações</button>
+                        <a href="{% url 'accounts:gerir_inscricoes' oportunidade.id %}" class="btn btn-outline-info px-4">Gerir Inscrições</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Plataforma de Voluntariado Local{% endblock %}
+{% block content %}
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">Faz a Diferença na Tua Comunidade</h1>
+        <p class="lead mb-4">Conectamos instituições locais com voluntários dedicados para construir uma comunidade mais forte e solidária</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{% url 'accounts:register_volunteer' %}" class="btn btn-light btn-lg px-5 fw-bold">Quero Ser Voluntário</a>
+            <a href="{% url 'accounts:register_institution' %}" class="btn btn-outline-light btn-lg px-5 fw-bold">Sou Instituição</a>
+        </div>
+    </div>
+</div>
+
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-5">O Nosso Impacto</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card stat-card text-center p-4 border-0 shadow-sm h-100">
+                    <div class="display-4 text-primary mb-2">🎯</div>
+                    <h3 class="fw-bold text-primary mb-1">{{ stats.oportunidades_ativas }}</h3>
+                    <p class="text-muted mb-0">Oportunidades Ativas</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card text-center p-4 border-0 shadow-sm h-100">
+                    <div class="display-4 text-success mb-2">🏛️</div>
+                    <h3 class="fw-bold text-success mb-1">{{ stats.instituicoes }}</h3>
+                    <p class="text-muted mb-0">Instituições</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card text-center p-4 border-0 shadow-sm h-100">
+                    <div class="display-4 text-purple mb-2">👥</div>
+                    <h3 class="fw-bold text-purple mb-1">{{ stats.voluntarios }}</h3>
+                    <p class="text-muted mb-0">Voluntários</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card text-center p-4 border-0 shadow-sm h-100">
+                    <div class="display-4 text-warning mb-2">⏰</div>
+                    <h3 class="fw-bold text-warning mb-1">{{ stats.inscricoes_total }}</h3>
+                    <p class="text-muted mb-0">Inscrições</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-5">Oportunidades em Destaque</h2>
+        <div class="row g-4">
+            {% for op in destaques %}
+            <div class="col-md-4">
+                <div class="card op-card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold mb-0">{{ op.titulo }}</h5>
+                            {% if op.categoria %}<span class="badge bg-primary-soft text-primary">{{ op.categoria.nome }}</span>{% endif %}
+                        </div>
+                        <p class="text-primary small mb-1 fw-medium">{{ op.instituicao.nome }}</p>
+                        <p class="text-muted small mb-2">📍 {{ op.local|default:'Portugal' }} • {% if op.data_inicio %}{{ op.data_inicio|date:'d/m/Y' }}{% endif %}</p>
+                        <p class="text-muted small mb-3">{{ op.descricao|truncatewords:30 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ op.registrations.count }} inscritos · {{ op.vagas }} vagas</small>
+                            <a href="{% url 'oportunidades:detail' op.id %}" class="btn btn-primary btn-sm">Saber Mais</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center text-muted py-5"><p>Ainda não há oportunidades disponíveis.</p></div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'oportunidades:list' %}" class="btn btn-dark btn-lg px-5 fw-bold">Ver Todas as Oportunidades</a>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-5">Como Funciona</h2>
+        <div class="row g-4 text-center">
+            <div class="col-md-3"><div class="display-5 mb-3">📝</div><h5 class="fw-bold">Registe-se</h5><p class="text-muted small">Crie a sua conta gratuitamente como voluntário ou instituição</p></div>
+            <div class="col-md-3"><div class="display-5 mb-3">🔍</div><h5 class="fw-bold">Explore</h5><p class="text-muted small">Veja as oportunidades disponíveis na sua área</p></div>
+            <div class="col-md-3"><div class="display-5 mb-3">✋</div><h5 class="fw-bold">Candidate-se</h5><p class="text-muted small">Inscreva-se nas oportunidades que mais lhe interessam</p></div>
+            <div class="col-md-3"><div class="display-5 mb-3">🎉</div><h5 class="fw-bold">Colabore</h5><p class="text-muted small">Participe ativamente e faça a diferença na comunidade</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-primary text-white text-center">
+    <div class="container">
+        <h2 class="fw-bold mb-3">Pronto para Fazer a Diferença?</h2>
+        <p class="lead mb-4">Junte-se a dezenas de voluntários e instituições que já estão a transformar a nossa comunidade</p>
+        <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-5 fw-bold">Comece Agora</a>
+    </div>
+</section>
+{% endblock %}

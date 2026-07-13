@@ -1,0 +1,14 @@
+<div class="list-group list-group-flush">
+    <a href="{% url 'accounts:volunteer_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'volunteer_dashboard' %}active{% endif %}">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a href="{% url 'accounts:volunteer_profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'volunteer_profile' %}active{% endif %}">
+        <i class="bi bi-person"></i> Perfil
+    </a>
+    <a href="{% url 'accounts:volunteer_registrations' %}" class="sidebar-link {% if request.resolver_match.url_name == 'volunteer_registrations' %}active{% endif %}">
+        <i class="bi bi-card-list"></i> Inscrições
+    </a>
+    <a href="{% url 'accounts:volunteer_history' %}" class="sidebar-link {% if request.resolver_match.url_name == 'volunteer_history' %}active{% endif %}">
+        <i class="bi bi-clock-history"></i> Histórico
+    </a>
+</div>

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Contacto{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <h1 class="fw-bold mb-4">Contacte-nos</h1>
+            <p class="text-muted mb-4">Tem alguma dúvida ou sugestão? Envie-nos uma mensagem.</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3"><label class="form-label">Nome</label><input type="text" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Email</label><input type="email" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Assunto</label><input type="text" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Mensagem</label><textarea class="form-control" rows="5" required></textarea></div>
+                <button type="submit" class="btn btn-primary w-100">Enviar Mensagem</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

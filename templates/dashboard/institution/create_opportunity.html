@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Nova Oportunidade{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">{% include 'dashboard/sidebar_institution.html' %}</div>
+        <div class="col-md-9">
+            <h3 class="fw-bold mb-4">Nova Oportunidade</h3>
+            <div class="card dashboard-card">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3"><label class="form-label">Título</label><input type="text" name="titulo" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Descrição</label><textarea name="descricao" class="form-control" rows="4" required></textarea></div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3"><label class="form-label">Categoria</label>
+                                <select name="categoria" class="form-select">
+                                    <option value="">Sem categoria</option>
+                                    {% for cat in categorias %}<option value="{{ cat.id }}">{{ cat.nome }}</option>{% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Local</label><input type="text" name="local" class="form-control"></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Freguesia</label><input type="text" name="freguesia" class="form-control"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3"><label class="form-label">Data Início</label><input type="date" name="data_inicio" class="form-control"></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Data Fim</label><input type="date" name="data_fim" class="form-control"></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Horário</label><input type="text" name="horario" class="form-control" placeholder="Ex: Sábados das 10h às 13h"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3"><label class="form-label">Vagas</label><input type="number" name="vagas" class="form-control" value="1" min="1"></div>
+                            <div class="col-md-4 mb-3"><label class="form-label">Idade Mínima</label><input type="number" name="idade_minima" class="form-control" min="0"></div>
+                        </div>
+                        <div class="mb-3"><label class="form-label">Requisitos</label><textarea name="requisitos" class="form-control" rows="2"></textarea></div>
+                        <button type="submit" class="btn btn-primary px-4">Criar Oportunidade</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

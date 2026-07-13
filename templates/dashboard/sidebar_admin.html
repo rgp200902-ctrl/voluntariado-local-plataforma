@@ -1,0 +1,17 @@
+<div class="list-group list-group-flush">
+    <a href="{% url 'accounts:admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a href="{% url 'accounts:admin_users' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
+        <i class="bi bi-people"></i> Utilizadores
+    </a>
+    <a href="{% url 'accounts:admin_institutions' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_institutions' %}active{% endif %}">
+        <i class="bi bi-building"></i> Instituições
+    </a>
+    <a href="{% url 'accounts:admin_categories' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_categories' %}active{% endif %}">
+        <i class="bi bi-tags"></i> Categorias
+    </a>
+    <a href="{% url 'accounts:admin_reports' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_reports' %}active{% endif %}">
+        <i class="bi bi-file-earmark-bar-graph"></i> Relatórios
+    </a>
+</div>

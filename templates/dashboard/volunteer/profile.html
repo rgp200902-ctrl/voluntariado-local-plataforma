@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Meu Perfil{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">{% include 'dashboard/sidebar_volunteer.html' %}</div>
+        <div class="col-md-9">
+            <h3 class="fw-bold mb-4">O Meu Perfil</h3>
+            <div class="card dashboard-card">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label class="form-label">Nome</label><input type="text" name="first_name" class="form-control" value="{{ user.first_name }}"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">Email</label><input type="email" class="form-control" value="{{ user.email }}" disabled></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label class="form-label">Telefone</label><input type="text" name="telefone" class="form-control" value="{{ volunteer.telefone|default:'' }}"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">Localidade</label><input type="text" name="localidade" class="form-control" value="{{ volunteer.localidade|default:'' }}"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label class="form-label">Data de Nascimento</label><input type="date" name="data_nascimento" class="form-control" value="{% if volunteer.data_nascimento %}{{ volunteer.data_nascimento|date:'Y-m-d' }}{% endif %}"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label">Faixa Etária</label>
+                                <select name="faixa_etaria" class="form-select">
+                                    <option value="">Seleciona...</option>
+                                    <option value="<18" {% if volunteer.faixa_etaria == '<18' %}selected{% endif %}>Menos de 18</option>
+                                    <option value="18-25" {% if volunteer.faixa_etaria == '18-25' %}selected{% endif %}>18-25 anos</option>
+                                    <option value="26-35" {% if volunteer.faixa_etaria == '26-35' %}selected{% endif %}>26-35 anos</option>
+                                    <option value="36-50" {% if volunteer.faixa_etaria == '36-50' %}selected{% endif %}>36-50 anos</option>
+                                    <option value="50+" {% if volunteer.faixa_etaria == '50+' %}selected{% endif %}>Mais de 50</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3"><label class="form-label">Disponibilidade</label><textarea name="disponibilidade" class="form-control" rows="2">{{ volunteer.disponibilidade|default:'' }}</textarea></div>
+                        <div class="mb-3"><label class="form-label">Áreas de Interesse</label><textarea name="interesses" class="form-control" rows="2">{{ volunteer.interesses|default:'' }}</textarea></div>
+                        <div class="mb-3"><label class="form-label">Competências</label><textarea name="competencias" class="form-control" rows="2">{{ volunteer.competencias|default:'' }}</textarea></div>
+                        <button type="submit" class="btn btn-primary px-4">Guardar Alterações</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

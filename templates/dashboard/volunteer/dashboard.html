@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Voluntário{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">{% include 'dashboard/sidebar_volunteer.html' %}</div>
+        <div class="col-md-9">
+            <h3 class="fw-bold mb-4">Dashboard Voluntário</h3>
+            <div class="row g-4 mb-4">
+                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-primary mb-0">{{ stats.total }}</h5><small class="text-muted">Total Inscrições</small></div></div>
+                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-success mb-0">{{ stats.ativas }}</h5><small class="text-muted">Ativas</small></div></div>
+                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-secondary mb-0">{{ stats.concluidas }}</h5><small class="text-muted">Concluídas</small></div></div>
+            </div>
+            <h6 class="fw-bold mb-3">Atividades Recentes</h6>
+            <div class="card dashboard-card">
+                <ul class="list-group list-group-flush">
+                    {% for a in atividades %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ a.acao }}</span>
+                        <small class="text-muted">{{ a.data_hora|date:'d/m/Y H:i' }}</small>
+                    </li>
+                    {% empty %}<li class="list-group-item text-muted">Nenhuma atividade registada.</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
