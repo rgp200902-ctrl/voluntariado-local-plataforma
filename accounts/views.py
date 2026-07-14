@@ -4,10 +4,11 @@ from django.contrib.auth import login, logout, authenticate, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count
+from django.utils import timezone
 from .forms import LoginForm, VolunteerRegisterForm, InstitutionRegisterForm
 from .models import User, Volunteer, Institution
 from oportunidades.models import Inscricao, Oportunidade
-from core.models import RegistoAtividade
+from core.models import RegistoAtividade, Notificacao, Certificado
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -74,15 +75,17 @@ def volunteer_dashboard(request):
         return redirect('core:home')
     volunteer, _ = Volunteer.objects.get_or_create(user=request.user)
     inscricoes = Inscricao.objects.filter(voluntario=request.user).select_related('oportunidade')
+    certificados = Certificado.objects.filter(voluntario=request.user).select_related('oportunidade', 'oportunidade__instituicao')
     stats = {
         'total': inscricoes.count(),
         'ativas': inscricoes.filter(estado__in=['submetida', 'aceite']).count(),
         'concluidas': inscricoes.filter(estado='concluida').count(),
-        'favoritos': 0,
+        'certificados': certificados.count(),
     }
     atividades_recentes = RegistoAtividade.objects.filter(utilizador=request.user).order_by('-data_hora')[:5]
     return render(request, 'dashboard/volunteer/dashboard.html', {
-        'volunteer': volunteer, 'inscricoes': inscricoes, 'stats': stats, 'atividades': atividades_recentes,
+        'volunteer': volunteer, 'inscricoes': inscricoes, 'stats': stats,
+        'atividades': atividades_recentes, 'certificados': certificados,
     })
 
 @login_required
@@ -97,8 +100,8 @@ def volunteer_profile(request):
         volunteer.competencias = request.POST.get('competencias', '')
         if request.POST.get('data_nascimento'):
             volunteer.data_nascimento = request.POST.get('data_nascimento')
-        if request.POST.get('avatar'):
-            volunteer.avatar = request.POST.get('avatar')
+        if request.FILES.get('avatar'):
+            volunteer.avatar = request.FILES['avatar']
         volunteer.save()
         if request.POST.get('first_name'):
             request.user.first_name = request.POST.get('first_name')
@@ -147,6 +150,8 @@ def institution_profile(request):
         institution.pessoa_contacto = request.POST.get('pessoa_contacto', '')
         institution.descricao = request.POST.get('descricao', '')
         institution.website = request.POST.get('website', '')
+        if request.FILES.get('logotipo'):
+            institution.logotipo = request.FILES['logotipo']
         institution.save()
         messages.success(request, 'Perfil atualizado com sucesso!')
         return redirect('accounts:institution_profile')
@@ -192,6 +197,20 @@ def admin_institutions(request):
         if new_status == 'aprovada':
             inst.user.is_active = True
             inst.user.save()
+            Notificacao.objects.create(
+                utilizador=inst.user,
+                titulo='Instituição Aprovada',
+                mensagem=f'A tua instituição "{inst.nome}" foi aprovada. Já podes publicar oportunidades.',
+                tipo='instituicao_aprovada',
+                link='/dashboard/instituicao/',
+            )
+        elif new_status == 'recusada':
+            Notificacao.objects.create(
+                utilizador=inst.user,
+                titulo='Instituição Recusada',
+                mensagem=f'A tua instituição "{inst.nome}" não foi aprovada. Contacta o administrador para mais informações.',
+                tipo='instituicao_recusada',
+            )
         messages.success(request, f'Instituição {inst.nome} atualizada para {inst.get_estado_validacao_display()}.')
         return redirect('accounts:admin_institutions')
     return render(request, 'dashboard/admin/institutions.html', {'institutions': institutions})
@@ -321,10 +340,33 @@ def gerir_inscricoes(request, id):
         inscricao_id = request.POST.get('inscricao_id')
         novo_estado = request.POST.get('estado')
         inscricao = get_object_or_404(Inscricao, id=inscricao_id, oportunidade=oportunidade)
-        from django.utils import timezone
         inscricao.estado = novo_estado
         inscricao.data_decisao = timezone.now()
         inscricao.save()
+        if novo_estado == 'aceite':
+            Notificacao.objects.create(
+                utilizador=inscricao.voluntario,
+                titulo='Inscrição Aceite',
+                mensagem=f'A tua inscrição na oportunidade "{oportunidade.titulo}" foi aceite pela instituição {oportunidade.instituicao.nome}.',
+                tipo='inscricao_aceite',
+                link=f'/oportunidades/{oportunidade.id}/',
+            )
+        elif novo_estado == 'recusada':
+            Notificacao.objects.create(
+                utilizador=inscricao.voluntario,
+                titulo='Inscrição Recusada',
+                mensagem=f'A tua inscrição na oportunidade "{oportunidade.titulo}" não foi aceite.',
+                tipo='inscricao_recusada',
+                link=f'/oportunidades/{oportunidade.id}/',
+            )
+        elif novo_estado == 'concluida':
+            Notificacao.objects.create(
+                utilizador=inscricao.voluntario,
+                titulo='Oportunidade Concluída',
+                mensagem=f'Parabéns! Completaste a oportunidade "{oportunidade.titulo}". Podes gerar o teu certificado.',
+                tipo='inscricao_concluida',
+                link=f'/certificados/{oportunidade.id}/gerar/',
+            )
         messages.success(request, f'Inscrição atualizada para "{inscricao.get_estado_display()}".')
         return redirect('accounts:gerir_inscricoes', id=id)
 
@@ -374,3 +416,140 @@ def password_reset(request):
             messages.warning(request, 'Email não encontrado na plataforma.')
         return redirect('accounts:login')
     return render(request, 'accounts/password_reset.html')
+
+# --- Notificações ---
+
+@login_required
+def notificacoes(request):
+    notificacoes = Notificacao.objects.filter(utilizador=request.user)
+    nao_lidas = notificacoes.filter(lida=False).count()
+    return render(request, 'dashboard/notificacoes.html', {
+        'notificacoes': notificacoes, 'nao_lidas': nao_lidas,
+    })
+
+@login_required
+def marcar_notificacao_lida(request, id):
+    notificacao = get_object_or_404(Notificacao, id=id, utilizador=request.user)
+    notificacao.marcar_como_lida()
+    if notificacao.link:
+        return redirect(notificacao.link)
+    return redirect('accounts:notificacoes')
+
+@login_required
+def marcar_todas_lidas(request):
+    Notificacao.objects.filter(utilizador=request.user, lida=False).update(lida=True)
+    messages.success(request, 'Todas as notificações foram marcadas como lidas.')
+    return redirect('accounts:notificacoes')
+
+# --- Certificados ---
+
+@login_required
+def gerar_certificado(request, oportunidade_id):
+    if request.user.perfil != 'voluntario':
+        messages.error(request, 'Acesso negado.')
+        return redirect('core:home')
+    inscricao = get_object_or_404(Inscricao, oportunidade_id=oportunidade_id, voluntario=request.user, estado='concluida')
+    oportunidade = inscricao.oportunidade
+
+    certificado, created = Certificado.objects.get_or_create(
+        voluntario=request.user,
+        oportunidade=oportunidade,
+        defaults={
+            'instituicao_nome': oportunidade.instituicao.nome,
+            'horas_voluntariado': 8,
+            'descricao_atividade': oportunidade.descricao[:200] if oportunidade.descricao else '',
+        }
+    )
+    return render(request, 'dashboard/volunteer/certificado.html', {
+        'certificado': certificado, 'oportunidade': oportunidade,
+    })
+
+@login_required
+def download_certificado(request, oportunidade_id):
+    if request.user.perfil != 'voluntario':
+        messages.error(request, 'Acesso negado.')
+        return redirect('core:home')
+    inscricao = get_object_or_404(Inscricao, oportunidade_id=oportunidade_id, voluntario=request.user, estado='concluida')
+    oportunidade = inscricao.oportunidade
+
+    certificado, created = Certificado.objects.get_or_create(
+        voluntario=request.user,
+        oportunidade=oportunidade,
+        defaults={
+            'instituicao_nome': oportunidade.instituicao.nome,
+            'horas_voluntariado': 8,
+            'descricao_atividade': oportunidade.descricao[:200] if oportunidade.descricao else '',
+        }
+    )
+
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.lib.units import cm
+    from reportlab.lib.colors import HexColor
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.utils import simpleSplit
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="certificado-{oportunidade.titulo}.pdf"'
+
+    c = canvas.Canvas(response, pagesize=landscape(A4))
+    width, height = landscape(A4)
+
+    c.setFillColor(HexColor('#0d6efd'))
+    c.rect(0, 0, width, height, fill=True)
+
+    c.setFillColor(HexColor('#ffffff'))
+    c.setStrokeColor(HexColor('#ffffff'))
+
+    margin = 2 * cm
+    inner_w = width - 2 * margin
+    inner_h = height - 2 * margin
+    c.roundRect(margin, margin, inner_w, inner_h, 15, fill=False, stroke=True)
+
+    y = height - 3 * cm
+
+    c.setFont('Helvetica-Bold', 32)
+    c.drawCentredString(width / 2, y, 'Certificado de Voluntariado')
+
+    y -= 1.5 * cm
+    c.setFont('Helvetica', 14)
+    c.drawCentredString(width / 2, y, 'Este certificado atesta a participação em atividade de voluntariado')
+
+    y -= 2 * cm
+    c.setFont('Helvetica-Bold', 20)
+    nome_voluntario = certificado.voluntario.get_full_name() or certificado.voluntario.email
+    c.drawCentredString(width / 2, y, nome_voluntario)
+
+    y -= 1.5 * cm
+    c.setFont('Helvetica', 13)
+    c.drawCentredString(width / 2, y, f'participou na oportunidade')
+
+    y -= 1.2 * cm
+    c.setFont('Helvetica-Bold', 16)
+    c.setFillColor(HexColor('#ffd700'))
+    c.drawCentredString(width / 2, y, f'"{oportunidade.titulo}"')
+
+    c.setFillColor(HexColor('#ffffff'))
+    y -= 1.5 * cm
+    c.setFont('Helvetica', 12)
+    c.drawCentredString(width / 2, y, f'organizada por {certificado.instituicao_nome}')
+
+    if certificado.horas_voluntariado:
+        y -= 1 * cm
+        c.setFont('Helvetica', 12)
+        c.drawCentredString(width / 2, y, f'Duração: {certificado.horas_voluntariado} horas')
+
+    y -= 2.5 * cm
+    c.setFont('Helvetica', 10)
+    c.drawCentredString(width / 2, y, f'Certificado emitido em {certificado.data_emissao.strftime("%d/%m/%Y")}')
+    y -= 0.6 * cm
+    c.setFont('Helvetica', 9)
+    c.drawCentredString(width / 2, y, f'Código de verificação: {certificado.codigo_verificacao}')
+
+    c.save()
+    return response
+
+@login_required
+def minhas_notificacoes_count(request):
+    if request.user.is_authenticated:
+        return Notificacao.objects.filter(utilizador=request.user, lida=False).count()
+    return 0

@@ -17,7 +17,10 @@
                                 <td>{{ i.oportunidade.instituicao.nome }}</td>
                                 <td><small class="text-muted">{{ i.data_inscricao|date:'d/m/Y' }}</small></td>
                                 <td><span class="badge bg-{% if i.estado == 'aceite' %}success{% elif i.estado == 'recusada' %}danger{% elif i.estado == 'cancelada' %}secondary{% elif i.estado == 'concluida' %}info{% else %}warning{% endif %}">{{ i.get_estado_display }}</span></td>
-                                <td>{% if i.estado == 'submetida' %}<a href="{% url 'oportunidades:cancelar_inscricao' i.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tens a certeza?')">Cancelar</a>{% endif %}</td>
+                                <td>
+                                    {% if i.estado == 'submetida' %}<a href="{% url 'oportunidades:cancelar_inscricao' i.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tens a certeza?')">Cancelar</a>
+                                    {% elif i.estado == 'concluida' %}<a href="{% url 'accounts:gerar_certificado' i.oportunidade.id %}" class="btn btn-sm btn-success"><i class="bi bi-award me-1"></i>Certificado</a>
+                                    {% endif %}
                             </tr>
                             {% empty %}<tr><td colspan="5" class="text-center text-muted py-4">Nenhuma inscrição encontrada.</td></tr>{% endfor %}
                         </tbody>

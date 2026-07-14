@@ -5,14 +5,21 @@
     <div class="row">
         <div class="col-md-3">{% include 'dashboard/sidebar_volunteer.html' %}</div>
         <div class="col-md-9">
-            <h3 class="fw-bold mb-4">Dashboard Voluntário</h3>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold mb-0">Dashboard Voluntário</h3>
+                <a href="{% url 'accounts:notificacoes' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-bell me-1"></i>Notificações
+                    {% if notificacoes_nao_lidas > 0 %}<span class="badge bg-danger">{{ notificacoes_nao_lidas }}</span>{% endif %}
+                </a>
+            </div>
             <div class="row g-4 mb-4">
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-primary mb-0">{{ stats.total }}</h5><small class="text-muted">Total Inscrições</small></div></div>
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-success mb-0">{{ stats.ativas }}</h5><small class="text-muted">Ativas</small></div></div>
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-secondary mb-0">{{ stats.concluidas }}</h5><small class="text-muted">Concluídas</small></div></div>
+                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-primary mb-0">{{ stats.total }}</h5><small class="text-muted">Total Inscrições</small></div></div>
+                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-success mb-0">{{ stats.ativas }}</h5><small class="text-muted">Ativas</small></div></div>
+                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-secondary mb-0">{{ stats.concluidas }}</h5><small class="text-muted">Concluídas</small></div></div>
+                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-info mb-0">{{ stats.certificados }}</h5><small class="text-muted">Certificados</small></div></div>
             </div>
             <h6 class="fw-bold mb-3">Atividades Recentes</h6>
-            <div class="card dashboard-card">
+            <div class="card dashboard-card mb-4">
                 <ul class="list-group list-group-flush">
                     {% for a in atividades %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -21,6 +28,27 @@
                     </li>
                     {% empty %}<li class="list-group-item text-muted">Nenhuma atividade registada.</li>{% endfor %}
                 </ul>
+            </div>
+            <h6 class="fw-bold mb-3">Os Meus Certificados</h6>
+            <div class="card dashboard-card">
+                <div class="list-group list-group-flush">
+                    {% for cert in certificados %}
+                    <a href="{% url 'accounts:gerar_certificado' cert.oportunidade.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-award-fill text-warning me-2"></i>
+                            <strong>{{ cert.oportunidade.titulo }}</strong>
+                            <small class="text-muted d-block">{{ cert.instituicao_nome }} - {{ cert.horas_voluntariado }}h</small>
+                        </div>
+                        <span class="badge bg-success">Emitido</span>
+                    </a>
+                    {% empty %}
+                    <div class="list-group-item text-center text-muted py-4">
+                        <i class="bi bi-award" style="font-size:2rem;"></i>
+                        <p class="mt-2 mb-0">Ainda não tens certificados.</p>
+                        <small>Conclui oportunidades para gerar certificados.</small>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>

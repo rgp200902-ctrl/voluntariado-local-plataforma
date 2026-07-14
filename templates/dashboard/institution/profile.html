@@ -8,14 +8,29 @@
             <h3 class="fw-bold mb-4">Perfil da Instituição</h3>
             <div class="card dashboard-card">
                 <div class="card-body p-4">
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label">Nome</label><input type="text" name="nome" class="form-control" value="{{ institution.nome }}"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">NIF</label><input type="text" name="nif" class="form-control" value="{{ institution.nif|default:'' }}"></div>
+                        <div class="text-center mb-4">
+                            {% if institution.logotipo %}
+                            <img src="{{ institution.logotipo.url }}" alt="Logótipo" class="rounded-circle mb-2" style="width:100px;height:100px;object-fit:cover;border:3px solid var(--primary);">
+                            {% else %}
+                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width:100px;height:100px;background:var(--primary);color:white;font-size:2.5rem;">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <label for="logotipo" class="btn btn-outline-primary btn-sm mt-2" style="cursor:pointer;">
+                                    <i class="bi bi-camera me-1"></i>Alterar Logótipo
+                                </label>
+                                <input type="file" name="logotipo" id="logotipo" accept="image/*" class="d-none">
+                            </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label">Tipo</label>
+                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Nome</label><input type="text" name="nome" class="form-control" value="{{ institution.nome }}"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">NIF</label><input type="text" name="nif" class="form-control" value="{{ institution.nif|default:'' }}"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Tipo</label>
                                 <select name="tipo" class="form-select">
                                     <option value="">Seleciona...</option>
                                     <option value="ipss" {% if institution.tipo == 'ipss' %}selected{% endif %}>IPSS</option>
@@ -25,16 +40,16 @@
                                     <option value="outro" {% if institution.tipo == 'outro' %}selected{% endif %}>Outro</option>
                                 </select>
                             </div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Telefone</label><input type="text" name="telefone" class="form-control" value="{{ institution.telefone|default:'' }}"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Telefone</label><input type="text" name="telefone" class="form-control" value="{{ institution.telefone|default:'' }}"></div>
                         </div>
-                        <div class="mb-3"><label class="form-label">Morada</label><input type="text" name="morada" class="form-control" value="{{ institution.morada|default:'' }}"></div>
+                        <div class="mb-3"><label class="form-label fw-medium">Morada</label><input type="text" name="morada" class="form-control" value="{{ institution.morada|default:'' }}"></div>
                         <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label">Pessoa de Contacto</label><input type="text" name="pessoa_contacto" class="form-control" value="{{ institution.pessoa_contacto|default:'' }}"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Website</label><input type="url" name="website" class="form-control" value="{{ institution.website|default:'' }}"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Pessoa de Contacto</label><input type="text" name="pessoa_contacto" class="form-control" value="{{ institution.pessoa_contacto|default:'' }}"></div>
+                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Website</label><input type="url" name="website" class="form-control" value="{{ institution.website|default:'' }}"></div>
                         </div>
-                        <div class="mb-3"><label class="form-label">Descrição</label><textarea name="descricao" class="form-control" rows="3">{{ institution.descricao|default:'' }}</textarea></div>
+                        <div class="mb-3"><label class="form-label fw-medium">Descrição</label><textarea name="descricao" class="form-control" rows="3">{{ institution.descricao|default:'' }}</textarea></div>
                         <div class="mb-3"><span class="badge bg-{% if institution.estado_validacao == 'aprovada' %}success{% elif institution.estado_validacao == 'pendente' %}warning{% else %}danger{% endif %}">{{ institution.get_estado_validacao_display }}</span></div>
-                        <button type="submit" class="btn btn-primary px-4">Guardar Alterações</button>
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">Guardar Alterações</button>
                     </form>
                 </div>
             </div>

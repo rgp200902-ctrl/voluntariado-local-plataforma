@@ -35,7 +35,7 @@ class Volunteer(models.Model):
     competencias = models.TextField(blank=True, null=True)
     consentimento_rgpd = models.BooleanField(default=False)
     data_consentimento = models.DateTimeField(null=True, blank=True)
-    avatar = models.TextField(blank=True, null=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     data_criacao = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 

@@ -2,3 +2,4 @@ django>=5.0
 whitenoise>=6.0
 gunicorn>=20.0
 Pillow>=10.0
+reportlab>=4.0

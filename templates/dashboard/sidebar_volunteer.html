@@ -8,6 +8,10 @@
     <a href="{% url 'accounts:volunteer_registrations' %}" class="sidebar-link {% if request.resolver_match.url_name == 'volunteer_registrations' %}active{% endif %}">
         <i class="bi bi-card-list"></i> Inscrições
     </a>
+    <a href="{% url 'accounts:notificacoes' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notificacoes' %}active{% endif %}">
+        <i class="bi bi-bell"></i> Notificações
+        {% if notificacoes_nao_lidas > 0 %}<span class="badge bg-danger ms-auto">{{ notificacoes_nao_lidas }}</span>{% endif %}
+    </a>
     <a href="{% url 'accounts:volunteer_history' %}" class="sidebar-link {% if request.resolver_match.url_name == 'volunteer_history' %}active{% endif %}">
         <i class="bi bi-clock-history"></i> Histórico
     </a>

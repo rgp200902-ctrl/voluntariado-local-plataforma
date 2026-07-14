@@ -14,4 +14,8 @@
     <a href="{% url 'accounts:admin_reports' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_reports' %}active{% endif %}">
         <i class="bi bi-file-earmark-bar-graph"></i> Relatórios
     </a>
+    <a href="{% url 'accounts:notificacoes' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notificacoes' %}active{% endif %}">
+        <i class="bi bi-bell"></i> Notificações
+        {% if notificacoes_nao_lidas > 0 %}<span class="badge bg-danger ms-auto">{{ notificacoes_nao_lidas }}</span>{% endif %}
+    </a>
 </div>

@@ -26,4 +26,9 @@ urlpatterns = [
     path('dashboard/admin/categorias/', views.admin_categories, name='admin_categories'),
     path('dashboard/admin/relatorios/', views.admin_reports, name='admin_reports'),
     path('password-reset/', views.password_reset, name='password_reset'),
+    path('notificacoes/', views.notificacoes, name='notificacoes'),
+    path('notificacoes/<int:id>/ler/', views.marcar_notificacao_lida, name='marcar_notificacao_lida'),
+    path('notificacoes/todas-lidas/', views.marcar_todas_lidas, name='marcar_todas_lidas'),
+    path('certificados/<int:oportunidade_id>/gerar/', views.gerar_certificado, name='gerar_certificado'),
+    path('certificados/<int:oportunidade_id>/download/', views.download_certificado, name='download_certificado'),
 ]

@@ -5,7 +5,11 @@
     <a href="{% url 'accounts:institution_profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'institution_profile' %}active{% endif %}">
         <i class="bi bi-building"></i> Perfil
     </a>
-    <a href="{% url 'accounts:criar_oportunidade' %}" class="sidebar-link {% if request.resolver_match.url_name == 'criar_oportunidade' %}active{% endif %}" class="sidebar-link {% if request.resolver_match.url_name == 'criar_oportunidade' %}active{% endif %}">
+    <a href="{% url 'accounts:criar_oportunidade' %}" class="sidebar-link {% if request.resolver_match.url_name == 'criar_oportunidade' %}active{% endif %}">
         <i class="bi bi-plus-circle"></i> Nova Oportunidade
+    </a>
+    <a href="{% url 'accounts:notificacoes' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notificacoes' %}active{% endif %}">
+        <i class="bi bi-bell"></i> Notificações
+        {% if notificacoes_nao_lidas > 0 %}<span class="badge bg-danger ms-auto">{{ notificacoes_nao_lidas }}</span>{% endif %}
     </a>
 </div>
