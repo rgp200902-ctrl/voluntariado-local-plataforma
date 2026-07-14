@@ -17,6 +17,7 @@ class Categoria(models.Model):
 class Oportunidade(models.Model):
     ESTADO_CHOICES = [
         ('rascunho', 'Rascunho'),
+        ('pendente', 'Pendente de Aprovação'),
         ('aberta', 'Aberta'),
         ('publicada', 'Publicada'),
         ('inscricoes_encerradas', 'Inscrições Encerradas'),

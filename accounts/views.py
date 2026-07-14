@@ -132,6 +132,7 @@ def institution_dashboard(request):
     stats = {
         'total': oportunidades.count(),
         'ativas': oportunidades.filter(estado__in=['aberta', 'publicada']).count(),
+        'pendentes': oportunidades.filter(estado='pendente').count(),
         'inscricoes': Inscricao.objects.filter(oportunidade__instituicao=institution).count(),
     }
     return render(request, 'dashboard/institution/dashboard.html', {
@@ -171,6 +172,7 @@ def admin_dashboard(request):
         'oportunidades': Oportunidade.objects.count(),
         'inscricoes': Inscricao.objects.count(),
         'instituicoes_pendentes': Institution.objects.filter(estado_validacao='pendente').count(),
+        'oportunidades_pendentes': Oportunidade.objects.filter(estado='pendente').count(),
     }
     return render(request, 'dashboard/admin/dashboard.html', {'stats': stats})
 
@@ -249,6 +251,59 @@ def admin_reports(request):
     }
     return render(request, 'dashboard/admin/reports.html', {'stats': stats})
 
+@login_required
+def admin_oportunidades(request):
+    if request.user.perfil != 'administrador':
+        messages.error(request, 'Acesso negado.')
+        return redirect('core:home')
+    from oportunidades.models import Oportunidade
+    filtro = request.GET.get('filtro', 'pendentes')
+    if filtro == 'pendentes':
+        oportunidades = Oportunidade.objects.filter(estado='pendente').select_related('instituicao', 'categoria').order_by('-criada_em')
+    elif filtro == 'aprovadas':
+        oportunidades = Oportunidade.objects.filter(estado__in=['publicada', 'aberta']).select_related('instituicao', 'categoria').order_by('-criada_em')
+    elif filtro == 'recusadas':
+        oportunidades = Oportunidade.objects.filter(estado='cancelada').select_related('instituicao', 'categoria').order_by('-criada_em')
+    else:
+        oportunidades = Oportunidade.objects.all().select_related('instituicao', 'categoria').order_by('-criada_em')
+    pendentes_count = Oportunidade.objects.filter(estado='pendente').count()
+    return render(request, 'dashboard/admin/oportunidades.html', {
+        'oportunidades': oportunidades, 'filtro': filtro, 'pendentes_count': pendentes_count,
+    })
+
+@login_required
+def admin_aprovar_oportunidade(request, id):
+    if request.user.perfil != 'administrador':
+        messages.error(request, 'Acesso negado.')
+        return redirect('core:home')
+    from oportunidades.models import Oportunidade
+    oportunidade = get_object_or_404(Oportunidade, id=id)
+    if request.method == 'POST':
+        acao = request.POST.get('acao')
+        if acao == 'aprovar':
+            oportunidade.estado = 'publicada'
+            oportunidade.save()
+            Notificacao.objects.create(
+                utilizador=oportunidade.instituicao.user,
+                titulo='Oportunidade Aprovada',
+                mensagem=f'A tua oportunidade "{oportunidade.titulo}" foi aprovada e está agora pública.',
+                tipo='nova_oportunidade',
+                link=f'/oportunidades/{oportunidade.id}/',
+            )
+            messages.success(request, f'Oportunidade "{oportunidade.titulo}" aprovada com sucesso.')
+        elif acao == 'recusar':
+            oportunidade.estado = 'cancelada'
+            oportunidade.save()
+            Notificacao.objects.create(
+                utilizador=oportunidade.instituicao.user,
+                titulo='Oportunidade Recusada',
+                mensagem=f'A tua oportunidade "{oportunidade.titulo}" não foi aprovada pelo administrador. Motivo: {request.POST.get("motivo", "Não especificado.")}',
+                tipo='sistema',
+            )
+            messages.warning(request, f'Oportunidade "{oportunidade.titulo}" recusada.')
+        return redirect('accounts:admin_oportunidades')
+    return render(request, 'dashboard/admin/detalhe_oportunidade.html', {'oportunidade': oportunidade})
+
 # -- Institution Opportunity Management --
 
 @login_required
@@ -273,9 +328,15 @@ def criar_oportunidade(request):
             vagas=request.POST.get('vagas', 1),
             requisitos=request.POST.get('requisitos', ''),
             idade_minima=request.POST.get('idade_minima') or None,
-            estado='publicada',
+            estado='pendente',
         )
-        messages.success(request, 'Oportunidade criada com sucesso!')
+        Notificacao.objects.create(
+            utilizador=institution.user,
+            titulo='Oportunidade Submetida',
+            mensagem=f'A tua oportunidade "{oportunidade.titulo}" foi submetida para aprovação pelo administrador.',
+            tipo='sistema',
+        )
+        messages.success(request, 'Oportunidade criada e enviada para aprovação!')
         return redirect('accounts:institution_dashboard')
 
     return render(request, 'dashboard/institution/create_opportunity.html', {'categorias': categorias})

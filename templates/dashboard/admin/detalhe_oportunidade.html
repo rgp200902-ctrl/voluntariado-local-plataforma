@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Avaliar Oportunidade{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-3">{% include 'dashboard/sidebar_admin.html' %}</div>
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold mb-0">Avaliar Oportunidade</h3>
+                <a href="{% url 'accounts:admin_oportunidades' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
+            </div>
+            <div class="card dashboard-card mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h4 class="fw-bold mb-1">{{ oportunidade.titulo }}</h4>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-building me-1"></i>{{ oportunidade.instituicao.nome }}
+                                {% if oportunidade.categoria %} <span class="badge bg-primary-subtle text-primary ms-2">{{ oportunidade.categoria.nome }}</span>{% endif %}
+                            </p>
+                        </div>
+                        <span class="badge bg-{% if oportunidade.estado == 'pendente' %}warning{% elif oportunidade.estado == 'publicada' %}success{% else %}secondary{% endif %} fs-6">{{ oportunidade.get_estado_display }}</span>
+                    </div>
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-muted">Descrição</h6>
+                            <p>{{ oportunidade.descricao|linebreaksbr }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-muted">Detalhes</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-geo-alt text-primary me-2"></i>{{ oportunidade.local|default:'Não definido' }}{% if oportunidade.freguesia %}, {{ oportunidade.freguesia }}{% endif %}</li>
+                                <li><i class="bi bi-calendar text-primary me-2"></i>{% if oportunidade.data_inicio %}{{ oportunidade.data_inicio|date:'d/m/Y' }}{% else %}Por definir{% endif %}{% if oportunidade.data_fim %} - {{ oportunidade.data_fim|date:'d/m/Y' }}{% endif %}</li>
+                                <li><i class="bi bi-clock text-primary me-2"></i>{{ oportunidade.horario|default:'Por definir' }}</li>
+                                <li><i class="bi bi-people text-primary me-2"></i>{{ oportunidade.vagas }} vagas</li>
+                                {% if oportunidade.idade_minima %}<li><i class="bi bi-person-check text-primary me-2"></i>Idade mínima: {{ oportunidade.idade_minima }} anos</li>{% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% if oportunidade.requisitos %}
+                    <div class="mb-3">
+                        <h6 class="fw-bold text-muted">Requisitos</h6>
+                        <p>{{ oportunidade.requisitos|linebreaksbr }}</p>
+                    </div>
+                    {% endif %}
+                    <div class="mb-2">
+                        <small class="text-muted">Criada em {{ oportunidade.criada_em|date:'d/m/Y H:i' }}</small>
+                    </div>
+                </div>
+            </div>
+            {% if oportunidade.estado == 'pendente' %}
+            <div class="card dashboard-card border-warning">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <i class="bi bi-exclamation-triangle me-1"></i>Aprovar ou Recusar
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Motivo (obrigatório para recusa)</label>
+                            <textarea name="motivo" class="form-control" rows="3" placeholder="Se recusar, indica o motivo..."></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" name="acao" value="aprovar" class="btn btn-success px-4 py-2 fw-bold">
+                                <i class="bi bi-check-lg me-1"></i>Aprovar
+                            </button>
+                            <button type="submit" name="acao" value="recusar" class="btn btn-danger px-4 py-2 fw-bold" onclick="return confirm('Tens a certeza que queres recusar esta oportunidade?')">
+                                <i class="bi bi-x-lg me-1"></i>Recusar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

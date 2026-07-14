@@ -7,13 +7,25 @@
         <div class="col-md-9">
             <h3 class="fw-bold mb-4">Dashboard Administrativo</h3>
             <div class="row g-4">
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-primary mb-0">{{ stats.utilizadores }}</h5><small class="text-muted">Total Utilizadores</small></div></div>
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-success mb-0">{{ stats.voluntarios }}</h5><small class="text-muted">Voluntários</small></div></div>
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-info mb-0">{{ stats.instituicoes }}</h5><small class="text-muted">Instituições</small></div></div>
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-warning mb-0">{{ stats.oportunidades }}</h5><small class="text-muted">Oportunidades</small></div></div>
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-secondary mb-0">{{ stats.inscricoes }}</h5><small class="text-muted">Inscrições</small></div></div>
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-danger mb-0">{{ stats.instituicoes_pendentes }}</h5><small class="text-muted">Inst. Pendentes</small></div></div>
+                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-primary mb-0">{{ stats.utilizadores }}</h5><small class="text-muted">Total Utilizadores</small></div></div>
+                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-success mb-0">{{ stats.voluntarios }}</h5><small class="text-muted">Voluntários</small></div></div>
+                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-info mb-0">{{ stats.instituicoes }}</h5><small class="text-muted">Instituições</small></div></div>
+                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-warning mb-0">{{ stats.oportunidades_pendentes }}</h5><small class="text-muted">Oportunidades Pendentes</small></div></div>
             </div>
+            <div class="row g-4 mt-2">
+                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-secondary mb-0">{{ stats.inscricoes }}</h5><small class="text-muted">Total Inscrições</small></div></div>
+                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-danger mb-0">{{ stats.instituicoes_pendentes }}</h5><small class="text-muted">Inst. Pendentes</small></div></div>
+                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-primary mb-0">{{ stats.oportunidades }}</h5><small class="text-muted">Total Oportunidades</small></div></div>
+            </div>
+            {% if stats.oportunidades_pendentes > 0 %}
+            <div class="alert alert-warning d-flex align-items-center mt-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <div>
+                    Tens <strong>{{ stats.oportunidades_pendentes }}</strong> oportunidade(s) pendente(s) de aprovação.
+                    <a href="{% url 'accounts:admin_oportunidades' %}?filtro=pendentes" class="alert-link fw-bold">Rever agora</a>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
