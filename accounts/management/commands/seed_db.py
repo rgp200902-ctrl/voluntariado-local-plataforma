@@ -118,7 +118,9 @@ class Command(BaseCommand):
         ]
 
         count = 0
+        pendente_count = 0
         for titulo, instituicao, cat_nome, local, descricao, vagas, data_str in oportunidades_data:
+            estado = 'pendente' if pendente_count < 5 else 'publicada'
             op, created = Oportunidade.objects.get_or_create(
                 titulo=titulo, instituicao=instituicao,
                 defaults={
@@ -127,11 +129,13 @@ class Command(BaseCommand):
                     'local': local,
                     'vagas': vagas,
                     'data_inicio': datetime.strptime(data_str, '%Y-%m-%d').replace(tzinfo=tz.utc),
-                    'estado': 'publicada',
+                    'estado': estado,
                 }
             )
             if created:
                 count += 1
+                if estado == 'pendente':
+                    pendente_count += 1
 
-        self.stdout.write(self.style.SUCCESS(f'{count} oportunidades criadas.'))
+        self.stdout.write(self.style.SUCCESS(f'{count} oportunidades criadas ({pendente_count} pendentes de aprovação).'))
         self.stdout.write(self.style.SUCCESS('Seed completo!'))

@@ -11,7 +11,18 @@
 
     <div class="row">
         <div class="col-lg-8">
-            <h1 class="fw-bold mb-3">{{ oportunidade.titulo }}</h1>
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h1 class="fw-bold">{{ oportunidade.titulo }}</h1>
+                {% if user.is_authenticated and user.perfil == 'voluntario' %}
+                <a href="{% url 'oportunidades:toggle_favorito' oportunidade.id %}" class="btn btn-lg p-0 ms-3" title="{% if favoritado %}Remover dos favoritos{% else %}Adicionar aos favoritos{% endif %}" style="border:none;background:none;">
+                    {% if favoritado %}
+                    <i class="bi bi-heart-fill text-danger"></i>
+                    {% else %}
+                    <i class="bi bi-heart text-muted"></i>
+                    {% endif %}
+                </a>
+                {% endif %}
+            </div>
             <p class="lead text-muted">{{ oportunidade.descricao }}</p>
 
             <div class="row g-3 my-4">
@@ -55,6 +66,26 @@
                 <p class="text-muted">{{ oportunidade.horario }}</p>
             </div>
             {% endif %}
+
+            <div class="mb-4">
+                <h6 class="fw-bold mb-3">Partilhar</h6>
+                <div class="d-flex gap-2">
+                    {% with share_url=request.build_absolute_uri share_text=oportunidade.titulo %}
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ share_url|urlencode }}" target="_blank" class="btn btn-outline-primary btn-sm" title="Facebook">
+                        <i class="bi bi-facebook"></i> Facebook
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url={{ share_url|urlencode }}&text={{ share_text|urlencode }}" target="_blank" class="btn btn-outline-info btn-sm" title="Twitter/X">
+                        <i class="bi bi-twitter-x"></i> Twitter
+                    </a>
+                    <a href="https://wa.me/?text={{ share_text|urlencode }}%20{{ share_url|urlencode }}" target="_blank" class="btn btn-outline-success btn-sm" title="WhatsApp">
+                        <i class="bi bi-whatsapp"></i> WhatsApp
+                    </a>
+                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ share_url|urlencode }}" target="_blank" class="btn btn-outline-secondary btn-sm" title="LinkedIn">
+                        <i class="bi bi-linkedin"></i> LinkedIn
+                    </a>
+                    {% endwith %}
+                </div>
+            </div>
         </div>
 
         <div class="col-lg-4">
@@ -62,12 +93,14 @@
                 <div class="card-body p-4 text-center">
                     {% if user.is_authenticated and user.perfil == 'voluntario' %}
                         {% if inscrito %}
-                            <div class="alert alert-success">✅ Inscrito com sucesso!</div>
+                            <div class="alert alert-success mb-3">
+                                <i class="bi bi-check-circle-fill me-1"></i>Inscrito com sucesso!
+                            </div>
                         {% else %}
                             <form method="post" action="{% url 'oportunidades:inscrever' oportunidade.id %}">
                                 {% csrf_token %}
                                 <div class="mb-3">
-                                    <label class="form-label">Mensagem (opcional)</label>
+                                    <label class="form-label fw-medium">Mensagem (opcional)</label>
                                     <textarea name="mensagem" class="form-control" rows="3" placeholder="Diz porque queres participar..."></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Inscrever-me</button>
@@ -77,7 +110,7 @@
                         <p class="text-muted">Apenas voluntários podem inscrever-se.</p>
                     {% else %}
                         <p class="text-muted">Faz login para te inscreveres.</p>
-                        <a href="{% url 'accounts:login' %}" class="btn btn-primary w-100">Entrar</a>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-primary w-100 py-2 fw-bold">Entrar</a>
                     {% endif %}
                 </div>
             </div>

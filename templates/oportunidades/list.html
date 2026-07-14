@@ -24,6 +24,14 @@
         </div>
     </form>
 
+    {% if user.is_authenticated and user.perfil == 'voluntario' %}
+    <div class="mb-3">
+        <a href="{% url 'oportunidades:favoritos' %}" class="btn btn-outline-danger btn-sm">
+            <i class="bi bi-heart-fill me-1"></i>Os Meus Favoritos
+        </a>
+    </div>
+    {% endif %}
+
     <div class="row g-4">
         {% for op in oportunidades %}
         <div class="col-md-4">
@@ -31,10 +39,21 @@
                 <div class="card-body p-4 d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <h5 class="fw-bold mb-0">{{ op.titulo }}</h5>
-                        {% if op.categoria %}<span class="badge bg-primary-subtle text-primary">{{ op.categoria.nome }}</span>{% endif %}
+                        <div class="d-flex gap-1">
+                            {% if op.categoria %}<span class="badge bg-primary-subtle text-primary">{{ op.categoria.nome }}</span>{% endif %}
+                            {% if user.is_authenticated and user.perfil == 'voluntario' %}
+                            <a href="{% url 'oportunidades:toggle_favorito' op.id %}" class="btn btn-sm p-0" title="{% if op.id in favoritos_ids %}Remover dos favoritos{% else %}Adicionar aos favoritos{% endif %}" style="border:none;background:none;">
+                                {% if op.id in favoritos_ids %}
+                                <i class="bi bi-heart-fill text-danger"></i>
+                                {% else %}
+                                <i class="bi bi-heart text-muted"></i>
+                                {% endif %}
+                            </a>
+                            {% endif %}
+                        </div>
                     </div>
                     <p class="text-primary small mb-1 fw-medium">{{ op.instituicao.nome }}</p>
-                    <p class="text-muted small mb-2">📍 {{ op.local|default:'Portugal' }} • {% if op.data_inicio %}{{ op.data_inicio|date:'d/m/Y' }}{% endif %}</p>
+                    <p class="text-muted small mb-2"><i class="bi bi-geo-alt"></i> {{ op.local|default:'Portugal' }} {% if op.data_inicio %} &bull; {{ op.data_inicio|date:'d/m/Y' }}{% endif %}</p>
                     <p class="text-muted small flex-grow-1">{{ op.descricao|truncatewords:25 }}</p>
                     <div class="mb-3">
                         <div class="d-flex justify-content-between text-muted small"><span>{{ op.registrations.count }} inscritos</span><span>{{ op.vagas }} vagas</span></div>

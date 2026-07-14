@@ -71,3 +71,16 @@ class Inscricao(models.Model):
 
     def __str__(self):
         return f'{self.voluntario.get_full_name() or self.voluntario.email} -> {self.oportunidade.titulo}'
+
+class Favorito(models.Model):
+    voluntario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favoritos')
+    oportunidade = models.ForeignKey(Oportunidade, on_delete=models.CASCADE, related_name='favoritos')
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Favorito'
+        verbose_name_plural = 'Favoritos'
+        unique_together = ['voluntario', 'oportunidade']
+
+    def __str__(self):
+        return f'{self.voluntario.email} favoritou {self.oportunidade.titulo}'

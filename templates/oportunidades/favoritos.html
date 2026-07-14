@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Os Meus Favoritos{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0"><i class="bi bi-heart-fill text-danger me-2"></i>Os Meus Favoritos</h3>
+        <a href="{% url 'oportunidades:list' %}" class="btn btn-outline-primary"><i class="bi bi-arrow-left me-1"></i>Ver Oportunidades</a>
+    </div>
+    <div class="row g-4">
+        {% for fav in favoritos %}
+        <div class="col-md-4">
+            <div class="card op-card h-100 border-0 shadow-sm">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="fw-bold mb-0">{{ fav.oportunidade.titulo }}</h5>
+                        {% if fav.oportunidade.categoria %}<span class="badge bg-primary-subtle text-primary">{{ fav.oportunidade.categoria.nome }}</span>{% endif %}
+                    </div>
+                    <p class="text-primary small mb-1 fw-medium">{{ fav.oportunidade.instituicao.nome }}</p>
+                    <p class="text-muted small mb-2">
+                        <i class="bi bi-geo-alt"></i> {{ fav.oportunidade.local|default:'Portugal' }}
+                        {% if fav.oportunidade.data_inicio %} &bull; {{ fav.oportunidade.data_inicio|date:'d/m/Y' }}{% endif %}
+                    </p>
+                    <p class="text-muted small flex-grow-1">{{ fav.oportunidade.descricao|truncatewords:25 }}</p>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'oportunidades:detail' fav.oportunidade.id %}" class="btn btn-primary flex-grow-1">Saber Mais</a>
+                        <a href="{% url 'oportunidades:toggle_favorito' fav.oportunidade.id %}" class="btn btn-outline-danger" title="Remover dos favoritos">
+                            <i class="bi bi-heart-fill"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-heart" style="font-size:4rem;color:#dee2e6;"></i>
+            <h5 class="text-muted mt-3">Ainda não tens favoritos</h5>
+            <p class="text-muted">Explora as oportunidades e adiciona às tuas favoritas.</p>
+            <a href="{% url 'oportunidades:list' %}" class="btn btn-primary">Ver Oportunidades</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
