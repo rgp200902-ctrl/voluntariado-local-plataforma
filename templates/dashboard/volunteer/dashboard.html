@@ -18,6 +18,40 @@
                 <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-secondary mb-0">{{ stats.concluidas }}</h5><small class="text-muted">Concluídas</small></div></div>
                 <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-info mb-0">{{ stats.certificados }}</h5><small class="text-muted">Certificados</small></div></div>
             </div>
+
+            {% if recomendadas %}
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-stars text-warning me-2"></i>Recomendadas para Ti</h6>
+                    <a href="{% url 'oportunidades:list' %}?recomendadas=1" class="text-decoration-none small">Ver todas →</a>
+                </div>
+                <div class="row g-3">
+                    {% for op in recomendadas %}
+                    <div class="col-md-4">
+                        <div class="card op-card h-100 border-0 shadow-sm">
+                            <div class="card-body p-3 d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="fw-bold mb-0" style="font-size:0.95rem;">{{ op.titulo }}</h6>
+                                    <span class="badge bg-success" style="font-size:0.65rem;" title="{{ op.match_count }} tag(s) em comum">
+                                        <i class="bi bi-stars"></i> {{ op.match_count }}x match
+                                    </span>
+                                </div>
+                                <p class="text-primary small mb-1">{{ op.instituicao.nome }}</p>
+                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt"></i> {{ op.local|default:'Portugal' }}{% if op.data_inicio %} &bull; {{ op.data_inicio|date:'d/m/Y' }}{% endif %}</p>
+                                <div class="mb-2">
+                                    {% for tag in op.tags.all|slice:":3" %}
+                                    <span class="badge" style="background-color:{{ tag.cor }};color:#fff;font-size:0.65rem;">{{ tag.nome }}</span>
+                                    {% endfor %}
+                                </div>
+                                <a href="{% url 'oportunidades:detail' op.id %}" class="btn btn-primary btn-sm mt-auto">Saber Mais</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
             <h6 class="fw-bold mb-3">Atividades Recentes</h6>
             <div class="card dashboard-card mb-4">
                 <ul class="list-group list-group-flush">

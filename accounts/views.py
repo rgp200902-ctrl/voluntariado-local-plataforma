@@ -83,9 +83,12 @@ def volunteer_dashboard(request):
         'certificados': certificados.count(),
     }
     atividades_recentes = RegistoAtividade.objects.filter(utilizador=request.user).order_by('-data_hora')[:5]
+    from oportunidades.views import get_recommended_oportunidades
+    recomendadas = get_recommended_oportunidades(request.user, limit=6)
     return render(request, 'dashboard/volunteer/dashboard.html', {
         'volunteer': volunteer, 'inscricoes': inscricoes, 'stats': stats,
         'atividades': atividades_recentes, 'certificados': certificados,
+        'recomendadas': recomendadas,
     })
 
 @login_required

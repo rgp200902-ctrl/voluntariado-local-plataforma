@@ -2,13 +2,15 @@
 {% block title %}Oportunidades{% endblock %}
 {% block content %}
 <div class="container py-5">
-    <h1 class="fw-bold mb-4">Oportunidades de Voluntariado</h1>
+    <h1 class="fw-bold mb-4">
+        {% if is_recomendadas %}<i class="bi bi-stars text-warning me-2"></i>Recomendadas para Ti{% else %}Oportunidades de Voluntariado{% endif %}
+    </h1>
 
     <form class="row g-3 mb-4" method="get">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <input type="text" name="q" class="form-control" placeholder="Pesquisar..." value="{{ request.GET.q }}">
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <select name="categoria" class="form-select">
                 <option value="">Todas as categorias</option>
                 {% for cat in categorias %}
@@ -16,13 +18,40 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <input type="text" name="local" class="form-control" placeholder="Localidade..." value="{{ request.GET.local }}">
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            <select name="tag" class="form-select">
+                <option value="">Todas as tags</option>
+                {% for tag in all_tags %}
+                <option value="{{ tag.id }}" {% if selected_tag == tag.id|stringformat:'s' %}selected{% endif %}>{{ tag.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-1">
+            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i></button>
+        </div>
+        <div class="col-md-2">
+            {% if user.is_authenticated and user.perfil == 'voluntario' %}
+            {% if is_recomendadas %}
+            <a href="{% url 'oportunidades:list' %}" class="btn btn-outline-secondary w-100">Todas</a>
+            {% else %}
+            <a href="{% url 'oportunidades:list' %}?recomendadas=1" class="btn btn-outline-warning w-100">
+                <i class="bi bi-stars me-1"></i>Recomendadas
+            </a>
+            {% endif %}
+            {% endif %}
         </div>
     </form>
+
+    {% if is_recomendadas and user.is_authenticated and user.perfil == 'voluntario' %}
+    <div class="alert alert-info mb-4">
+        <i class="bi bi-info-circle me-1"></i>
+        A mostrar oportunidades que correspondem às tuas <strong>tags de interesse</strong>. 
+        <a href="{% url 'accounts:voluntario_tags' %}">Gerir as minhas tags</a>
+    </div>
+    {% endif %}
 
     {% if user.is_authenticated and user.perfil == 'voluntario' %}
     <div class="mb-3">
@@ -39,7 +68,12 @@
                 <div class="card-body p-4 d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <h5 class="fw-bold mb-0">{{ op.titulo }}</h5>
-                        <div class="d-flex gap-1">
+                        <div class="d-flex gap-1 align-items-center">
+                            {% if op.match_score > 0 %}
+                            <span class="badge bg-success" style="font-size:0.65rem;" title="Tag(s) em comum">
+                                <i class="bi bi-stars"></i> {{ op.match_score }}x match
+                            </span>
+                            {% endif %}
                             {% if op.categoria %}<span class="badge bg-primary-subtle text-primary">{{ op.categoria.nome }}</span>{% endif %}
                             {% if user.is_authenticated and user.perfil == 'voluntario' %}
                             <a href="{% url 'oportunidades:toggle_favorito' op.id %}" class="btn btn-sm p-0" title="{% if op.id in favoritos_ids %}Remover dos favoritos{% else %}Adicionar aos favoritos{% endif %}" style="border:none;background:none;">
@@ -74,7 +108,16 @@
             </div>
         </div>
         {% empty %}
-        <div class="col-12 text-center py-5"><p class="text-muted">Nenhuma oportunidade encontrada.</p></div>
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-inbox text-muted" style="font-size:3rem;"></i>
+            <p class="text-muted mt-3">
+                {% if is_recomendadas %}
+                Nenhuma oportunidade recomendada. <a href="{% url 'accounts:voluntario_tags' %}">Adiciona tags ao teu perfil</a> para receber recomendações.
+                {% else %}
+                Nenhuma oportunidade encontrada.
+                {% endif %}
+            </p>
+        </div>
         {% endfor %}
     </div>
 </div>

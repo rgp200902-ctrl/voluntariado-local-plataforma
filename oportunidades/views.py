@@ -2,16 +2,34 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Q, Avg
+from django.db.models import Q, Avg, Count
 from .models import Oportunidade, Categoria, Inscricao, Favorito
+from accounts.models import VolunteerTag, Tag
 
 def list_oportunidades(request):
     oportunidades = Oportunidade.objects.filter(estado__in=['aberta', 'publicada']).select_related('instituicao', 'categoria')
     categorias = Categoria.objects.filter(ativa=True)
 
     favoritos_ids = []
+    match_counts = {}
     if request.user.is_authenticated and request.user.perfil == 'voluntario':
         favoritos_ids = list(Favorito.objects.filter(voluntario=request.user).values_list('oportunidade_id', flat=True))
+        volunteer_tags = VolunteerTag.objects.filter(voluntario__user=request.user).values_list('tag_id', flat=True)
+        if volunteer_tags:
+            inscritas_ids = Inscricao.objects.filter(voluntario=request.user).values_list('oportunidade_id', flat=True)
+            for op in oportunidades.exclude(id__in=inscritas_ids):
+                op_tags = set(op.tags.values_list('id', flat=True))
+                matches = len(op_tags & set(volunteer_tags))
+                if matches > 0:
+                    match_counts[op.id] = matches
+
+    recomendadas_filter = request.GET.get('recomendadas')
+    tag_filter = request.GET.get('tag')
+    if recomendadas_filter and match_counts:
+        oportunidades = oportunidades.filter(id__in=match_counts.keys())
+
+    if tag_filter:
+        oportunidades = oportunidades.filter(tags__id=tag_filter)
 
     cat = request.GET.get('categoria')
     if cat:
@@ -19,14 +37,24 @@ def list_oportunidades(request):
 
     q = request.GET.get('q')
     if q:
-        oportunidades = opportunidades.filter(Q(titulo__icontains=q) | Q(descricao__icontains=q) | Q(local__icontains=q))
+        oportunidades = oportunidades.filter(Q(titulo__icontains=q) | Q(descricao__icontains=q) | Q(local__icontains=q))
 
     local = request.GET.get('local')
     if local:
         oportunidades = oportunidades.filter(local__icontains=local)
 
+    if match_counts:
+        from django.db.models import Case, When, IntegerField
+        ordering = [Case(*[When(id=k, then=v) for k, v in match_counts.items()], output_field=IntegerField(), default=0)]
+        oportunidades = oportunidades.annotate(match_score=Case(*[When(id=k, then=v) for k, v in match_counts.items()], output_field=IntegerField(), default=0)).order_by('-match_score', '-criada_em')
+
+    all_tags = Tag.objects.annotate(op_count=Count('oportunidades')).filter(op_count__gt=0).order_by('nome')
+
     return render(request, 'oportunidades/list.html', {
         'oportunidades': oportunidades, 'categorias': categorias, 'favoritos_ids': favoritos_ids,
+        'match_counts': match_counts, 'all_tags': all_tags,
+        'is_recomendadas': bool(recomendadas_filter),
+        'selected_tag': tag_filter,
     })
 
 def detail_oportunidade(request, id):
@@ -99,3 +127,20 @@ def ver_avaliacoes(request, id):
     return render(request, 'oportunidades/avaliacoes.html', {
         'oportunidade': oportunidade, 'avaliacoes': avaliacoes, 'media': round(media, 1),
     })
+
+def get_recommended_oportunidades(user, limit=6):
+    if not user.is_authenticated or user.perfil != 'voluntario':
+        return Oportunidade.objects.none()
+    volunteer_tags = VolunteerTag.objects.filter(voluntario__user=user).values_list('tag_id', flat=True)
+    if not volunteer_tags:
+        return Oportunidade.objects.none()
+    inscritas_ids = Inscricao.objects.filter(voluntario=user).values_list('oportunidade_id', flat=True)
+    recomendadas = Oportunidade.objects.filter(
+        estado__in=['aberta', 'publicada'],
+        tags__in=volunteer_tags
+    ).exclude(
+        id__in=inscritas_ids
+    ).annotate(
+        match_count=Count('tags', filter=Q(tags__in=volunteer_tags))
+    ).order_by('-match_count', '-criada_em').distinct()[:limit]
+    return recomendadas
