@@ -11,9 +11,24 @@
                 <a href="{% url 'accounts:criar_oportunidade' %}" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Nova Oportunidade</a>
             </div>
             <div class="row g-4 mb-4">
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-primary mb-0">{{ stats.total }}</h5><small class="text-muted">Total Oportunidades</small></div></div>
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-success mb-0">{{ stats.ativas }}</h5><small class="text-muted">Ativas</small></div></div>
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-info mb-0">{{ stats.inscricoes }}</h5><small class="text-muted">Total Inscrições</small></div></div>
+                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-primary mb-0">{{ stats.total }}</h5><small class="text-muted">Total Oportunidades</small></div></div>
+                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-success mb-0">{{ stats.ativas }}</h5><small class="text-muted">Ativas</small></div></div>
+                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-warning mb-0">{{ stats.pendentes }}</h5><small class="text-muted">Pendentes</small></div></div>
+                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-info mb-0">{{ stats.inscricoes }}</h5><small class="text-muted">Total Inscrições</small></div></div>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card dashboard-card p-4">
+                        <h6 class="fw-bold mb-3">Oportunidades por Estado</h6>
+                        <canvas id="chartOportunidades" height="200"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card dashboard-card p-4">
+                        <h6 class="fw-bold mb-3">Inscrições por Oportunidade</h6>
+                        <canvas id="chartInscricoes" height="200"></canvas>
+                    </div>
+                </div>
             </div>
             <h6 class="fw-bold mb-3">As Minhas Oportunidades</h6>
             <div class="card dashboard-card">
@@ -42,4 +57,39 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+const estadoData = {
+    labels: [{% for op in oportunidades %}'{{ op.get_estado_display }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+        data: [{% for op in oportunidades %}1{% if not forloop.last %},{% endif %}{% endfor %}],
+        backgroundColor: [{% for op in oportunidades %}'{% if op.estado == 'publicada' or op.estado == 'aberta' %}#28a745{% elif op.estado == 'pendente' %}#ffc107{% elif op.estado == 'cancelada' %}#dc3545{% else %}#6c757d{% endif %}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        borderWidth: 0
+    }]
+};
+if(estadoData.labels.length > 0) {
+    new Chart(document.getElementById('chartOportunidades'), {
+        type: 'doughnut',
+        data: estadoData,
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+}
+
+const inscData = {
+    labels: [{% for op in oportunidades %}'{{ op.titulo|truncatewords:3 }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+        label: 'Inscrições',
+        data: [{% for op in oportunidades %}{{ op.num_inscricoes }}{% if not forloop.last %},{% endif %}{% endfor %}],
+        backgroundColor: '#0d6efd',
+        borderRadius: 6
+    }]
+};
+if(inscData.labels.length > 0) {
+    new Chart(document.getElementById('chartInscricoes'), {
+        type: 'bar',
+        data: inscData,
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+}
+</script>
 {% endblock %}
