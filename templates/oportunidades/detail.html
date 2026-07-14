@@ -95,6 +95,17 @@
                     <a href="{% url 'oportunidades:avaliacoes' oportunidade.id %}" class="btn btn-outline-warning btn-sm" title="Ver avaliações">
                         <i class="bi bi-star"></i> Avaliações
                     </a>
+                    {% if user.is_authenticated %}
+                    <button class="btn btn-sm {% if 'fogo' in user_reactions %}btn-warning{% else %}btn-outline-warning{% endif %} reaction-btn"
+                            onclick="toggleReaction('fogo', 'oportunidade', {{ oportunidade.id }}, this)"
+                            title="{% if 'fogo' in user_reactions %}Remover fogo{% else %}Dar fogo!{% endif %}">
+                        🔥 <span class="reaction-count">{{ reaction_counts.fogo|default:0 }}</span>
+                    </button>
+                    {% else %}
+                    <span class="btn btn-outline-warning btn-sm disabled" title="Faz login para reagir">
+                        🔥 {{ reaction_counts.fogo|default:0 }}
+                    </span>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -136,6 +147,27 @@
     </div>
 </div>
 <script>
+function toggleReaction(tipo, modelName, objectId, btn) {
+    const formData = new FormData();
+    formData.append('tipo', tipo);
+    formData.append('model', modelName);
+    formData.append('object_id', objectId);
+    fetch("{% url 'core:toggle_reaction' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    })
+    .then(r => r.json())
+    .then(data => {
+        const countEl = btn.querySelector('.reaction-count');
+        countEl.textContent = data.total;
+        if(data.action === 'added') {
+            if(tipo === 'fogo') { btn.classList.remove('btn-outline-warning'); btn.classList.add('btn-warning'); }
+        } else {
+            if(tipo === 'fogo') { btn.classList.remove('btn-warning'); btn.classList.add('btn-outline-warning'); }
+        }
+    });
+}
 function saveForOffline() {
     const opp = {
         id: {{ oportunidade.id }},

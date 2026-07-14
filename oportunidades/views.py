@@ -61,12 +61,16 @@ def detail_oportunidade(request, id):
     oportunidade = get_object_or_404(Oportunidade, id=id)
     inscrito = False
     favoritado = False
+    from core.models import Reaction
+    reaction_counts = Reaction.get_reactions_for(oportunidade)
+    user_reactions = Reaction.user_reactions_for(request.user, oportunidade) if request.user.is_authenticated else set()
     if request.user.is_authenticated:
         inscrito = Inscricao.objects.filter(oportunidade=oportunidade, voluntario=request.user).exists()
         if request.user.perfil == 'voluntario':
             favoritado = Favorito.objects.filter(oportunidade=oportunidade, voluntario=request.user).exists()
     return render(request, 'oportunidades/detail.html', {
         'oportunidade': oportunidade, 'inscrito': inscrito, 'favoritado': favoritado,
+        'reaction_counts': reaction_counts, 'user_reactions': user_reactions,
     })
 
 @login_required

@@ -29,12 +29,28 @@
         </div>
         <div class="col-md-3 col-6">
             <div class="card dashboard-card p-4 text-center stat-card">
-                <i class="bi bi-award text-warning mb-2" style="font-size:2rem;"></i>
-                <h2 class="fw-bold text-warning mb-0">{{ total_certificados }}</h2>
-                <small class="text-muted">Certificados Emitidos</small>
+                <i class="bi bi-emoji-heart-eyes text-danger mb-2" style="font-size:2rem;"></i>
+                <h2 class="fw-bold text-danger mb-0">{{ total_reacoes }}</h2>
+                <small class="text-muted">Reações</small>
             </div>
         </div>
     </div>
+
+    {% if reacoes_por_tipo %}
+    <div class="row g-3 mb-5 justify-content-center">
+        {% for r in reacoes_por_tipo %}
+        <div class="col-auto">
+            <div class="card dashboard-card p-3 text-center">
+                <span style="font-size:1.5rem;">
+                    {% if r.tipo == 'coracao' %}❤️{% elif r.tipo == 'aplauso' %}👏{% elif r.tipo == 'fogo' %}🔥{% endif %}
+                </span>
+                <h5 class="fw-bold mb-0">{{ r.total }}</h5>
+                <small class="text-muted">{{ r.tipo|title }}</small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <div class="row g-4 mb-5">
         <div class="col-md-3 col-6">

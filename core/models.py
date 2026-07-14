@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from accounts.models import User
 
 class RegistoAtividade(models.Model):
@@ -95,3 +97,35 @@ class Avaliacao(models.Model):
     @property
     def estrelas_vazias(self):
         return range(5 - self.classificacao)
+
+class Reaction(models.Model):
+    TIPO_CHOICES = [
+        ('coracao', 'Coração'),
+        ('aplauso', 'Aplauso'),
+        ('fogo', 'Fogo'),
+    ]
+    utilizador = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reacoes')
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Reação'
+        verbose_name_plural = 'Reações'
+        unique_together = ['utilizador', 'tipo', 'content_type', 'object_id']
+
+    def __str__(self):
+        return f'{self.utilizador.email} reagiu {self.tipo} em {self.content_type.model} #{self.object_id}'
+
+    @staticmethod
+    def get_reactions_for(obj):
+        ct = ContentType.objects.get_for_model(obj)
+        reactions = Reaction.objects.filter(content_type=ct, object_id=obj.pk).values('tipo').annotate(total=models.Count('id'))
+        return {r['tipo']: r['total'] for r in reactions}
+
+    @staticmethod
+    def user_reactions_for(user, obj):
+        ct = ContentType.objects.get_for_model(obj)
+        return set(Reaction.objects.filter(utilizador=user, content_type=ct, object_id=obj.pk).values_list('tipo', flat=True))

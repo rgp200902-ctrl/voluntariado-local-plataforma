@@ -9,4 +9,6 @@ urlpatterns = [
     path('contacto/', views.contacto, name='contacto'),
     path('impacto/', views.impacto, name='impacto'),
     path('perfil/<int:user_id>/', views.perfil_publico, name='perfil_publico'),
+    path('api/reaction/', views.toggle_reaction, name='toggle_reaction'),
+    path('api/reactions/<str:model_name>/<int:object_id>/', views.get_reactions, name='get_reactions'),
 ]
