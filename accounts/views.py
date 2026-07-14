@@ -614,3 +614,171 @@ def minhas_notificacoes_count(request):
     if request.user.is_authenticated:
         return Notificacao.objects.filter(utilizador=request.user, lida=False).count()
     return 0
+
+# --- Relatório PDF ---
+
+@login_required
+def relatorio_pdf(request):
+    if request.user.perfil not in ['administrador', 'instituicao']:
+        messages.error(request, 'Acesso negado.')
+        return redirect('core:home')
+    from oportunidades.models import Oportunidade, Inscricao, Categoria
+    from django.db.models import Count
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import cm
+    from reportlab.lib.colors import HexColor
+    from reportlab.pdfgen import canvas
+
+    if request.user.perfil == 'administrador':
+        total_users = User.objects.count()
+        total_voluntarios = User.objects.filter(perfil='voluntario').count()
+        total_instituicoes = Institution.objects.count()
+        total_oportunidades = Oportunidade.objects.count()
+        total_inscricoes = Inscricao.objects.count()
+        inscricoes_estado = list(Inscricao.objects.values('estado').annotate(total=Count('id')))
+        ops_categoria = list(Oportunidade.objects.values('categoria__nome').annotate(total=Count('id')))
+        titulo_relatorio = 'Relatório Geral da Plataforma'
+        filename = 'relatorio-geral.pdf'
+    else:
+        institution = get_object_or_404(Institution, user=request.user)
+        ops = Oportunidade.objects.filter(instituicao=institution)
+        total_oportunidades = ops.count()
+        total_inscricoes = Inscricao.objects.filter(oportunidade__instituicao=institution).count()
+        total_voluntarios = Inscricao.objects.filter(oportunidade__instituicao=institution).values('voluntario').distinct().count()
+        inscricoes_estado = list(Inscricao.objects.filter(oportunidade__instituicao=institution).values('estado').annotate(total=Count('id')))
+        ops_categoria = list(ops.values('categoria__nome').annotate(total=Count('id')))
+        titulo_relatorio = f'Relatório - {institution.nome}'
+        filename = f'relatorio-{institution.nome}.pdf'
+        total_users = total_voluntarios
+        total_instituicoes = 1
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    c = canvas.Canvas(response, pagesize=A4)
+    width, height = A4
+    y = height - 2 * cm
+
+    c.setFillColor(HexColor('#0d6efd'))
+    c.rect(0, height - 3 * cm, width, 3 * cm, fill=True)
+    c.setFillColor(HexColor('#ffffff'))
+    c.setFont('Helvetica-Bold', 20)
+    c.drawCentredString(width / 2, height - 2 * cm, titulo_relatorio)
+    c.setFont('Helvetica', 10)
+    c.drawCentredString(width / 2, height - 2.7 * cm, 'Plataforma de Voluntariado Local')
+
+    y = height - 4.5 * cm
+    c.setFillColor(HexColor('#212529'))
+    c.setFont('Helvetica-Bold', 14)
+    c.drawString(2 * cm, y, 'Resumo Geral')
+    y -= 0.8 * cm
+
+    stats = [
+        ('Total Utilizadores', str(total_users)),
+        ('Voluntários', str(total_voluntarios)),
+        ('Instituições', str(total_instituicoes)),
+        ('Total Oportunidades', str(total_oportunidades)),
+        ('Total Inscrições', str(total_inscricoes)),
+    ]
+
+    c.setFont('Helvetica', 11)
+    for label, value in stats:
+        c.setFillColor(HexColor('#6c757d'))
+        c.drawString(2.5 * cm, y, f'{label}:')
+        c.setFillColor(HexColor('#0d6efd'))
+        c.setFont('Helvetica-Bold', 11)
+        c.drawString(8 * cm, y, value)
+        c.setFont('Helvetica', 11)
+        y -= 0.6 * cm
+
+    y -= 0.5 * cm
+    c.setFillColor(HexColor('#212529'))
+    c.setFont('Helvetica-Bold', 14)
+    c.drawString(2 * cm, y, 'Inscrições por Estado')
+    y -= 0.8 * cm
+
+    c.setFont('Helvetica', 11)
+    for item in inscricoes_estado:
+        c.setFillColor(HexColor('#6c757d'))
+        c.drawString(2.5 * cm, y, f'{item["estado"]}:')
+        c.setFillColor(HexColor('#0d6efd'))
+        c.setFont('Helvetica-Bold', 11)
+        c.drawString(8 * cm, y, str(item['total']))
+        c.setFont('Helvetica', 11)
+        y -= 0.6 * cm
+
+    y -= 0.5 * cm
+    c.setFillColor(HexColor('#212529'))
+    c.setFont('Helvetica-Bold', 14)
+    c.drawString(2 * cm, y, 'Oportunidades por Categoria')
+    y -= 0.8 * cm
+
+    c.setFont('Helvetica', 11)
+    for item in ops_categoria:
+        cat = item['categoria__nome'] or 'Sem categoria'
+        c.setFillColor(HexColor('#6c757d'))
+        c.drawString(2.5 * cm, y, f'{cat}:')
+        c.setFillColor(HexColor('#0d6efd'))
+        c.setFont('Helvetica-Bold', 11)
+        c.drawString(8 * cm, y, str(item['total']))
+        c.setFont('Helvetica', 11)
+        y -= 0.6 * cm
+
+    y -= 1 * cm
+    c.setFillColor(HexColor('#6c757d'))
+    c.setFont('Helvetica', 9)
+    c.drawCentredString(width / 2, 2 * cm, f'Relatório gerado em {timezone.now().strftime("%d/%m/%Y %H:%M")} | Plataforma de Voluntariado Local')
+
+    c.save()
+    return response
+
+# --- Avaliações ---
+
+@login_required
+def avaliar_oportunidade(request, oportunidade_id):
+    if request.user.perfil != 'voluntario':
+        messages.error(request, 'Apenas voluntários podem avaliar.')
+        return redirect('core:home')
+    inscricao = get_object_or_404(Inscricao, oportunidade_id=oportunidade_id, voluntario=request.user, estado='concluida')
+    oportunidade = inscricao.oportunidade
+    from core.models import Avaliacao
+
+    if Avaliacao.objects.filter(autor=request.user, oportunidade=oportunidade).exists():
+        messages.warning(request, 'Já avaliaste esta oportunidade.')
+        return redirect('accounts:volunteer_dashboard')
+
+    if request.method == 'POST':
+        classificacao = int(request.POST.get('classificacao', 5))
+        comentario = request.POST.get('comentario', '')
+        instituicao_user = oportunidade.instituicao.user
+        Avaliacao.objects.create(
+            autor=request.user,
+            destinatario=instituicao_user,
+            oportunidade=oportunidade,
+            classificacao=classificacao,
+            comentario=comentario,
+        )
+        Notificacao.objects.create(
+            utilizador=instituicao_user,
+            titulo='Nova Avaliação',
+            mensagem=f'O voluntário {request.user.get_full_name() or request.user.email} avaliou a oportunidade "{oportunidade.titulo}" com {classificacao}/5 estrelas.',
+            tipo='sistema',
+            link=f'/oportunidades/{oportunidade.id}/',
+        )
+        messages.success(request, 'Avaliação submetida com sucesso!')
+        return redirect('accounts:volunteer_dashboard')
+
+    return render(request, 'dashboard/volunteer/avaliar.html', {
+        'oportunidade': oportunidade, 'inscricao': inscricao,
+    })
+
+@login_required
+def ver_avaliacoes(request, oportunidade_id):
+    from core.models import Avaliacao
+    oportunidade = get_object_or_404(Oportunidade, id=oportunidade_id)
+    avaliacoes = Avaliacao.objects.filter(oportunidade=oportunidade).select_related('autor')
+    from django.db.models import Avg
+    media = avaliacoes.aggregate(media=Avg('classificacao'))['media'] or 0
+    return render(request, 'oportunidades/avaliacoes.html', {
+        'oportunidade': oportunidade, 'avaliacoes': avaliacoes, 'media': round(media, 1),
+    })

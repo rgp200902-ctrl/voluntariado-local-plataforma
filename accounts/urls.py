@@ -33,4 +33,6 @@ urlpatterns = [
     path('notificacoes/todas-lidas/', views.marcar_todas_lidas, name='marcar_todas_lidas'),
     path('certificados/<int:oportunidade_id>/gerar/', views.gerar_certificado, name='gerar_certificado'),
     path('certificados/<int:oportunidade_id>/download/', views.download_certificado, name='download_certificado'),
+    path('relatorio-pdf/', views.relatorio_pdf, name='relatorio_pdf'),
+    path('avaliar/<int:oportunidade_id>/', views.avaliar_oportunidade, name='avaliar_oportunidade'),
 ]

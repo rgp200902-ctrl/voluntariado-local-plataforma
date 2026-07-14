@@ -6,6 +6,9 @@
         <div class="col-md-3">{% include 'dashboard/sidebar_admin.html' %}</div>
         <div class="col-md-9">
             <h3 class="fw-bold mb-4">Relatórios</h3>
+            <div class="mb-4">
+                <a href="{% url 'accounts:relatorio_pdf' %}" class="btn btn-danger"><i class="bi bi-file-earmark-pdf me-1"></i>Descarregar Relatório PDF</a>
+            </div>
             <div class="row g-4 mb-4">
                 <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-primary mb-0">{{ stats.total_utilizadores }}</h5><small class="text-muted">Total Utilizadores</small></div></div>
                 <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-success mb-0">{{ stats.total_voluntarios }}</h5><small class="text-muted">Total Voluntários</small></div></div>

@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Q
+from django.db.models import Q, Avg
 from .models import Oportunidade, Categoria, Inscricao, Favorito
 
 def list_oportunidades(request):
@@ -90,3 +90,12 @@ def cancelar_inscricao(request, id):
     inscricao.save()
     messages.success(request, 'Inscrição cancelada.')
     return redirect('accounts:volunteer_registrations')
+
+def ver_avaliacoes(request, id):
+    oportunidade = get_object_or_404(Oportunidade, id=id)
+    from core.models import Avaliacao
+    avaliacoes = Avaliacao.objects.filter(oportunidade=oportunidade).select_related('autor')
+    media = avaliacoes.aggregate(media=Avg('classificacao'))['media'] or 0
+    return render(request, 'oportunidades/avaliacoes.html', {
+        'oportunidade': oportunidade, 'avaliacoes': avaliacoes, 'media': round(media, 1),
+    })

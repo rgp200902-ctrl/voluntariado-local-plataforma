@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Avaliações - {{ oportunidade.titulo }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'oportunidades:list' %}">Oportunidades</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'oportunidades:detail' oportunidade.id %}">{{ oportunidade.titulo }}</a></li>
+            <li class="breadcrumb-item active">Avaliações</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0">Avaliações</h3>
+        <a href="{% url 'oportunidades:detail' oportunidade.id %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
+    </div>
+
+    <div class="card dashboard-card mb-4">
+        <div class="card-body p-4 text-center">
+            <h1 class="fw-bold text-primary mb-0">{{ media }}</h1>
+            <div class="mb-2">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= media %}
+                    <i class="bi bi-star-fill text-warning" style="font-size:1.5rem;"></i>
+                    {% elif forloop.counter <= media|add:"0.5" %}
+                    <i class="bi bi-star-half text-warning" style="font-size:1.5rem;"></i>
+                    {% else %}
+                    <i class="bi bi-star text-warning" style="font-size:1.5rem;"></i>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <small class="text-muted">{{ avaliacoes.count }} avaliação(ões)</small>
+        </div>
+    </div>
+
+    {% for av in avaliacoes %}
+    <div class="card dashboard-card mb-3">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <h6 class="fw-bold mb-0">{{ av.autor.get_full_name|default:av.autor.email }}</h6>
+                    <small class="text-muted">{{ av.data_criacao|date:'d/m/Y' }}</small>
+                </div>
+                <div>
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= av.classificacao %}
+                        <i class="bi bi-star-fill text-warning"></i>
+                        {% else %}
+                        <i class="bi bi-star text-muted"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% if av.comentario %}
+            <p class="text-muted mb-0 mt-2">{{ av.comentario }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-5">
+        <i class="bi bi-chat-dots" style="font-size:3rem;color:#dee2e6;"></i>
+        <p class="text-muted mt-3">Ainda não há avaliações para esta oportunidade.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

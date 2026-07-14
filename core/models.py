@@ -69,5 +69,29 @@ class Certificado(models.Model):
     def save(self, *args, **kwargs):
         if not self.codigo_verificacao:
             import secrets
-            self.codigo_verificacao = secrets.token_hex(8).upper()
+            self.codigo_verificacao = secrets.token_urlsafe(10).upper()
         super().save(*args, **kwargs)
+
+class Avaliacao(models.Model):
+    autor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='avaliacoes_dadas')
+    destinatario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='avaliacoes_recebidas')
+    oportunidade = models.ForeignKey('oportunidades.Oportunidade', on_delete=models.CASCADE, related_name='avaliacoes')
+    classificacao = models.IntegerField(choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')])
+    comentario = models.TextField(blank=True, null=True)
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Avaliação'
+        verbose_name_plural = 'Avaliações'
+        unique_together = ['autor', 'oportunidade']
+
+    def __str__(self):
+        return f'{self.autor.email} avaliou {self.destinatario.email} ({self.classificacao}/5)'
+
+    @property
+    def estrelas(self):
+        return range(self.classificacao)
+
+    @property
+    def estrelas_vazias(self):
+        return range(5 - self.classificacao)
