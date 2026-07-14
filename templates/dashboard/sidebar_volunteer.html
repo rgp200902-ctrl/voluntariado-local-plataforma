@@ -11,6 +11,12 @@
     <a href="{% url 'oportunidades:favoritos' %}" class="sidebar-link {% if request.resolver_match.url_name == 'favoritos' %}active{% endif %}">
         <i class="bi bi-heart-fill"></i> Favoritos
     </a>
+    <a href="{% url 'accounts:voluntario_tags' %}" class="sidebar-link {% if request.resolver_match.url_name == 'voluntario_tags' %}active{% endif %}">
+        <i class="bi bi-bookmark"></i> Tags
+    </a>
+    <a href="{% url 'core:impacto' %}" class="sidebar-link {% if request.resolver_match.url_name == 'impacto' %}active{% endif %}">
+        <i class="bi bi-graph-up"></i> Impacto
+    </a>
     <a href="{% url 'accounts:notificacoes' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notificacoes' %}active{% endif %}">
         <i class="bi bi-bell"></i> Notificações
         {% if notificacoes_nao_lidas > 0 %}<span class="badge bg-danger ms-auto">{{ notificacoes_nao_lidas }}</span>{% endif %}

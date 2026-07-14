@@ -15,6 +15,12 @@
     <a href="{% url 'accounts:admin_categories' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_categories' %}active{% endif %}">
         <i class="bi bi-tags"></i> Categorias
     </a>
+    <a href="{% url 'accounts:gerir_tags' %}" class="sidebar-link {% if request.resolver_match.url_name == 'gerir_tags' %}active{% endif %}">
+        <i class="bi bi-bookmark"></i> Tags
+    </a>
+    <a href="{% url 'core:impacto' %}" class="sidebar-link {% if request.resolver_match.url_name == 'impacto' %}active{% endif %}">
+        <i class="bi bi-graph-up"></i> Impacto
+    </a>
     <a href="{% url 'accounts:admin_reports' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_reports' %}active{% endif %}">
         <i class="bi bi-file-earmark-bar-graph"></i> Relatórios
     </a>

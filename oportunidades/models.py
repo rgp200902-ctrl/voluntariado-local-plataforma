@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import Institution, User
+from accounts.models import Institution, User, Tag
 
 class Categoria(models.Model):
     nome = models.CharField(max_length=100, unique=True)
@@ -37,6 +37,7 @@ class Oportunidade(models.Model):
     requisitos = models.TextField(blank=True, null=True)
     idade_minima = models.IntegerField(null=True, blank=True)
     estado = models.CharField(max_length=25, choices=ESTADO_CHOICES, default='rascunho')
+    tags = models.ManyToManyField(Tag, blank=True, related_name='oportunidades')
     criada_em = models.DateTimeField(auto_now_add=True)
     publicada_em = models.DateTimeField(null=True, blank=True)
 

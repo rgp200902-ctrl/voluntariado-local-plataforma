@@ -76,6 +76,21 @@
                             <label class="form-label fw-medium">Requisitos</label>
                             <textarea name="requisitos" class="form-control" rows="2">{{ oportunidade.requisitos|default:'' }}</textarea>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Tags</label>
+                            <div class="row g-2">
+                                {% for tag in all_tags %}
+                                <div class="col-auto">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="tags" value="{{ tag.id }}" id="tag-{{ tag.id }}" {% if tag.id in tags_atuais %}checked{% endif %}>
+                                        <label class="form-check-label" for="tag-{{ tag.id }}">
+                                            <span class="badge" style="background-color:{{ tag.cor }};color:#fff;">{{ tag.nome }}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
                         <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">Guardar Alterações</button>
                         <a href="{% url 'accounts:gerir_inscricoes' oportunidade.id %}" class="btn btn-outline-info px-4 py-2">Gerir Inscrições</a>
                         <a href="{% url 'accounts:institution_dashboard' %}" class="btn btn-outline-secondary px-4 py-2">Cancelar</a>

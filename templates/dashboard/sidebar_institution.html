@@ -8,6 +8,9 @@
     <a href="{% url 'accounts:criar_oportunidade' %}" class="sidebar-link {% if request.resolver_match.url_name == 'criar_oportunidade' %}active{% endif %}">
         <i class="bi bi-plus-circle"></i> Nova Oportunidade
     </a>
+    <a href="{% url 'core:impacto' %}" class="sidebar-link {% if request.resolver_match.url_name == 'impacto' %}active{% endif %}">
+        <i class="bi bi-graph-up"></i> Impacto
+    </a>
     <a href="{% url 'accounts:notificacoes' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notificacoes' %}active{% endif %}">
         <i class="bi bi-bell"></i> Notificações
         {% if notificacoes_nao_lidas > 0 %}<span class="badge bg-danger ms-auto">{{ notificacoes_nao_lidas }}</span>{% endif %}

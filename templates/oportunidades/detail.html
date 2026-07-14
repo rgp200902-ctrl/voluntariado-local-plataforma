@@ -25,6 +25,14 @@
             </div>
             <p class="lead text-muted">{{ oportunidade.descricao }}</p>
 
+            {% if oportunidade.tags.all %}
+            <div class="mb-3">
+                {% for tag in oportunidade.tags.all %}
+                <span class="badge me-1" style="background-color:{{ tag.cor }};color:#fff;">{{ tag.nome }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             <div class="row g-3 my-4">
                 <div class="col-md-4">
                     <div class="card border-0 bg-light p-3 text-center">

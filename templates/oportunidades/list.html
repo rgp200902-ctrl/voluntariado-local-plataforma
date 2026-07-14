@@ -55,6 +55,14 @@
                     <p class="text-primary small mb-1 fw-medium">{{ op.instituicao.nome }}</p>
                     <p class="text-muted small mb-2"><i class="bi bi-geo-alt"></i> {{ op.local|default:'Portugal' }} {% if op.data_inicio %} &bull; {{ op.data_inicio|date:'d/m/Y' }}{% endif %}</p>
                     <p class="text-muted small flex-grow-1">{{ op.descricao|truncatewords:25 }}</p>
+                    {% if op.tags.all %}
+                    <div class="mb-2">
+                        {% for tag in op.tags.all|slice:":3" %}
+                        <span class="badge" style="background-color:{{ tag.cor }};color:#fff;font-size:0.7em;">{{ tag.nome }}</span>
+                        {% endfor %}
+                        {% if op.tags.count > 3 %}<span class="badge bg-secondary" style="font-size:0.7em;">+{{ op.tags.count|add:"-3" }}</span>{% endif %}
+                    </div>
+                    {% endif %}
                     <div class="mb-3">
                         <div class="d-flex justify-content-between text-muted small"><span>{{ op.registrations.count }} inscritos</span><span>{{ op.vagas }} vagas</span></div>
                         <div class="progress" style="height:6px;">

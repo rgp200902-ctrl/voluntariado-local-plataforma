@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.get_full_name|default:profile_user.email }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card dashboard-card p-4 text-center">
+                {% if volunteer and volunteer.avatar %}
+                <img src="{{ volunteer.avatar.url }}" alt="Avatar" class="rounded-circle mx-auto mb-3" style="width:120px;height:120px;object-fit:cover;">
+                {% elif institution and institution.logotipo %}
+                <img src="{{ institution.logotipo.url }}" alt="Logo" class="rounded-circle mx-auto mb-3" style="width:120px;height:120px;object-fit:cover;">
+                {% else %}
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width:120px;height:120px;font-size:3rem;">
+                    {{ profile_user.get_full_name|default:profile_user.email|first }}
+                </div>
+                {% endif %}
+                <h4 class="fw-bold">{{ profile_user.get_full_name|default:profile_user.email }}</h4>
+                <p class="text-muted">{{ profile_user.get_perfil_display }}</p>
+                {% if media %}
+                <div class="mb-2">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= media %}<i class="bi bi-star-fill text-warning"></i>
+                        {% elif forloop.counter <= media|add:"0.5" %}<i class="bi bi-star-half text-warning"></i>
+                        {% else %}<i class="bi bi-star text-muted"></i>{% endif %}
+                    {% endfor %}
+                    <span class="ms-1 text-muted">({{ media }})</span>
+                </div>
+                {% endif %}
+                {% if volunteer %}
+                <p class="text-muted small mb-1"><i class="bi bi-calendar me-1"></i>Membro desde {{ volunteer.user.date_joined|date:"M Y" }}</p>
+                {% elif institution %}
+                <p class="text-muted small mb-1"><i class="bi bi-building me-1"></i>{{ institution.nome }}</p>
+                <p class="text-muted small mb-1"><i class="bi bi-geo-alt me-1"></i>{{ institution.localidade|default:"—" }}</p>
+                {% endif %}
+            </div>
+            {% if tags %}
+            <div class="card dashboard-card p-4 mt-3">
+                <h6 class="fw-bold mb-3">Tags</h6>
+                {% for vt in tags %}
+                <span class="badge me-1 mb-1" style="background-color:{{ vt.tag.cor }};color:#fff;">{{ vt.tag.nome }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-8">
+            {% if volunteer %}
+            <div class="card dashboard-card p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Sobre</h5>
+                <p>{{ volunteer.bio|default:"Sem descrição." }}</p>
+                <div class="row g-3 mt-2">
+                    <div class="col-sm-6"><strong>Email:</strong> {{ profile_user.email }}</div>
+                    <div class="col-sm-6"><strong>Telemóvel:</strong> {{ volunteer.telemovel|default:"—" }}</div>
+                    <div class="col-sm-6"><strong>Localidade:</strong> {{ volunteer.localidade|default:"—" }}</div>
+                    <div class="col-sm-6"><strong>Inscrições concluídas:</strong> {{ inscricoes_concluidas }}</div>
+                </div>
+            </div>
+
+            {% if certificados %}
+            <div class="card dashboard-card p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-award text-warning me-2"></i>Certificados</h5>
+                <div class="list-group list-group-flush">
+                    {% for cert in certificados %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong>{{ cert.oportunidade.titulo }}</strong>
+                                <br><small class="text-muted">{{ cert.data_emissao|date:"d/m/Y" }} | {{ cert.horas_voluntariado }}h</small>
+                            </div>
+                            <a href="{% url 'accounts:certificado_download' cert.id %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i></a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% elif institution %}
+            <div class="card dashboard-card p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Sobre a Instituição</h5>
+                <p>{{ institution.descricao|default:"Sem descrição." }}</p>
+                <div class="row g-3 mt-2">
+                    <div class="col-sm-6"><strong>Email:</strong> {{ profile_user.email }}</div>
+                    <div class="col-sm-6"><strong>Telemóvel:</strong> {{ institution.telemovel|default:"—" }}</div>
+                    <div class="col-sm-6"><strong>Localidade:</strong> {{ institution.localidade|default:"—" }}</div>
+                    <div class="col-sm-6"><strong>Voluntários alcançados:</strong> {{ total_voluntarios }}</div>
+                </div>
+            </div>
+
+            {% if oportunidades %}
+            <div class="card dashboard-card p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-megaphone text-success me-2"></i>Oportunidades</h5>
+                <div class="list-group list-group-flush">
+                    {% for op in oportunidades %}
+                    <a href="{% url 'oportunidades:detail' op.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ op.titulo }}</strong>
+                            <span class="badge bg-{{ op.estado|yesno:'success,secondary,warning,danger,info' }}">{{ op.get_estado_display }}</span>
+                        </div>
+                        <small class="text-muted">{{ op.criada_em|date:"d/m/Y" }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+
+            {% if avaliacoes %}
+            <div class="card dashboard-card p-4 mt-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-chat-dots text-info me-2"></i>Avaliações</h5>
+                {% for av in avaliacoes %}
+                <div class="border-bottom pb-3 mb-3">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ av.autor.get_full_name|default:av.autor.email }}</strong>
+                        <span>{% for i in "12345" %}{% if forloop.counter <= av.classificacao %}<i class="bi bi-star-fill text-warning small"></i>{% else %}<i class="bi bi-star text-muted small"></i>{% endif %}{% endfor %}</span>
+                    </div>
+                    <small class="text-muted">{{ av.oportunidade.titulo }} | {{ av.data_criacao|date:"d/m/Y" }}</small>
+                    {% if av.comentario %}<p class="mt-1 mb-0">{{ av.comentario }}</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

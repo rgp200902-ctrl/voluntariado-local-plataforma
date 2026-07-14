@@ -312,7 +312,10 @@ def criar_oportunidade(request):
         messages.error(request, 'Acesso negado.')
         return redirect('core:home')
     institution = get_object_or_404(Institution, user=request.user)
-    categorias = __import__('oportunidades.models', fromlist=['Categoria']).Categoria.objects.filter(ativa=True)
+    from oportunidades.models import Categoria
+    from accounts.models import Tag
+    categorias = Categoria.objects.filter(ativa=True)
+    all_tags = Tag.objects.all()
 
     if request.method == 'POST':
         oportunidade = Oportunidade.objects.create(
@@ -330,6 +333,9 @@ def criar_oportunidade(request):
             idade_minima=request.POST.get('idade_minima') or None,
             estado='pendente',
         )
+        tag_ids = request.POST.getlist('tags')
+        if tag_ids:
+            oportunidade.tags.set(Tag.objects.filter(id__in=tag_ids))
         Notificacao.objects.create(
             utilizador=institution.user,
             titulo='Oportunidade Submetida',
@@ -339,7 +345,7 @@ def criar_oportunidade(request):
         messages.success(request, 'Oportunidade criada e enviada para aprovação!')
         return redirect('accounts:institution_dashboard')
 
-    return render(request, 'dashboard/institution/create_opportunity.html', {'categorias': categorias})
+    return render(request, 'dashboard/institution/create_opportunity.html', {'categorias': categorias, 'all_tags': all_tags})
 
 @login_required
 def editar_oportunidade(request, id):
@@ -349,7 +355,10 @@ def editar_oportunidade(request, id):
     institution = get_object_or_404(Institution, user=request.user)
     oportunidade = get_object_or_404(Oportunidade, id=id, instituicao=institution)
     from oportunidades.models import Categoria
+    from accounts.models import Tag
     categorias = Categoria.objects.filter(ativa=True)
+    all_tags = Tag.objects.all()
+    tags_atuais = set(oportunidade.tags.values_list('id', flat=True))
 
     if request.method == 'POST':
         oportunidade.titulo = request.POST['titulo']
@@ -365,12 +374,15 @@ def editar_oportunidade(request, id):
         oportunidade.categoria_id = request.POST.get('categoria') or None
         oportunidade.estado = request.POST.get('estado', 'publicada')
         oportunidade.save()
+        tag_ids = request.POST.getlist('tags')
+        oportunidade.tags.set(Tag.objects.filter(id__in=tag_ids))
         messages.success(request, 'Oportunidade atualizada com sucesso!')
         return redirect('accounts:institution_dashboard')
 
     from oportunidades.models import Oportunidade as OpModel
     return render(request, 'dashboard/institution/edit_opportunity.html', {
-        'oportunidade': oportunidade, 'categorias': categorias,
+        'oportunidade': oportunidade, 'categorias': categorias, 'all_tags': all_tags,
+        'tags_atuais': tags_atuais,
         'estado_choices': OpModel.ESTADO_CHOICES,
     })
 
@@ -781,4 +793,49 @@ def ver_avaliacoes(request, oportunidade_id):
     media = avaliacoes.aggregate(media=Avg('classificacao'))['media'] or 0
     return render(request, 'oportunidades/avaliacoes.html', {
         'oportunidade': oportunidade, 'avaliacoes': avaliacoes, 'media': round(media, 1),
+    })
+
+# --- Tags ---
+
+@login_required
+def gerir_tags(request):
+    if request.user.perfil != 'administrador':
+        messages.error(request, 'Acesso negado.')
+        return redirect('core:home')
+    from accounts.models import Tag
+    from django.db.models import Count
+    tags = Tag.objects.annotate(
+        total_voluntarios=Count('voluntarios'),
+        total_oportunidades=Count('oportunidades')
+    ).order_by('nome')
+    if request.method == 'POST':
+        nome = request.POST.get('nome', '').strip()
+        cor = request.POST.get('cor', '#0d6efd')
+        if nome:
+            tag, created = Tag.objects.get_or_create(nome=nome, defaults={'cor': cor})
+            if created:
+                messages.success(request, f'Tag "{nome}" criada.')
+            else:
+                messages.warning(request, f'Tag "{nome}" já existe.')
+        return redirect('accounts:gerir_tags')
+    return render(request, 'dashboard/admin/tags.html', {'tags': tags})
+
+@login_required
+def voluntario_tags(request):
+    if request.user.perfil != 'voluntario':
+        messages.error(request, 'Acesso negado.')
+        return redirect('core:home')
+    volunteer = get_object_or_404(Volunteer, user=request.user)
+    todas_tags = Tag.objects.all()
+    tags_atuais = set(VolunteerTag.objects.filter(voluntario=volunteer).values_list('tag_id', flat=True))
+    if request.method == 'POST':
+        selected = request.POST.getlist('tags')
+        VolunteerTag.objects.filter(voluntario=volunteer).delete()
+        for tag_id in selected:
+            tag = get_object_or_404(Tag, id=tag_id)
+            VolunteerTag.objects.create(voluntario=volunteer, tag=tag)
+        messages.success(request, 'Tags atualizadas com sucesso!')
+        return redirect('accounts:voluntario_tags')
+    return render(request, 'dashboard/volunteer/tags.html', {
+        'todas_tags': todas_tags, 'tags_atuais': tags_atuais,
     })

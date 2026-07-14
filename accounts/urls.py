@@ -35,4 +35,6 @@ urlpatterns = [
     path('certificados/<int:oportunidade_id>/download/', views.download_certificado, name='download_certificado'),
     path('relatorio-pdf/', views.relatorio_pdf, name='relatorio_pdf'),
     path('avaliar/<int:oportunidade_id>/', views.avaliar_oportunidade, name='avaliar_oportunidade'),
+    path('dashboard/admin/tags/', views.gerir_tags, name='gerir_tags'),
+    path('dashboard/voluntario/tags/', views.voluntario_tags, name='voluntario_tags'),
 ]
