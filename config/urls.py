@@ -12,6 +12,7 @@ urlpatterns = [
     path('', include('core.urls')),
     path('', include('accounts.urls')),
     path('oportunidades/', include('oportunidades.urls')),
+    path('offline/', TemplateView.as_view(template_name='offline.html'), name='offline'),
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain'), name='robots'),
 ]
 
