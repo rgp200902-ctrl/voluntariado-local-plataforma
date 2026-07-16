@@ -917,14 +917,14 @@ table tbody tr:hover {
     z-index: 1000;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    margin-left: 240px;
 }
 .navbar-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding: 0 var(--space-4);
 }
 .navbar-brand {
     display: flex;
@@ -1217,6 +1217,9 @@ table tbody tr:hover {
     }
     .sidebar-overlay.open {
         display: block;
+    }
+    .navbar {
+        margin-left: 0;
     }
     .dashboard-content {
         margin-left: 0;
