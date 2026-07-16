@@ -35,6 +35,45 @@
 
     {% include 'footer.html' %}
 
+    {% if user.is_authenticated %}
+    <div class="fixed-profile" id="fixedProfile">
+        <button id="darkModeToggle"
+                class="icon-btn"
+                type="button"
+                aria-label="Modo Escuro"
+                title="Alternar modo escuro">
+            <i class="bi bi-moon-fill" aria-hidden="true"></i>
+        </button>
+        <div class="dropdown">
+            <button class="fixed-profile-toggle dropdown-toggle" type="button" aria-label="Menu de utilizador" aria-haspopup="true">
+                {% if user.perfil == 'voluntario' and user.volunteer.avatar %}
+                <img src="{{ user.volunteer.avatar.url }}" alt="" class="fixed-profile-avatar">
+                {% elif user.perfil == 'instituicao' and user.institution.logotipo %}
+                <img src="{{ user.institution.logotipo.url }}" alt="" class="fixed-profile-avatar">
+                {% else %}
+                <span class="fixed-profile-avatar-placeholder" aria-hidden="true">{{ user.get_full_name|default:user.email|first }}</span>
+                {% endif %}
+                <i class="bi bi-chevron-up" style="font-size:0.75rem;" aria-hidden="true"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-up" role="menu">
+                <div class="dropdown-item-text">{{ user.get_full_name|default:user.email }}</div>
+                <div class="dropdown-divider" role="separator"></div>
+                {% if user.perfil == 'voluntario' %}
+                <a class="dropdown-item" href="{% url 'accounts:volunteer_dashboard' %}" role="menuitem"><i class="bi bi-speedometer2" aria-hidden="true"></i>Dashboard</a>
+                <a class="dropdown-item" href="{% url 'accounts:volunteer_profile' %}" role="menuitem"><i class="bi bi-person" aria-hidden="true"></i>Perfil</a>
+                {% elif user.perfil == 'instituicao' %}
+                <a class="dropdown-item" href="{% url 'accounts:institution_dashboard' %}" role="menuitem"><i class="bi bi-speedometer2" aria-hidden="true"></i>Dashboard</a>
+                <a class="dropdown-item" href="{% url 'accounts:institution_profile' %}" role="menuitem"><i class="bi bi-building" aria-hidden="true"></i>Perfil</a>
+                {% elif user.perfil == 'administrador' %}
+                <a class="dropdown-item" href="{% url 'accounts:admin_dashboard' %}" role="menuitem"><i class="bi bi-speedometer2" aria-hidden="true"></i>Dashboard</a>
+                {% endif %}
+                <div class="dropdown-divider" role="separator"></div>
+                <a class="dropdown-item danger" href="{% url 'accounts:logout' %}" role="menuitem"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>Sair</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <script>
         // Dark mode toggle
         (function(){
