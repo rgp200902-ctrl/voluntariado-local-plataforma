@@ -1584,12 +1584,12 @@ table tbody tr:hover {
     margin-top: auto;
     background: var(--neutral-800);
     color: var(--neutral-400);
-    padding: var(--space-10) 0 var(--space-6);
+    padding: var(--space-6) 0 var(--space-3);
 }
 .footer-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-8);
+    gap: var(--space-4);
 }
 @media (min-width: 768px) {
     .footer-grid {
@@ -1658,8 +1658,8 @@ table tbody tr:hover {
     color: var(--neutral-0);
 }
 .footer-bottom {
-    margin-top: var(--space-8);
-    padding-top: var(--space-6);
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
     border-top: 1px solid var(--neutral-700);
     text-align: center;
     font-size: var(--text-caption);
