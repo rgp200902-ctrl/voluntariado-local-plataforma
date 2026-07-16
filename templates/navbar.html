@@ -29,6 +29,35 @@
                 <span class="position-absolute" style="top:2px;right:2px;width:0.5rem;height:0.5rem;background:var(--color-error);border-radius:50%;border:2px solid var(--color-bg-navbar);" aria-hidden="true"></span>
                 {% endif %}
             </a>
+
+            <div class="dropdown navbar-user">
+                <button class="navbar-user-toggle dropdown-toggle" type="button" aria-label="Menu de utilizador" aria-haspopup="true">
+                    {% if user.perfil == 'voluntario' and user.volunteer.avatar %}
+                    <img src="{{ user.volunteer.avatar.url }}" alt="" class="navbar-avatar">
+                    {% elif user.perfil == 'instituicao' and user.institution.logotipo %}
+                    <img src="{{ user.institution.logotipo.url }}" alt="" class="navbar-avatar">
+                    {% else %}
+                    <span class="navbar-avatar-placeholder" aria-hidden="true">{{ user.get_full_name|default:user.email|first }}</span>
+                    {% endif %}
+                    <span class="d-none d-md-inline">{{ user.get_full_name|default:user.email }}</span>
+                    <i class="bi bi-chevron-down" style="font-size:0.75rem;" aria-hidden="true"></i>
+                </button>
+                <div class="dropdown-menu" role="menu">
+                    <div class="dropdown-item-text">{{ user.get_perfil_display }}</div>
+                    <div class="dropdown-divider" role="separator"></div>
+                    {% if user.perfil == 'voluntario' %}
+                    <a class="dropdown-item" href="{% url 'accounts:volunteer_dashboard' %}" role="menuitem"><i class="bi bi-speedometer2" aria-hidden="true"></i>Dashboard</a>
+                    <a class="dropdown-item" href="{% url 'accounts:volunteer_profile' %}" role="menuitem"><i class="bi bi-person" aria-hidden="true"></i>Perfil</a>
+                    {% elif user.perfil == 'instituicao' %}
+                    <a class="dropdown-item" href="{% url 'accounts:institution_dashboard' %}" role="menuitem"><i class="bi bi-speedometer2" aria-hidden="true"></i>Dashboard</a>
+                    <a class="dropdown-item" href="{% url 'accounts:institution_profile' %}" role="menuitem"><i class="bi bi-building" aria-hidden="true"></i>Perfil</a>
+                    {% elif user.perfil == 'administrador' %}
+                    <a class="dropdown-item" href="{% url 'accounts:admin_dashboard' %}" role="menuitem"><i class="bi bi-speedometer2" aria-hidden="true"></i>Dashboard</a>
+                    {% endif %}
+                    <div class="dropdown-divider" role="separator"></div>
+                    <a class="dropdown-item danger" href="{% url 'accounts:logout' %}" role="menuitem"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>Sair</a>
+                </div>
+            </div>
             {% else %}
             <a href="{% url 'accounts:login' %}" class="btn btn-ghost btn-sm">Entrar</a>
             <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">Registar</a>
