@@ -6,6 +6,6 @@
         "startCommand": "gunicorn config.wsgi --log-file -",
         "healthcheckPath": "/",
         "healthcheckTimeout": 10,
-        "restartPolicyType": "on-failure"
+        "restartPolicyType": "ON_FAILURE"
     }
 }
