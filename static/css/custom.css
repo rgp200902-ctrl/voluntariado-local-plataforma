@@ -1086,7 +1086,10 @@ table tbody tr:hover {
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
-    min-height: calc(100vh - 3.5rem);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
 }
 .sidebar-section-label {
     font-size: var(--text-caption);
@@ -1121,64 +1124,6 @@ table tbody tr:hover {
 }
 .sidebar-link-badge {
     margin-left: auto;
-}
-/* Fixed profile button */
-.fixed-profile {
-    position: fixed;
-    bottom: var(--space-4);
-    left: var(--space-4);
-    z-index: 900;
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2);
-    background: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-}
-.fixed-profile .dropdown {
-    position: relative;
-}
-.fixed-profile-toggle {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 0.35rem 0.5rem;
-    border: none;
-    background: transparent;
-    color: var(--color-text);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: background var(--motion-fast) var(--ease-out);
-}
-.fixed-profile-toggle:hover {
-    background: var(--color-bg-subtle);
-}
-.fixed-profile-avatar {
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: var(--radius-full);
-    object-fit: cover;
-}
-.fixed-profile-avatar-placeholder {
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: var(--radius-full);
-    background: var(--color-primary);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--text-caption);
-    font-weight: 600;
-}
-.fixed-profile .dropdown-menu-up {
-    position: absolute;
-    bottom: 100%;
-    left: 0;
-    right: auto;
-    margin-bottom: var(--space-2);
 }
 /* Sidebar footer */
 .sidebar-footer {
@@ -1270,13 +1215,6 @@ table tbody tr:hover {
     }
     .sidebar-overlay.open {
         display: block;
-    }
-    .fixed-profile {
-        left: var(--space-3);
-        bottom: var(--space-3);
-    }
-    body.overflow-hidden .fixed-profile {
-        display: none;
     }
 }
 
