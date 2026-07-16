@@ -33,3 +33,11 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# Vite / Node.js dev tooling (not needed for production)
+node_modules/
+package.json
+package-lock.json
+vite.config.js
+postcss.config.js
+static/src/
