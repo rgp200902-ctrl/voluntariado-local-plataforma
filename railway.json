@@ -3,9 +3,6 @@
         "builder": "NIXPACKS"
     },
     "deploy": {
-        "startCommand": "gunicorn config.wsgi --log-file -",
-        "healthcheckPath": "/",
-        "healthcheckTimeout": 10,
         "restartPolicyType": "ON_FAILURE"
     }
 }
