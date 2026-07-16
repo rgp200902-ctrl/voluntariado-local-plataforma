@@ -1,152 +1,127 @@
 {% extends 'base.html' %}
 {% block title %}Impacto Social{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <h1 class="fw-bold mb-2 text-center">Impacto Social</h1>
-    <p class="text-muted text-center mb-5">O impacto coletivo do voluntariado na nossa comunidade</p>
+<div class="container py-6">
+    <div class="text-center mb-6">
+        <h1 class="h1">Impacto Social</h1>
+        <p class="text-muted">O impacto coletivo do voluntariado na nossa comunidade</p>
+    </div>
 
-    <div class="row g-4 mb-5">
-        <div class="col-md-3 col-6">
-            <div class="card dashboard-card p-4 text-center stat-card">
-                <i class="bi bi-clock-history text-primary mb-2" style="font-size:2rem;"></i>
-                <h2 class="fw-bold text-primary mb-0">{{ total_horas }}</h2>
-                <small class="text-muted">Horas de Voluntariado</small>
-            </div>
+    <div class="stat-grid stat-grid-4 mb-6">
+        <div class="stat-card">
+            <div class="stat-card-icon"><i class="bi bi-clock-history" aria-hidden="true"></i></div>
+            <div class="stat-card-value">{{ total_horas }}</div>
+            <div class="stat-card-label">Horas de Voluntariado</div>
         </div>
-        <div class="col-md-3 col-6">
-            <div class="card dashboard-card p-4 text-center stat-card">
-                <i class="bi bi-people text-success mb-2" style="font-size:2rem;"></i>
-                <h2 class="fw-bold text-success mb-0">{{ total_voluntarios }}</h2>
-                <small class="text-muted">Voluntários</small>
-            </div>
+        <div class="stat-card">
+            <div class="stat-card-icon" style="color:var(--color-success);"><i class="bi bi-people" aria-hidden="true"></i></div>
+            <div class="stat-card-value" style="color:var(--color-success);">{{ total_voluntarios }}</div>
+            <div class="stat-card-label">Voluntários</div>
         </div>
-        <div class="col-md-3 col-6">
-            <div class="card dashboard-card p-4 text-center stat-card">
-                <i class="bi bi-building text-info mb-2" style="font-size:2rem;"></i>
-                <h2 class="fw-bold text-info mb-0">{{ total_instituicoes }}</h2>
-                <small class="text-muted">Instituições</small>
-            </div>
+        <div class="stat-card">
+            <div class="stat-card-icon" style="color:var(--color-info);"><i class="bi bi-building" aria-hidden="true"></i></div>
+            <div class="stat-card-value" style="color:var(--color-info);">{{ total_instituicoes }}</div>
+            <div class="stat-card-label">Instituições</div>
         </div>
-        <div class="col-md-3 col-6">
-            <div class="card dashboard-card p-4 text-center stat-card">
-                <i class="bi bi-emoji-heart-eyes text-danger mb-2" style="font-size:2rem;"></i>
-                <h2 class="fw-bold text-danger mb-0">{{ total_reacoes }}</h2>
-                <small class="text-muted">Reações</small>
-            </div>
+        <div class="stat-card">
+            <div class="stat-card-icon" style="color:var(--color-success);"><i class="bi bi-check-circle" aria-hidden="true"></i></div>
+            <div class="stat-card-value" style="color:var(--color-success);">{{ inscricoes_concluidas }}</div>
+            <div class="stat-card-label">Inscrições Concluídas</div>
         </div>
     </div>
 
-    {% if reacoes_por_tipo %}
-    <div class="row g-3 mb-5 justify-content-center">
-        {% for r in reacoes_por_tipo %}
-        <div class="col-auto">
-            <div class="card dashboard-card p-3 text-center">
-                <span style="font-size:1.5rem;">
-                    {% if r.tipo == 'coracao' %}❤️{% elif r.tipo == 'aplauso' %}👏{% elif r.tipo == 'fogo' %}🔥{% endif %}
-                </span>
-                <h5 class="fw-bold mb-0">{{ r.total }}</h5>
-                <small class="text-muted">{{ r.tipo|title }}</small>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <div class="row g-4 mb-5">
-        <div class="col-md-3 col-6">
-            <div class="card dashboard-card p-4 text-center">
-                <h3 class="fw-bold text-primary mb-0">{{ total_oportunidades }}</h3>
-                <small class="text-muted">Oportunidades Criadas</small>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card dashboard-card p-4 text-center">
-                <h3 class="fw-bold text-success mb-0">{{ oportunidades_concluidas }}</h3>
-                <small class="text-muted">Oportunidades Concluídas</small>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card dashboard-card p-4 text-center">
-                <h3 class="fw-bold text-info mb-0">{{ inscricoes_concluidas }}</h3>
-                <small class="text-muted">Inscrições Concluídas</small>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="card dashboard-card p-4 text-center">
-                <h3 class="fw-bold text-warning">{{ media_avaliacao }}<small>/5</small></h3>
-                <small class="text-muted">Média de Avaliação</small>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4 mb-5">
-        <div class="col-md-6">
-            <div class="card dashboard-card p-4">
-                <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt text-primary me-2"></i>Top Localidades</h5>
-                <div class="list-group list-group-flush">
+    <div class="row g-4 mb-6">
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="chart-card-title" style="margin:0;"><i class="bi bi-geo-alt" aria-hidden="true"></i> Top Localidades</h3>
+                </div>
+                <div class="card-body" style="padding:var(--space-2);">
+                    {% if localidades %}
                     {% for loc in localidades %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>{{ loc.oportunidade__local }}</span>
-                        <span class="badge bg-primary rounded-pill">{{ loc.total }}</span>
+                    <div class="d-flex justify-content-between align-items-center" style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);">
+                        <span class="text-sm">{{ loc.oportunidade__local }}</span>
+                        <span class="status-badge">{{ loc.total }}</span>
                     </div>
-                    {% empty %}<div class="list-group-item text-muted">Sem dados</div>{% endfor %}
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state" style="padding:var(--space-6);"><p class="text-muted" style="margin:0;">Sem dados</p></div>
+                    {% endif %}
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card dashboard-card p-4">
-                <h5 class="fw-bold mb-3"><i class="bi bi-tags text-success me-2"></i>Top Categorias</h5>
-                <div class="list-group list-group-flush">
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="chart-card-title" style="margin:0;"><i class="bi bi-tags" aria-hidden="true"></i> Top Categorias</h3>
+                </div>
+                <div class="card-body" style="padding:var(--space-2);">
+                    {% if categorias_top %}
                     {% for cat in categorias_top %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>{{ cat.nome }}</span>
-                        <span class="badge bg-success rounded-pill">{{ cat.total }}</span>
+                    <div class="d-flex justify-content-between align-items-center" style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);">
+                        <span class="text-sm">{{ cat.nome }}</span>
+                        <span class="status-badge status-success">{{ cat.total }}</span>
                     </div>
-                    {% empty %}<div class="list-group-item text-muted">Sem dados</div>{% endfor %}
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state" style="padding:var(--space-6);"><p class="text-muted" style="margin:0;">Sem dados</p></div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
     <div class="row g-4">
-        <div class="col-md-6">
-            <div class="card dashboard-card p-4">
-                <h5 class="fw-bold mb-3"><i class="bi bi-trophy text-warning me-2"></i>Voluntários Mais Ativos</h5>
-                <div class="list-group list-group-flush">
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="chart-card-title" style="margin:0;"><i class="bi bi-trophy" aria-hidden="true"></i> Voluntários Mais Ativos</h3>
+                </div>
+                <div class="card-body" style="padding:var(--space-2);">
+                    {% if voluntarios_ativos %}
                     {% for v in voluntarios_ativos %}
-                    <a href="{% url 'core:perfil_publico' v.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                        <span>{{ v.get_full_name|default:v.email }}</span>
-                        <span class="badge bg-warning text-dark rounded-pill">{{ v.total_inscricoes }} inscrições</span>
+                    <a href="{% url 'core:perfil_publico' v.id %}" class="d-flex justify-content-between align-items-center" style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);text-decoration:none;">
+                        <span class="text-sm">{{ v.get_full_name|default:v.email }}</span>
+                        <span class="status-badge status-warning">{{ v.total_inscricoes }} inscrições</span>
                     </a>
-                    {% empty %}<div class="list-group-item text-muted">Sem dados</div>{% endfor %}
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state" style="padding:var(--space-6);"><p class="text-muted" style="margin:0;">Sem dados</p></div>
+                    {% endif %}
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card dashboard-card p-4">
-                <h5 class="fw-bold mb-3"><i class="bi bi-graph-up text-info me-2"></i>Inscrições por Mês</h5>
-                <canvas id="chartMensal" height="200"></canvas>
+        <div class="col-sm-6">
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3 class="chart-card-title"><i class="bi bi-graph-up" aria-hidden="true"></i> Inscrições por Mês</h3>
+                </div>
+                <canvas id="chartMensal" height="200" aria-label="Inscrições por mês" role="img"></canvas>
             </div>
         </div>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-const mensalData = {
-    labels: [{% for s in stats_mensais %}'{{ s.mes }}'{% if not forloop.last %},{% endif %}{% endfor %}],
-    datasets: [{
-        label: 'Inscrições',
-        data: [{% for s in stats_mensais %}{{ s.total }}{% if not forloop.last %},{% endif %}{% endfor %}],
-        backgroundColor: '#0d6efd',
-        borderRadius: 6
-    }]
-};
-if(mensalData.labels.length > 0) {
-    new Chart(document.getElementById('chartMensal'), {
-        type: 'bar',
-        data: mensalData,
-        options: { responsive: true, plugins: { legend: { display: false } } }
-    });
-}
+(function(){
+    var labels = [{% for s in stats_mensais %}'{{ s.mes }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+    if(labels.length > 0) {
+        new Chart(document.getElementById('chartMensal'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Inscrições',
+                    data: [{% for s in stats_mensais %}{{ s.total }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                    backgroundColor: '#0d6efd',
+                    borderRadius: 6
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+    } else {
+        document.getElementById('chartMensal').parentElement.innerHTML = '<div class="empty-state"><p class="text-muted">Sem dados</p></div>';
+    }
+})();
 </script>
 {% endblock %}

@@ -1,0 +1,270 @@
+/* ==========================================================================
+   COMPONENT — BUTTON
+   Unified button system with variants, sizes, states, and loading.
+   Uses CSS custom properties for theming.
+   ========================================================================== */
+
+.btn {
+  --btn-bg: var(--color-brand-600);
+  --btn-bg-hover: var(--color-brand-700);
+  --btn-bg-active: var(--color-brand-800);
+  --btn-bg-disabled: var(--color-brand-300);
+  --btn-text: var(--color-text-on-brand);
+  --btn-border: var(--btn-bg);
+  --btn-shadow: var(--shadow-sm);
+  --btn-shadow-hover: var(--shadow-md);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-btn-icon-gap);
+
+  padding: var(--space-btn-pad-y) var(--space-btn-pad-x);
+  font: var(--type-button);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+
+  border: 1px solid var(--btn-border);
+  border-radius: var(--radius-button);
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  box-shadow: var(--btn-shadow);
+
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--duration-fast) var(--ease-out);
+
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:hover:not(:disabled) {
+  background-color: var(--btn-bg-hover);
+  border-color: var(--btn-bg-hover);
+  box-shadow: var(--btn-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+  background-color: var(--btn-bg-active);
+  border-color: var(--btn-bg-active);
+  box-shadow: var(--btn-shadow);
+  transform: translateY(0);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow:
+    var(--btn-shadow),
+    0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  background-color: var(--btn-bg-disabled);
+  border-color: var(--btn-bg-disabled);
+  color: var(--color-text-tertiary);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.7;
+}
+
+/* ========================================================================
+   VARIANT: SECONDARY — Subtle, for secondary actions
+   ======================================================================== */
+.btn--secondary {
+  --btn-bg: var(--color-bg-elevated);
+  --btn-bg-hover: var(--color-bg-hover);
+  --btn-bg-active: var(--color-bg-active);
+  --btn-bg-disabled: var(--color-bg-disabled);
+  --btn-text: var(--color-text-primary);
+  --btn-border: var(--color-border-default);
+  --btn-shadow: var(--shadow-sm);
+  --btn-shadow-hover: var(--shadow-md);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+}
+
+/* ========================================================================
+   VARIANT: GHOST — Minimal, for toolbar/icon actions
+   ======================================================================== */
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-bg-hover: var(--color-bg-hover);
+  --btn-bg-active: var(--color-bg-active);
+  --btn-bg-disabled: transparent;
+  --btn-text: var(--color-text-secondary);
+  --btn-border: transparent;
+  --btn-shadow: none;
+  --btn-shadow-hover: none;
+  padding: var(--space-btn-pad-y-sm) var(--space-btn-pad-x-sm);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background-color: var(--btn-bg-hover);
+  color: var(--color-text-primary);
+}
+
+/* ========================================================================
+   VARIANT: DANGER — Destructive actions
+   ======================================================================== */
+.btn--danger {
+  --btn-bg: var(--color-error-500);
+  --btn-bg-hover: var(--color-error-600);
+  --btn-bg-active: var(--color-error-700);
+  --btn-bg-disabled: var(--color-error-300);
+  --btn-text: var(--color-text-on-brand);
+  --btn-border: var(--btn-bg);
+  --btn-shadow: var(--shadow-sm);
+  --btn-shadow-hover: var(--shadow-md);
+}
+
+/* ========================================================================
+   VARIANT: SUCCESS — Positive confirmations
+   ======================================================================== */
+.btn--success {
+  --btn-bg: var(--color-success-500);
+  --btn-bg-hover: var(--color-success-600);
+  --btn-bg-active: var(--color-success-700);
+  --btn-bg-disabled: var(--color-success-300);
+  --btn-text: var(--color-text-on-brand);
+  --btn-border: var(--btn-bg);
+  --btn-shadow: var(--shadow-sm);
+  --btn-shadow-hover: var(--shadow-md);
+}
+
+/* ========================================================================
+   VARIANT: OUTLINE — Bordered alternative
+   ======================================================================== */
+.btn--outline {
+  --btn-bg: transparent;
+  --btn-bg-hover: var(--color-brand-50);
+  --btn-bg-active: var(--color-brand-100);
+  --btn-bg-disabled: transparent;
+  --btn-text: var(--color-brand-600);
+  --btn-border: var(--color-brand-600);
+  --btn-shadow: none;
+  --btn-shadow-hover: var(--shadow-sm);
+}
+
+[data-theme="dark"] .btn--outline {
+  --btn-bg-hover: var(--color-brand-900);
+  --btn-bg-active: var(--color-brand-800);
+  --btn-text: var(--color-brand-400);
+  --btn-border: var(--color-brand-400);
+}
+
+.btn--outline:hover:not(:disabled) {
+  background-color: var(--btn-bg-hover);
+  border-color: var(--btn-border);
+}
+
+/* ========================================================================
+   SIZE: SMALL
+   ======================================================================== */
+.btn--sm {
+  padding: var(--space-btn-pad-y-sm) var(--space-btn-pad-x-sm);
+  font: var(--type-button-sm);
+  gap: var(--space-1);
+}
+
+/* ========================================================================
+   SIZE: LARGE
+   ======================================================================== */
+.btn--lg {
+  padding: var(--space-btn-pad-y-lg) var(--space-btn-pad-x-lg);
+  font-size: var(--text-base);
+  gap: var(--space-3);
+}
+
+/* ========================================================================
+   ICON-ONLY BUTTON (IconButton pattern)
+   ======================================================================== */
+.btn--icon-only {
+  padding: 0;
+  width: var(--space-icon-btn-size);
+  height: var(--space-icon-btn-size);
+  border-radius: var(--radius-button);
+}
+
+.btn--icon-only.btn--sm {
+  width: var(--space-icon-btn-size-sm);
+  height: var(--space-icon-btn-size-sm);
+}
+
+.btn--icon-only .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ========================================================================
+   BLOCK / FULL WIDTH
+   ======================================================================== */
+.btn--block {
+  width: 100%;
+}
+
+/* ========================================================================
+   LOADING STATE
+   ======================================================================== */
+.btn--loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn--loading::after {
+  content: "";
+  position: absolute;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: btn-spin 0.6s linear infinite;
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================================================
+   BUTTON GROUP — connected buttons
+   ======================================================================== */
+.btn-group {
+  display: inline-flex;
+  border-radius: var(--radius-button);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn-group .btn:not(:first-child) {
+  margin-left: -1px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.btn-group .btn:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.btn-group .btn:focus-visible {
+  z-index: 1;
+}
+
+/* ========================================================================
+   ANCHOR AS BUTTON (semantic link styled as button)
+   ======================================================================== */
+.btn[href] {
+  text-decoration: none;
+}

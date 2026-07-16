@@ -1,0 +1,11 @@
+<div class="page-header{% if class %} {{ class }}{% endif %}">
+    <div class="page-header-content">
+        <h1 class="page-header-title">{{ title }}</h1>
+        {% if description %}
+        <p class="page-header-description">{{ description }}</p>
+        {% endif %}
+    </div>
+    {% if actions %}
+    <div class="page-header-actions">{{ actions }}</div>
+    {% endif %}
+</div>

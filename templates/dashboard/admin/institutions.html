@@ -1,43 +1,75 @@
 {% extends 'base.html' %}
-{% block title %}Instituições{% endblock %}
+{% block title %}Gerir Instituições{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-3">{% include 'dashboard/sidebar_admin.html' %}</div>
-        <div class="col-md-9">
-            <h3 class="fw-bold mb-4">Instituições</h3>
-            <div class="card dashboard-card">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light"><tr><th>Nome</th><th>NIF</th><th>Contacto</th><th>Estado</th><th>Ações</th></tr></thead>
-                        <tbody>
-                            {% for inst in institutions %}
-                            <tr>
-                                <td class="fw-medium">{{ inst.nome }}</td>
-                                <td>{{ inst.nif|default:'-' }}</td>
-                                <td>{{ inst.email|default:inst.user.email }}</td>
-                                <td><span class="badge bg-{% if inst.estado_validacao == 'aprovada' %}success{% elif inst.estado_validacao == 'pendente' %}warning{% elif inst.estado_validacao == 'recusada' %}danger{% else %}secondary{% endif %}">{{ inst.get_estado_validacao_display }}</span></td>
-                                <td>
-                                    {% if inst.estado_validacao != 'aprovada' %}
-                                    <form method="post" class="d-inline">{% csrf_token %}
-                                        <input type="hidden" name="institution_id" value="{{ inst.id }}">
-                                        <button type="submit" name="status" value="aprovada" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> Aprovar</button>
-                                    </form>
-                                    {% endif %}
-                                    {% if inst.estado_validacao != 'recusada' %}
-                                    <form method="post" class="d-inline">{% csrf_token %}
-                                        <input type="hidden" name="institution_id" value="{{ inst.id }}">
-                                        <button type="submit" name="status" value="recusada" class="btn btn-sm btn-danger"><i class="bi bi-x-lg"></i> Recusar</button>
-                                    </form>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% empty %}<tr><td colspan="5" class="text-center text-muted py-4">Nenhuma instituição.</td></tr>{% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_admin.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Instituições</h1>
             </div>
         </div>
+
+        {% if institutions %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>NIF</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inst in institutions %}
+                    <tr>
+                        <td class="fw-medium">{{ inst.nome }}</td>
+                        <td><small class="text-muted">{{ inst.nif|default:'—' }}</small></td>
+                        <td><small class="text-muted">{{ inst.tipo|default:'—' }}</small></td>
+                        <td>
+                            <span class="status-badge status-{% if inst.estado_validacao == 'aprovada' %}success{% elif inst.estado_validacao == 'pendente' %}warning{% elif inst.estado_validacao == 'recusada' %}error{% else %}default{% endif %}">
+                                <span class="status-badge-dot"></span>
+                                {{ inst.get_estado_validacao_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if inst.estado_validacao != 'aprovada' %}
+                            <form method="post" class="d-flex gap-1">
+                                {% csrf_token %}
+                                <input type="hidden" name="institution_id" value="{{ inst.id }}">
+                                <button type="submit" name="status" value="aprovada" class="icon-btn icon-btn-sm" aria-label="Aprovar" title="Aprovar" style="color:var(--color-success);">
+                                    <i class="bi bi-check-lg" aria-hidden="true"></i>
+                                </button>
+                                <button type="submit" name="status" value="recusada" class="icon-btn icon-btn-sm icon-btn-danger" aria-label="Recusar" title="Recusar">
+                                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if institutions.paginator.num_pages > 1 %}
+        <div class="pagination mt-4">
+            {% if institutions.has_previous %}
+            <a href="?page={{ institutions.previous_page_number }}" class="btn btn-secondary btn-sm">Anterior</a>
+            {% endif %}
+            <span class="text-sm text-muted px-3">Página {{ institutions.number }} de {{ institutions.paginator.num_pages }}</span>
+            {% if institutions.has_next %}
+            <a href="?page={{ institutions.next_page_number }}" class="btn btn-secondary btn-sm">Seguinte</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-building" style="font-size:3rem;" aria-hidden="true"></i></div>
+            <h3 class="empty-state-title">Nenhuma instituição encontrada</h3>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -1,0 +1,24 @@
+{
+  "name": "voluntariado-local",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint:css": "stylelint \"static/src/**/*.css\"",
+    "lint:js": "eslint \"static/src/**/*.js\"",
+    "format": "prettier --write \"static/src/**/*.{css,js}\""
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "postcss": "^8.4.38",
+    "postcss-nested": "^6.0.1",
+    "prettier": "^3.2.5",
+    "stylelint": "^16.3.1",
+    "stylelint-config-standard": "^36.0.0",
+    "vite": "^5.2.8"
+  }
+}

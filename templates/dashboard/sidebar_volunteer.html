@@ -1,27 +1,40 @@
-<div class="list-group list-group-flush">
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="Navegação do painel">
+    <div class="sidebar-section-label">Voluntário</div>
     <a href="{% url 'accounts:volunteer_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'volunteer_dashboard' %}active{% endif %}">
-        <i class="bi bi-speedometer2"></i> Dashboard
+        <i class="bi bi-speedometer2 sidebar-link-icon" aria-hidden="true"></i>
+        Dashboard
     </a>
     <a href="{% url 'accounts:volunteer_profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'volunteer_profile' %}active{% endif %}">
-        <i class="bi bi-person"></i> Perfil
+        <i class="bi bi-person sidebar-link-icon" aria-hidden="true"></i>
+        Perfil
     </a>
     <a href="{% url 'accounts:volunteer_registrations' %}" class="sidebar-link {% if request.resolver_match.url_name == 'volunteer_registrations' %}active{% endif %}">
-        <i class="bi bi-card-list"></i> Inscrições
+        <i class="bi bi-card-list sidebar-link-icon" aria-hidden="true"></i>
+        Inscrições
     </a>
     <a href="{% url 'oportunidades:favoritos' %}" class="sidebar-link {% if request.resolver_match.url_name == 'favoritos' %}active{% endif %}">
-        <i class="bi bi-heart-fill"></i> Favoritos
+        <i class="bi bi-heart sidebar-link-icon" aria-hidden="true"></i>
+        Favoritos
     </a>
     <a href="{% url 'accounts:voluntario_tags' %}" class="sidebar-link {% if request.resolver_match.url_name == 'voluntario_tags' %}active{% endif %}">
-        <i class="bi bi-bookmark"></i> Tags
-    </a>
-    <a href="{% url 'core:impacto' %}" class="sidebar-link {% if request.resolver_match.url_name == 'impacto' %}active{% endif %}">
-        <i class="bi bi-graph-up"></i> Impacto
-    </a>
-    <a href="{% url 'accounts:notificacoes' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notificacoes' %}active{% endif %}">
-        <i class="bi bi-bell"></i> Notificações
-        {% if notificacoes_nao_lidas > 0 %}<span class="badge bg-danger ms-auto">{{ notificacoes_nao_lidas }}</span>{% endif %}
+        <i class="bi bi-bookmark sidebar-link-icon" aria-hidden="true"></i>
+        Interesses
     </a>
     <a href="{% url 'accounts:volunteer_history' %}" class="sidebar-link {% if request.resolver_match.url_name == 'volunteer_history' %}active{% endif %}">
-        <i class="bi bi-clock-history"></i> Histórico
+        <i class="bi bi-clock-history sidebar-link-icon" aria-hidden="true"></i>
+        Histórico
     </a>
-</div>
+    <div class="sidebar-section-label">Comunidade</div>
+    <a href="{% url 'core:impacto' %}" class="sidebar-link {% if request.resolver_match.url_name == 'impacto' %}active{% endif %}">
+        <i class="bi bi-graph-up sidebar-link-icon" aria-hidden="true"></i>
+        Impacto
+    </a>
+    <a href="{% url 'accounts:notificacoes' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notificacoes' %}active{% endif %}">
+        <i class="bi bi-bell sidebar-link-icon" aria-hidden="true"></i>
+        Notificações
+        {% if notificacoes_nao_lidas > 0 %}
+        <span class="sidebar-link-badge status-badge status-error">{{ notificacoes_nao_lidas }}</span>
+        {% endif %}
+    </a>
+</aside>
+<div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true"></div>

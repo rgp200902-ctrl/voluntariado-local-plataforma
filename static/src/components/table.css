@@ -1,0 +1,339 @@
+/* ==========================================================================
+   COMPONENT — TABLE
+   Accessible, responsive data table with sorting, selection, and actions
+   ========================================================================== */
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-table);
+  border: 1px solid var(--color-border-table);
+  background-color: var(--color-bg-elevated);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--type-body-sm);
+  color: var(--color-text-primary);
+}
+
+.table th,
+.table td {
+  padding: var(--space-table-cell-pad-y) var(--space-table-cell-pad-x);
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border-table);
+}
+
+.table thead th {
+  font: var(--type-caption);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  background-color: var(--color-neutral-50);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+[data-theme="dark"] .table thead th {
+  background-color: var(--color-neutral-800);
+}
+
+.table tbody tr {
+  transition: background-color var(--duration-fast);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-bg-hover);
+}
+
+.table--striped tbody tr:nth-child(even) {
+  background-color: var(--color-neutral-50);
+}
+
+[data-theme="dark"] .table--striped tbody tr:nth-child(even) {
+  background-color: var(--color-neutral-800);
+}
+
+/* ========================================================================
+   SORTABLE COLUMNS
+   ======================================================================== */
+.table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.table th.sortable:hover {
+  color: var(--color-text-primary);
+}
+
+.table th.sortable:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--color-brand-500);
+}
+
+.sortable__wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.sortable__icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  opacity: 0.4;
+  transition: opacity var(--duration-fast), transform var(--duration-fast);
+  flex-shrink: 0;
+}
+
+.sortable--asc .sortable__icon--asc,
+.sortable--desc .sortable__icon--desc {
+  opacity: 1;
+}
+
+.sortable--asc .sortable__icon--asc { transform: rotate(180deg); }
+.sortable--desc .sortable__icon--desc { transform: rotate(0deg); }
+
+/* ========================================================================
+   ROW SELECTION
+   ======================================================================== */
+.table--selectable tbody tr {
+  cursor: pointer;
+}
+
+.table__checkbox {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--color-brand-600);
+}
+
+.table th .table__checkbox {
+  margin-right: var(--space-1);
+}
+
+/* ========================================================================
+   ACTIONS COLUMN
+   ======================================================================== */
+.table__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.table__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color var(--duration-fast), background-color var(--duration-fast);
+}
+
+.table__action:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-hover);
+}
+
+.table__action:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.table__action .icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.table__action--danger:hover {
+  color: var(--color-error-600);
+  background-color: var(--color-error-50);
+}
+
+[data-theme="dark"] .table__action--danger:hover {
+  background-color: rgba(220, 38, 38, 0.15);
+}
+
+/* ========================================================================
+   EXPANDABLE ROWS
+   ======================================================================== */
+.table__expand-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-tertiary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color var(--duration-fast), background-color var(--duration-fast), transform var(--duration-fast);
+}
+
+.table__expand-trigger:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-hover);
+}
+
+.table__expand-trigger[aria-expanded="true"] .icon {
+  transform: rotate(90deg);
+}
+
+.table__expanded-row {
+  display: none;
+}
+
+.table__expanded-row--open {
+  display: table-row;
+  animation: table-expand var(--duration-base) var(--ease-out);
+}
+
+@keyframes table-expand {
+  from { opacity: 0; transform: translateY(-0.5rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.table__expanded-content {
+  padding: var(--space-4) var(--space-6);
+  background-color: var(--color-neutral-50);
+  border-top: 1px solid var(--color-border-table);
+}
+
+[data-theme="dark"] .table__expanded-content {
+  background-color: var(--color-neutral-800);
+}
+
+/* ========================================================================
+   EMPTY STATE
+   ======================================================================== */
+.table__empty {
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  color: var(--color-text-secondary);
+}
+
+.table__empty .icon {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto var(--space-4);
+  color: var(--color-text-tertiary);
+}
+
+.table__empty-title {
+  font: var(--type-h5);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.table__empty-action {
+  margin-top: var(--space-4);
+}
+
+/* ========================================================================
+   LOADING STATE
+   ======================================================================== */
+.table__loading {
+  position: relative;
+}
+
+.table__loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg-elevated);
+  opacity: 0.7;
+  z-index: 1;
+}
+
+.table__loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+/* ========================================================================
+   RESPONSIVE — CARD VIEW ON MOBILE
+   ======================================================================== */
+@media (max-width: 640px) {
+  .table--responsive thead {
+    display: none;
+  }
+
+  .table--responsive tbody,
+  .table--responsive tr,
+  .table--responsive td {
+    display: block;
+    width: 100%;
+  }
+
+  .table--responsive tr {
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--color-border-table);
+    border-radius: var(--radius-card);
+    margin-bottom: var(--space-3);
+    background: var(--color-bg-elevated);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .table--responsive td {
+    padding: var(--space-2) 0;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .table--responsive td::before {
+    content: attr(data-label);
+    font: var(--type-caption);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    white-space: nowrap;
+  }
+
+  .table--responsive td:last-child {
+    padding-bottom: 0;
+  }
+
+  .table--responsive .table__actions {
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .table--responsive .table__expand-trigger {
+    margin-left: auto;
+  }
+}
+
+/* ========================================================================
+   VIRTUALIZED TABLE (for large datasets)
+   ======================================================================== */
+.table-virtualized {
+  position: relative;
+  height: 100%;
+}
+
+.table-virtualized__spacer {
+  pointer-events: none;
+}

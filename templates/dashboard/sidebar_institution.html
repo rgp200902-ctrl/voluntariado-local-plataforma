@@ -1,18 +1,28 @@
-<div class="list-group list-group-flush">
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="Navegação do painel">
+    <div class="sidebar-section-label">Instituição</div>
     <a href="{% url 'accounts:institution_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'institution_dashboard' %}active{% endif %}">
-        <i class="bi bi-speedometer2"></i> Dashboard
+        <i class="bi bi-speedometer2 sidebar-link-icon" aria-hidden="true"></i>
+        Dashboard
     </a>
     <a href="{% url 'accounts:institution_profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'institution_profile' %}active{% endif %}">
-        <i class="bi bi-building"></i> Perfil
+        <i class="bi bi-building sidebar-link-icon" aria-hidden="true"></i>
+        Perfil
     </a>
     <a href="{% url 'accounts:criar_oportunidade' %}" class="sidebar-link {% if request.resolver_match.url_name == 'criar_oportunidade' %}active{% endif %}">
-        <i class="bi bi-plus-circle"></i> Nova Oportunidade
+        <i class="bi bi-plus-circle sidebar-link-icon" aria-hidden="true"></i>
+        Nova Oportunidade
     </a>
+    <div class="sidebar-section-label">Comunidade</div>
     <a href="{% url 'core:impacto' %}" class="sidebar-link {% if request.resolver_match.url_name == 'impacto' %}active{% endif %}">
-        <i class="bi bi-graph-up"></i> Impacto
+        <i class="bi bi-graph-up sidebar-link-icon" aria-hidden="true"></i>
+        Impacto
     </a>
     <a href="{% url 'accounts:notificacoes' %}" class="sidebar-link {% if request.resolver_match.url_name == 'notificacoes' %}active{% endif %}">
-        <i class="bi bi-bell"></i> Notificações
-        {% if notificacoes_nao_lidas > 0 %}<span class="badge bg-danger ms-auto">{{ notificacoes_nao_lidas }}</span>{% endif %}
+        <i class="bi bi-bell sidebar-link-icon" aria-hidden="true"></i>
+        Notificações
+        {% if notificacoes_nao_lidas > 0 %}
+        <span class="sidebar-link-badge status-badge status-error">{{ notificacoes_nao_lidas }}</span>
+        {% endif %}
     </a>
-</div>
+</aside>
+<div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true"></div>

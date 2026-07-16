@@ -1,45 +1,16 @@
 {% extends 'base.html' %}
-{% block title %}Sem conexão{% endblock %}
+{% block title %}Modo Offline{% endblock %}
 {% block content %}
-<div class="container py-5">
+<div class="container py-6">
     <div class="row justify-content-center">
         <div class="col-lg-6 text-center">
-            <div class="mb-4">
-                <i class="bi bi-wifi-off" style="font-size:5rem;color:#6c757d;"></i>
+            <div class="empty-state-icon">
+                <i class="bi bi-wifi-off" style="font-size:4rem;color:var(--color-text-muted);" aria-hidden="true"></i>
             </div>
-            <h3 class="fw-bold mb-3">Sem conexão à internet</h3>
-            <p class="text-muted mb-4">Não consegues aceder a esta página sem internet. Verifica a tua ligação e tenta novamente.</p>
-            <div class="card dashboard-card p-4 mb-4" id="savedList" style="display:none;">
-                <h6 class="fw-bold mb-3"><i class="bi bi-download me-1"></i>Oportunidades Guardadas</h6>
-                <div id="savedItems" class="list-group list-group-flush"></div>
-            </div>
-            <a href="/" class="btn btn-primary px-4 py-2 fw-bold">
-                <i class="bi bi-house me-1"></i>Voluntar à Página Inicial
-            </a>
+            <h1 class="h2 mt-4">Estás offline</h1>
+            <p class="text-muted mb-5">Verifica a tua ligação à internet e tenta novamente.</p>
+            <a href="{% url 'core:home' %}" class="btn btn-primary">Tentar Novamente</a>
         </div>
     </div>
 </div>
-<script>
-if ('caches' in window) {
-    caches.open('voluntariado-pages-v2').then(cache => {
-        cache.keys().then(keys => {
-            const opps = keys.filter(r => r.url.includes('/oportunidades/') && r.url !== '/oportunidades/' && r.url !== '/oportunidades/favoritos/');
-            if (opps.length > 0) {
-                document.getElementById('savedList').style.display = 'block';
-                const container = document.getElementById('savedItems');
-                opps.forEach(req => {
-                    const id = req.url.split('/oportunidades/')[1]?.replace('/', '');
-                    if (id && !isNaN(id)) {
-                        const a = document.createElement('a');
-                        a.href = req.url;
-                        a.className = 'list-group-item list-group-item-action';
-                        a.innerHTML = '<i class="bi bi-file-earmark-text me-2"></i>Oportunidade #' + id;
-                        container.appendChild(a);
-                    }
-                });
-            }
-        });
-    });
-}
-</script>
 {% endblock %}

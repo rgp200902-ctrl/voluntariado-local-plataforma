@@ -1,0 +1,268 @@
+/* ==========================================================================
+   COMPONENT — MODAL / DRAWER
+   Accessible dialog with backdrop, focus trap, and animations
+   ========================================================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background-color: var(--color-bg-overlay);
+  backdrop-filter: var(--glass-blur);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-modal) var(--ease-modal),
+    visibility var(--duration-modal) var(--ease-modal);
+}
+
+.modal-overlay--open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  --modal-bg: var(--color-bg-elevated);
+  --modal-border: var(--color-border-modal);
+  --modal-radius: var(--radius-modal);
+  --modal-shadow: var(--shadow-modal);
+  --modal-max-width: 32rem;
+  --modal-max-height: calc(100vh - 2rem);
+
+  position: relative;
+  z-index: var(--z-modal);
+  width: 100%;
+  max-width: var(--modal-max-width);
+  max-height: var(--modal-max-height);
+  background-color: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: var(--modal-radius);
+  box-shadow: var(--modal-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: scale(0.95) translateY(0.5rem);
+  opacity: 0;
+  transition:
+    transform var(--duration-modal) var(--ease-modal),
+    opacity var(--duration-modal) var(--ease-modal);
+}
+
+.modal-overlay--open .modal {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* ========================================================================
+   MODAL SIZES
+   ======================================================================== */
+.modal--sm { --modal-max-width: 24rem; }
+.modal--md { --modal-max-width: 32rem; }
+.modal--lg { --modal-max-width: 48rem; }
+.modal--xl { --modal-max-width: 64rem; }
+.modal--full { --modal-max-width: calc(100vw - 2rem); }
+
+/* ========================================================================
+   MODAL PARTS
+   ======================================================================== */
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+}
+
+.modal__title {
+  font: var(--type-h4);
+  color: var(--color-text-primary);
+}
+
+.modal__close {
+  flex-shrink: 0;
+  margin-left: var(--space-4);
+  margin-top: calc(var(--space-2) * -1);
+  margin-right: calc(var(--space-2) * -1);
+}
+
+.modal__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-6);
+}
+
+.modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+}
+
+/* ========================================================================
+   DRAWER (side panel)
+   ======================================================================== */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal-backdrop);
+  background-color: var(--color-bg-overlay);
+  backdrop-filter: var(--glass-blur);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-drawer) var(--ease-drawer),
+    visibility var(--duration-drawer) var(--ease-drawer);
+}
+
+.drawer-overlay--open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.drawer {
+  --drawer-bg: var(--color-bg-elevated);
+  --drawer-border: var(--color-border-modal);
+  --drawer-radius: var(--radius-drawer);
+  --drawer-shadow: var(--shadow-drawer);
+  --drawer-width: 28rem;
+
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-modal);
+  width: var(--drawer-width);
+  max-width: 100vw;
+  height: 100%;
+  background-color: var(--drawer-bg);
+  border-left: 1px solid var(--drawer-border);
+  box-shadow: var(--drawer-shadow);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--duration-drawer) var(--ease-drawer);
+}
+
+.drawer-overlay--open .drawer {
+  transform: translateX(0);
+}
+
+.drawer--left {
+  right: auto;
+  left: 0;
+  border-left: none;
+  border-right: 1px solid var(--drawer-border);
+  transform: translateX(-100%);
+}
+
+.drawer-overlay--open .drawer--left {
+  transform: translateX(0);
+}
+
+.drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+}
+
+.drawer__title {
+  font: var(--type-h4);
+  color: var(--color-text-primary);
+}
+
+.drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-6);
+}
+
+.drawer__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border-subtle);
+  flex-shrink: 0;
+}
+
+/* ========================================================================
+   CONFIRM DIALOG (specialized modal)
+   ======================================================================== */
+.confirm-dialog {
+  --modal-max-width: 24rem;
+}
+
+.confirm-dialog__icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-4);
+  flex-shrink: 0;
+}
+
+.confirm-dialog__icon--danger {
+  background-color: var(--color-error-50);
+  color: var(--color-error-600);
+}
+
+.confirm-dialog__icon--warning {
+  background-color: var(--color-warning-50);
+  color: var(--color-warning-600);
+}
+
+.confirm-dialog__icon--info {
+  background-color: var(--color-info-50);
+  color: var(--color-info-600);
+}
+
+.confirm-dialog__icon .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.confirm-dialog__message {
+  text-align: center;
+  font: var(--type-body);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+/* ========================================================================
+   REDUCED MOTION
+   ======================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal,
+  .drawer-overlay,
+  .drawer {
+    transition: none;
+  }
+  .modal-overlay--open .modal {
+    transform: none;
+  }
+  .drawer-overlay--open .drawer {
+    transform: none;
+  }
+}

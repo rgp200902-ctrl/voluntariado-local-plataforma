@@ -1,36 +1,73 @@
 {% extends 'base.html' %}
 {% block title %}Minhas Inscrições{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-3">{% include 'dashboard/sidebar_volunteer.html' %}</div>
-        <div class="col-md-9">
-            <h3 class="fw-bold mb-4">As Minhas Inscrições</h3>
-            <div class="card dashboard-card">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light"><tr><th>Oportunidade</th><th>Instituição</th><th>Data</th><th>Estado</th><th></th></tr></thead>
-                        <tbody>
-                            {% for i in inscricoes %}
-                            <tr>
-                                <td><a href="{% url 'oportunidades:detail' i.oportunidade.id %}" class="fw-medium text-decoration-none">{{ i.oportunidade.titulo }}</a></td>
-                                <td>{{ i.oportunidade.instituicao.nome }}</td>
-                                <td><small class="text-muted">{{ i.data_inscricao|date:'d/m/Y' }}</small></td>
-                                <td><span class="badge bg-{% if i.estado == 'aceite' %}success{% elif i.estado == 'recusada' %}danger{% elif i.estado == 'cancelada' %}secondary{% elif i.estado == 'concluida' %}info{% else %}warning{% endif %}">{{ i.get_estado_display }}</span></td>
-                                <td>
-                                    {% if i.estado == 'submetida' %}<a href="{% url 'oportunidades:cancelar_inscricao' i.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tens a certeza?')">Cancelar</a>
-                                    {% elif i.estado == 'concluida' %}
-                                    <a href="{% url 'accounts:gerar_certificado' i.oportunidade.id %}" class="btn btn-sm btn-success"><i class="bi bi-award me-1"></i>Certificado</a>
-                                    <a href="{% url 'accounts:avaliar_oportunidade' i.oportunidade.id %}" class="btn btn-sm btn-warning"><i class="bi bi-star me-1"></i>Avaliar</a>
-                                    {% endif %}
-                                    <a href="{% url 'oportunidades:avaliacoes' i.oportunidade.id %}" class="btn btn-sm btn-outline-secondary" title="Ver avaliações"><i class="bi bi-chat-dots"></i></a>
-                            </tr>
-                            {% empty %}<tr><td colspan="5" class="text-center text-muted py-4">Nenhuma inscrição encontrada.</td></tr>{% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_volunteer.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">As Minhas Inscrições</h1>
             </div>
         </div>
+
+        {% if inscricoes %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Oportunidade</th>
+                        <th>Instituição</th>
+                        <th>Data</th>
+                        <th>Estado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in inscricoes %}
+                    <tr>
+                        <td><a href="{% url 'oportunidades:detail' i.oportunidade.id %}" class="fw-medium" style="text-decoration:none;">{{ i.oportunidade.titulo }}</a></td>
+                        <td>{{ i.oportunidade.instituicao.nome }}</td>
+                        <td><small class="text-muted">{{ i.data_inscricao|date:'d/m/Y' }}</small></td>
+                        <td>
+                            <span class="status-badge status-{% if i.estado == 'aceite' %}success{% elif i.estado == 'recusada' %}error{% elif i.estado == 'cancelada' %}default{% elif i.estado == 'concluida' %}info{% else %}warning{% endif %}">
+                                <span class="status-badge-dot"></span>
+                                {{ i.get_estado_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                {% if i.estado == 'submetida' %}
+                                <a href="{% url 'oportunidades:cancelar_inscricao' i.id %}" class="icon-btn icon-btn-sm icon-btn-danger" aria-label="Cancelar inscrição" title="Cancelar" onclick="return confirm('Tens a certeza?')">
+                                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                </a>
+                                {% elif i.estado == 'concluida' %}
+                                <a href="{% url 'accounts:gerar_certificado' i.oportunidade.id %}" class="icon-btn icon-btn-sm" aria-label="Certificado" title="Certificado" style="color:var(--color-success);">
+                                    <i class="bi bi-award" aria-hidden="true"></i>
+                                </a>
+                                <a href="{% url 'accounts:avaliar_oportunidade' i.oportunidade.id %}" class="icon-btn icon-btn-sm" aria-label="Avaliar" title="Avaliar" style="color:var(--color-warning);">
+                                    <i class="bi bi-star" aria-hidden="true"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'oportunidades:avaliacoes' i.oportunidade.id %}" class="icon-btn icon-btn-sm" aria-label="Ver avaliações" title="Avaliações">
+                                    <i class="bi bi-chat-dots" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-card-list" style="font-size:3rem;" aria-hidden="true"></i></div>
+            <h3 class="empty-state-title">Nenhuma inscrição encontrada</h3>
+            <p class="empty-state-description">Ainda não te inscreveste em nenhuma oportunidade.</p>
+            <div class="empty-state-actions">
+                <a href="{% url 'oportunidades:list' %}" class="btn btn-primary btn-sm">Explorar Oportunidades</a>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -1,33 +1,67 @@
 {% extends 'base.html' %}
-{% block title %}Categorias{% endblock %}
+{% block title %}Gerir Categorias{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-3">{% include 'dashboard/sidebar_admin.html' %}</div>
-        <div class="col-md-9">
-            <h3 class="fw-bold mb-4">Categorias</h3>
-            <div class="card dashboard-card mb-4">
-                <div class="card-body p-4">
-                    <h6 class="fw-bold mb-3">Nova Categoria</h6>
-                    <form method="post" class="row g-3">
-                        {% csrf_token %}
-                        <div class="col-md-4"><input type="text" name="nome" class="form-control" placeholder="Nome da categoria" required></div>
-                        <div class="col-md-6"><input type="text" name="descricao" class="form-control" placeholder="Descrição (opcional)"></div>
-                        <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Criar</button></div>
-                    </form>
-                </div>
-            </div>
-            <div class="card dashboard-card">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light"><tr><th>Nome</th><th>Descrição</th><th>Ativa</th></tr></thead>
-                    <tbody>
-                        {% for cat in categorias %}
-                        <tr><td class="fw-medium">{{ cat.nome }}</td><td>{{ cat.descricao|default:'-' }}</td><td>{% if cat.ativa %}<span class="badge bg-success">Sim</span>{% else %}<span class="badge bg-secondary">Não</span>{% endif %}</td></tr>
-                        {% empty %}<tr><td colspan="3" class="text-center text-muted py-4">Nenhuma categoria.</td></tr>{% endfor %}
-                    </tbody>
-                </table>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_admin.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Categorias</h1>
+                <p class="page-header-description">Gerir categorias de oportunidades</p>
             </div>
         </div>
+
+        <div class="card mb-5" style="max-width:500px;">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <h3 class="h4 mb-3">Nova Categoria</h3>
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="form-label" for="nome">Nome</label>
+                            <input type="text" name="nome" id="nome" class="form-input" placeholder="Nome da categoria" required>
+                        </div>
+                        <div class="form-group d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">Criar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if categorias %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Ativa</th>
+                        <th>Criada em</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cat in categorias %}
+                    <tr>
+                        <td class="fw-medium">{{ cat.nome }}</td>
+                        <td>
+                            <span class="status-badge status-{% if cat.ativa %}success{% else %}default{% endif %}">
+                                <span class="status-badge-dot"></span>
+                                {% if cat.ativa %}Sim{% else %}Não{% endif %}
+                            </span>
+                        </td>
+                        <td><small class="text-muted">{{ cat.data_criacao|date:'d/m/Y' }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-tags" style="font-size:3rem;" aria-hidden="true"></i></div>
+            <h3 class="empty-state-title">Nenhuma categoria</h3>
+            <p class="empty-state-description">Cria a primeira categoria para começar.</p>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

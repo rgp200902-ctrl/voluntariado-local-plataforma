@@ -1,60 +1,66 @@
 {% extends 'base.html' %}
 {% block title %}Gerir Tags{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-bold mb-0"><i class="bi bi-tags me-2"></i>Gerir Tags</h1>
-    </div>
-
-    <div class="card dashboard-card mb-4">
-        <div class="card-body">
-            <h5 class="fw-bold mb-3">Criar Nova Tag</h5>
-            <form method="post">
-                {% csrf_token %}
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-5">
-                        <label class="form-label">Nome</label>
-                        <input type="text" name="nome" class="form-control" required placeholder="Ex: Cozinha, Ensino, Saúde...">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Cor</label>
-                        <input type="color" name="cor" class="form-control form-control-color" value="#0d6efd">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-success w-100"><i class="bi bi-plus-lg me-1"></i>Criar</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="card dashboard-card">
-        <div class="card-body">
-            <h5 class="fw-bold mb-3">Tags Existentes ({{ tags.count }})</h5>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead>
-                        <tr><th>Tag</th><th>Voluntários</th><th>Oportunidades</th><th>Ações</th></tr>
-                    </thead>
-                    <tbody>
-                        {% for tag in tags %}
-                        <tr>
-                            <td><span class="badge" style="background-color:{{ tag.cor }};color:#fff;padding:0.4em 0.8em;font-size:0.9em;">{{ tag.nome }}</span></td>
-                            <td>{{ tag.total_voluntarios }}</td>
-                            <td>{{ tag.total_oportunidades }}</td>
-                            <td>
-                                <a href="#" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="if(confirm('Eliminar tag {{ tag.nome }}?')){document.getElementById('del-tag-{{ tag.id }}').submit();}">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr><td colspan="4" class="text-center text-muted py-4">Nenhuma tag criada ainda</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_admin.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Tags</h1>
+                <p class="page-header-description">Gerir tags de interesse para voluntários e oportunidades</p>
             </div>
         </div>
+
+        <div class="card mb-5" style="max-width:500px;">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <h3 class="h4 mb-3">Nova Tag</h3>
+                    <div class="form-row form-row-3">
+                        <div class="form-group">
+                            <label class="form-label" for="nome">Nome</label>
+                            <input type="text" name="nome" id="nome" class="form-input" placeholder="Ex: Ambiente" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="cor">Cor</label>
+                            <input type="color" name="cor" id="cor" class="form-input" value="#0d6efd" style="height:2.5rem;padding:0.25rem;">
+                        </div>
+                        <div class="form-group d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">Criar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if tags %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tag</th>
+                        <th>Voluntários</th>
+                        <th>Oportunidades</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tag in tags %}
+                    <tr>
+                        <td><span class="tag-badge">{{ tag.nome }}</span></td>
+                        <td>{{ tag.total_voluntarios }}</td>
+                        <td>{{ tag.total_oportunidades }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-bookmark" style="font-size:3rem;" aria-hidden="true"></i></div>
+            <h3 class="empty-state-title">Nenhuma tag</h3>
+            <p class="empty-state-description">Cria tags para categorizar oportunidades e interesses.</p>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -1,0 +1,11 @@
+<div class="skeleton{% if variant %} skeleton-{{ variant }}{% endif %}{% if class %} {{ class }}{% endif %}"{% if width %} style="width:{{ width }};"{% endif %}{% if height %} style="height:{{ height }};"{% endif %} aria-hidden="true">
+    {% if variant == 'card' %}
+    <div class="skeleton-line skeleton-line-lg"></div>
+    <div class="skeleton-line"></div>
+    <div class="skeleton-line skeleton-line-sm"></div>
+    {% elif variant == 'avatar' %}
+    <div class="skeleton-avatar"></div>
+    {% elif variant == 'chart' %}
+    <div class="skeleton-chart"></div>
+    {% endif %}
+</div>

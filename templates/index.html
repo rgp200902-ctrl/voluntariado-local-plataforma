@@ -2,102 +2,117 @@
 {% load static %}
 {% block title %}Plataforma de Voluntariado Local{% endblock %}
 {% block content %}
-<div class="hero-section text-center">
+
+<section class="hero">
     <div class="container">
-        <h1 class="display-4 fw-bold mb-3">Faz a Diferença na Tua Comunidade</h1>
-        <p class="lead mb-4">Conectamos instituições locais com voluntários dedicados para construir uma comunidade mais forte e solidária</p>
-        <div class="d-flex justify-content-center gap-3 flex-wrap">
-            <a href="{% url 'accounts:register_volunteer' %}" class="btn btn-light btn-lg px-5 fw-bold">Quero Ser Voluntário</a>
-            <a href="{% url 'accounts:register_institution' %}" class="btn btn-outline-light btn-lg px-5 fw-bold">Sou Instituição</a>
+        <h1 class="hero-title">Faz a Diferença na Tua Comunidade</h1>
+        <p class="hero-description">Conectamos instituições locais com voluntários dedicados para construir uma comunidade mais forte e solidária.</p>
+        <div class="hero-actions">
+            <a href="{% url 'accounts:register_volunteer' %}" class="btn btn-xl btn-light fw-bold">Quero Ser Voluntário</a>
+            <a href="{% url 'accounts:register_institution' %}" class="btn btn-xl btn-outline-light fw-bold">Sou Instituição</a>
         </div>
     </div>
-</div>
+</section>
 
-<section class="py-5">
+<section class="py-6">
     <div class="container">
-        <h2 class="text-center fw-bold mb-5">O Nosso Impacto</h2>
-        <div class="row g-4">
-            <div class="col-md-3">
-                <div class="card stat-card text-center p-4 border-0 shadow-sm h-100">
-                    <div class="display-4 text-primary mb-2">🎯</div>
-                    <h3 class="fw-bold text-primary mb-1">{{ stats.oportunidades_ativas }}</h3>
-                    <p class="text-muted mb-0">Oportunidades Ativas</p>
-                </div>
+        <h2 class="text-center mb-6">O Nosso Impacto</h2>
+        <div class="stat-grid stat-grid-4">
+            <div class="stat-card">
+                <div class="stat-card-icon"><i class="bi bi-megaphone" aria-hidden="true"></i></div>
+                <div class="stat-card-value">{{ stats.oportunidades_ativas }}</div>
+                <div class="stat-card-label">Oportunidades Ativas</div>
             </div>
-            <div class="col-md-3">
-                <div class="card stat-card text-center p-4 border-0 shadow-sm h-100">
-                    <div class="display-4 text-success mb-2">🏛️</div>
-                    <h3 class="fw-bold text-success mb-1">{{ stats.instituicoes }}</h3>
-                    <p class="text-muted mb-0">Instituições</p>
-                </div>
+            <div class="stat-card">
+                <div class="stat-card-icon"><i class="bi bi-building" aria-hidden="true"></i></div>
+                <div class="stat-card-value">{{ stats.instituicoes }}</div>
+                <div class="stat-card-label">Instituições</div>
             </div>
-            <div class="col-md-3">
-                <div class="card stat-card text-center p-4 border-0 shadow-sm h-100">
-                    <div class="display-4 text-purple mb-2">👥</div>
-                    <h3 class="fw-bold text-purple mb-1">{{ stats.voluntarios }}</h3>
-                    <p class="text-muted mb-0">Voluntários</p>
-                </div>
+            <div class="stat-card">
+                <div class="stat-card-icon"><i class="bi bi-people" aria-hidden="true"></i></div>
+                <div class="stat-card-value">{{ stats.voluntarios }}</div>
+                <div class="stat-card-label">Voluntários</div>
             </div>
-            <div class="col-md-3">
-                <div class="card stat-card text-center p-4 border-0 shadow-sm h-100">
-                    <div class="display-4 text-warning mb-2">⏰</div>
-                    <h3 class="fw-bold text-warning mb-1">{{ stats.inscricoes_total }}</h3>
-                    <p class="text-muted mb-0">Inscrições</p>
-                </div>
+            <div class="stat-card">
+                <div class="stat-card-icon"><i class="bi bi-check-circle" aria-hidden="true"></i></div>
+                <div class="stat-card-value">{{ stats.inscricoes_total }}</div>
+                <div class="stat-card-label">Inscrições Realizadas</div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="py-5 bg-white">
+<section class="py-6" style="background:var(--color-bg-elevated);">
     <div class="container">
-        <h2 class="text-center fw-bold mb-5">Oportunidades em Destaque</h2>
-        <div class="row g-4">
+        <h2 class="text-center mb-6">Oportunidades em Destaque</h2>
+        <div class="opportunity-grid">
             {% for op in destaques %}
-            <div class="col-md-4">
-                <div class="card op-card h-100 border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="fw-bold mb-0">{{ op.titulo }}</h5>
-                            {% if op.categoria %}<span class="badge bg-primary-soft text-primary">{{ op.categoria.nome }}</span>{% endif %}
-                        </div>
-                        <p class="text-primary small mb-1 fw-medium">{{ op.instituicao.nome }}</p>
-                        <p class="text-muted small mb-2">📍 {{ op.local|default:'Portugal' }} • {% if op.data_inicio %}{{ op.data_inicio|date:'d/m/Y' }}{% endif %}</p>
-                        <p class="text-muted small mb-3">{{ op.descricao|truncatewords:30 }}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">{{ op.registrations.count }} inscritos · {{ op.vagas }} vagas</small>
-                            <a href="{% url 'oportunidades:detail' op.id %}" class="btn btn-primary btn-sm">Saber Mais</a>
-                        </div>
-                    </div>
+            <div class="opportunity-card">
+                <div>
+                    <h3 class="opportunity-card-title">{{ op.titulo }}</h3>
+                    <p class="text-sm text-muted" style="margin-top:2px;">{{ op.instituicao.nome }}</p>
+                </div>
+                <div class="opportunity-card-meta">
+                    {% if op.local %}<span><i class="bi bi-geo-alt" aria-hidden="true"></i> {{ op.local }}</span>{% endif %}
+                    {% if op.data_inicio %}<span><i class="bi bi-calendar" aria-hidden="true"></i> {{ op.data_inicio|date:'d/m/Y' }}</span>{% endif %}
+                    {% if op.categoria %}<span class="tag-badge">{{ op.categoria.nome }}</span>{% endif %}
+                </div>
+                <p class="text-sm text-muted" style="margin:0;">{{ op.descricao|truncatewords:30 }}</p>
+                <div class="opportunity-card-actions">
+                    <small class="text-muted" style="margin-right:auto;">{{ op.registrations.count }} inscritos · {{ op.vagas }} vagas</small>
+                    <a href="{% url 'oportunidades:detail' op.id %}" class="btn btn-primary btn-sm">Saber Mais</a>
                 </div>
             </div>
             {% empty %}
-            <div class="col-12 text-center text-muted py-5"><p>Ainda não há oportunidades disponíveis.</p></div>
+            <div class="empty-state" style="grid-column:1/-1;">
+                <div class="empty-state-icon"><i class="bi bi-megaphone" style="font-size:3rem;" aria-hidden="true"></i></div>
+                <h3 class="empty-state-title">Nenhuma oportunidade disponível</h3>
+                <p class="empty-state-description">De momento não há oportunidades publicadas. Volta a visitar-nos em breve.</p>
+            </div>
             {% endfor %}
         </div>
-        <div class="text-center mt-4">
-            <a href="{% url 'oportunidades:list' %}" class="btn btn-dark btn-lg px-5 fw-bold">Ver Todas as Oportunidades</a>
+        {% if destaques %}
+        <div class="text-center mt-6">
+            <a href="{% url 'oportunidades:list' %}" class="btn btn-primary btn-lg fw-bold">Ver Todas as Oportunidades</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="py-6">
+    <div class="container">
+        <h2 class="text-center mb-6">Como Funciona</h2>
+        <div class="steps steps-4">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3 class="step-title">Regista-te</h3>
+                <p class="step-description">Cria a tua conta gratuitamente como voluntário ou instituição</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3 class="step-title">Explora</h3>
+                <p class="step-description">Descobre oportunidades de voluntariado perto de ti</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3 class="step-title">Inscreve-te</h3>
+                <p class="step-description">Candidata-te às oportunidades que mais te interessam</p>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3 class="step-title">Colabora</h3>
+                <p class="step-description">Participa ativamente e faz a diferença na tua comunidade</p>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="py-5">
+<section class="cta-section">
     <div class="container">
-        <h2 class="text-center fw-bold mb-5">Como Funciona</h2>
-        <div class="row g-4 text-center">
-            <div class="col-md-3"><div class="display-5 mb-3">📝</div><h5 class="fw-bold">Registe-se</h5><p class="text-muted small">Crie a sua conta gratuitamente como voluntário ou instituição</p></div>
-            <div class="col-md-3"><div class="display-5 mb-3">🔍</div><h5 class="fw-bold">Explore</h5><p class="text-muted small">Veja as oportunidades disponíveis na sua área</p></div>
-            <div class="col-md-3"><div class="display-5 mb-3">✋</div><h5 class="fw-bold">Candidate-se</h5><p class="text-muted small">Inscreva-se nas oportunidades que mais lhe interessam</p></div>
-            <div class="col-md-3"><div class="display-5 mb-3">🎉</div><h5 class="fw-bold">Colabore</h5><p class="text-muted small">Participe ativamente e faça a diferença na comunidade</p></div>
-        </div>
+        <h2 class="fw-bold mb-3" style="color:inherit;">Pronto para Fazer a Diferença?</h2>
+        <p class="hero-description" style="margin-bottom:var(--space-6);">Junta-te a dezenas de voluntários e instituições que já estão a transformar a nossa comunidade</p>
+        <a href="{% url 'accounts:register' %}" class="btn btn-xl btn-light fw-bold">Comece Agora</a>
     </div>
 </section>
 
-<section class="py-5 bg-primary text-white text-center">
-    <div class="container">
-        <h2 class="fw-bold mb-3">Pronto para Fazer a Diferença?</h2>
-        <p class="lead mb-4">Junte-se a dezenas de voluntários e instituições que já estão a transformar a nossa comunidade</p>
-        <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-5 fw-bold">Comece Agora</a>
-    </div>
-</section>
 {% endblock %}

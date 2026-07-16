@@ -1,0 +1,248 @@
+/* ==========================================================================
+   DESIGN TOKENS — RADIUS, SHADOWS, MOTION, Z-INDEX, BORDERS
+   ========================================================================== */
+
+:root {
+  /* ========================================================================
+     BORDER RADIUS
+     ======================================================================== */
+  --radius-none:  0;
+  --radius-sm:    0.25rem;   /* 4px  — badges, pills, tags */
+  --radius-md:    0.375rem;  /* 6px  — inputs, buttons (default) */
+  --radius-lg:    0.5rem;    /* 8px  — cards, dropdowns */
+  --radius-xl:    0.75rem;   /* 12px — modals, drawers, large cards */
+  --radius-2xl:   1rem;      /* 16px — hero sections, full-screen modals */
+  --radius-full:  9999px;    /* pills, avatars, circular buttons */
+
+  /* Semantic radius aliases */
+  --radius-badge:      var(--radius-full);
+  --radius-input:      var(--radius-md);
+  --radius-button:     var(--radius-md);
+  --radius-button-sm:  var(--radius-sm);
+  --radius-card:       var(--radius-lg);
+  --radius-card-hover: var(--radius-lg);
+  --radius-modal:      var(--radius-xl);
+  --radius-drawer:     var(--radius-xl);
+  --radius-tooltip:    var(--radius-sm);
+  --radius-toast:      var(--radius-md);
+  --radius-avatar:     var(--radius-full);
+  --radius-progress:   var(--radius-full);
+  --radius-table:      var(--radius-lg);
+  --radius-accordion:  var(--radius-lg);
+
+  /* ========================================================================
+     SHADOWS / ELEVATION
+     Layered system: none → xs → sm → md → lg → xl → 2xl
+     ======================================================================== */
+  --shadow-none: none;
+
+  --shadow-xs: 0 1px 2px 0 rgb(15 23 42 / 0.03);
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05), 0 1px 3px -1px rgb(15 23 42 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.07), 0 2px 4px -2px rgb(15 23 42 / 0.07);
+  --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.07), 0 4px 6px -4px rgb(15 23 42 / 0.07);
+  --shadow-xl: 0 20px 25px -5px rgb(15 23 42 / 0.08), 0 8px 10px -6px rgb(15 23 42 / 0.08);
+  --shadow-2xl: 0 25px 50px -12px rgb(15 23 42 / 0.15);
+
+  /* Colored shadows for brand elevation */
+  --shadow-brand-sm: 0 1px 2px 0 rgb(13 110 253 / 0.15);
+  --shadow-brand-md: 0 4px 6px -1px rgb(13 110 253 / 0.15), 0 2px 4px -2px rgb(13 110 253 / 0.1);
+  --shadow-brand-lg: 0 10px 15px -3px rgb(13 110 253 / 0.15), 0 4px 6px -4px rgb(13 110 253 / 0.1);
+
+  /* Semantic shadow aliases */
+  --shadow-card:           var(--shadow-sm);
+  --shadow-card-hover:     var(--shadow-md);
+  --shadow-card-active:    var(--shadow-sm);
+  --shadow-dropdown:       var(--shadow-lg);
+  --shadow-modal:          var(--shadow-xl);
+  --shadow-drawer:         var(--shadow-2xl);
+  --shadow-tooltip:        var(--shadow-md);
+  --shadow-toast:          var(--shadow-lg);
+  --shadow-navbar:         0 1px 3px 0 rgb(15 23 42 / 0.08), 0 1px 2px -1px rgb(15 23 42 / 0.08);
+  --shadow-sidebar:        4px 0 6px -1px rgb(15 23 42 / 0.07);
+  --shadow-sticky:         0 -1px 3px 0 rgb(15 23 42 / 0.05), 0 1px 2px -1px rgb(15 23 42 / 0.05);
+
+  /* Focus ring (used by all interactive elements) */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: var(--color-brand-500);
+  --focus-ring: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+  --focus-ring-inset: inset 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+
+  /* ========================================================================
+     BORDERS
+     ======================================================================== */
+  --border-width: 1px;
+  --border-width-focus: 2px;
+
+  --border-color-subtle: var(--color-neutral-200);
+  --border-color-default: var(--color-neutral-300);
+  --border-color-strong: var(--color-neutral-400);
+  --border-color-focus: var(--color-brand-500);
+  --border-color-error: var(--color-error-500);
+  --border-color-success: var(--color-success-500);
+
+  /* Semantic border aliases */
+  --border-input: var(--border-color-default);
+  --border-input-hover: var(--color-neutral-400);
+  --border-input-focus: var(--border-color-focus);
+  --border-input-error: var(--border-color-error);
+  --border-card: var(--border-color-subtle);
+  --border-card-hover: var(--border-color-default);
+  --border-table: var(--border-color-subtle);
+  --border-divider: var(--border-color-subtle);
+  --border-modal: var(--border-color-subtle);
+  --border-tooltip: var(--border-color-default);
+
+  /* ========================================================================
+     MOTION / ANIMATION
+     Duration, easing, and reduced motion support
+     ======================================================================== */
+  --duration-instant: 0ms;
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Semantic duration aliases */
+  --duration-hover: var(--duration-fast);
+  --duration-focus: var(--duration-fast);
+  --duration-press: var(--duration-instant);
+  --duration-fade: var(--duration-normal);
+  --duration-slide: var(--duration-slow);
+  --duration-modal: var(--duration-slow);
+  --duration-drawer: var(--duration-slow);
+  --duration-toast: var(--duration-normal);
+  --duration-tooltip: var(--duration-fast);
+  --duration-skeleton: 1.5s;
+
+  /* Semantic easing aliases */
+  --ease-hover: var(--ease-out);
+  --ease-focus: var(--ease-out);
+  --ease-slide: var(--ease-in-out);
+  --ease-modal: var(--ease-out);
+  --ease-drawer: var(--ease-in-out);
+  --ease-toast: var(--ease-out);
+  --ease-skeleton: var(--ease-in-out);
+
+  /* ========================================================================
+     Z-INDEX SCALE
+     ======================================================================== */
+  --z-hide: -1;
+  --z-auto: auto;
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+  --z-toast: 800;
+  --z-command-palette: 900;
+  --z-max: 9999;
+
+  /* ========================================================================
+     TRANSITIONS (pre-built for common patterns)
+     ======================================================================== */
+  --transition-fast: var(--duration-fast) var(--ease-out);
+  --transition-normal: var(--duration-normal) var(--ease-out);
+  --transition-slow: var(--duration-slow) var(--ease-out);
+  --transition-spring: var(--duration-slow) var(--ease-spring);
+
+  --transition-colors: color var(--duration-fast) var(--ease-out),
+                       background-color var(--duration-fast) var(--ease-out),
+                       border-color var(--duration-fast) var(--ease-out),
+                       fill var(--duration-fast) var(--ease-out),
+                       stroke var(--duration-fast) var(--ease-out);
+
+  --transition-shadow: box-shadow var(--duration-normal) var(--ease-out);
+  --transition-transform: transform var(--duration-normal) var(--ease-out);
+  --transition-opacity: opacity var(--duration-fast) var(--ease-out);
+
+  --transition-all: all var(--duration-normal) var(--ease-out);
+
+  /* ========================================================================
+     GLASSMORPHISM / BACKDROP
+     ======================================================================== */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-blur: blur(12px);
+  --glass-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.08);
+
+  --glass-bg-dark: rgba(15, 23, 42, 0.7);
+  --glass-border-dark: rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================================================
+   DARK MODE OVERRIDES
+   ======================================================================== */
+[data-theme="dark"] {
+  /* Shadows — more pronounced in dark mode */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2), 0 1px 3px -1px rgb(0 0 0 / 0.15);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+
+  /* Borders — darker in dark mode */
+  --border-color-subtle: var(--color-neutral-800);
+  --border-color-default: var(--color-neutral-700);
+  --border-color-strong: var(--color-neutral-600);
+
+  /* Semantic border overrides */
+  --border-input: var(--color-neutral-700);
+  --border-input-hover: var(--color-neutral-600);
+  --border-card: var(--color-neutral-800);
+  --border-card-hover: var(--color-neutral-700);
+  --border-table: var(--color-neutral-800);
+  --border-divider: var(--color-neutral-800);
+  --border-modal: var(--color-neutral-800);
+
+  /* Glassmorphism dark */
+  --glass-bg: var(--glass-bg-dark);
+  --glass-border: var(--glass-border-dark);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+  /* Focus ring — brighter in dark */
+  --focus-ring-color: var(--color-brand-400);
+}
+
+/* ========================================================================
+   REDUCED MOTION — Global respect
+   ======================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0ms;
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+    --duration-hover: 0ms;
+    --duration-focus: 0ms;
+    --duration-press: 0ms;
+    --duration-fade: 0ms;
+    --duration-slide: 0ms;
+    --duration-modal: 0ms;
+    --duration-drawer: 0ms;
+    --duration-toast: 0ms;
+    --duration-tooltip: 0ms;
+    --duration-skeleton: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

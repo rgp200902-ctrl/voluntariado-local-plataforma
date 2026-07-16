@@ -1,22 +1,39 @@
 {% extends 'base.html' %}
 {% block title %}Histórico{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-3">{% include 'dashboard/sidebar_volunteer.html' %}</div>
-        <div class="col-md-9">
-            <h3 class="fw-bold mb-4">Histórico de Atividades</h3>
-            <div class="card dashboard-card">
-                <ul class="list-group list-group-flush">
-                    {% for a in atividades %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div><strong>{{ a.acao }}</strong><br><small class="text-muted">{{ a.entidade }} · {{ a.detalhe|default:'' }}</small></div>
-                        <small class="text-muted">{{ a.data_hora|date:'d/m/Y H:i' }}</small>
-                    </li>
-                    {% empty %}<li class="list-group-item text-center text-muted py-4">Nenhuma atividade registada.</li>{% endfor %}
-                </ul>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_volunteer.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Histórico de Atividades</h1>
+                <p class="page-header-description">Registo de todas as tuas ações na plataforma</p>
             </div>
         </div>
+
+        {% if atividades %}
+        <div class="card">
+            <div class="card-body" style="padding:var(--space-2);">
+                {% for a in atividades %}
+                <div class="d-flex justify-content-between align-items-center" style="padding:var(--space-3);border-bottom:1px solid var(--color-border);">
+                    <div>
+                        <span class="text-sm fw-medium">{{ a.acao }}</span>
+                        {% if a.detalhe %}
+                        <br><small class="text-sm text-muted">{{ a.detalhe }}</small>
+                        {% endif %}
+                    </div>
+                    <small class="text-sm text-muted" style="flex-shrink:0;">{{ a.data_hora|date:'d/m/Y H:i' }}</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-clock-history" style="font-size:3rem;" aria-hidden="true"></i></div>
+            <h3 class="empty-state-title">Nenhuma atividade registada</h3>
+            <p class="empty-state-description">As tuas ações aparecerão aqui à medida que utilizas a plataforma.</p>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

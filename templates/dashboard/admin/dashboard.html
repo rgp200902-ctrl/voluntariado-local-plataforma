@@ -1,57 +1,75 @@
 {% extends 'base.html' %}
 {% block title %}Admin Dashboard{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-3">{% include 'dashboard/sidebar_admin.html' %}</div>
-        <div class="col-md-9">
-            <h3 class="fw-bold mb-4">Dashboard Administrativo</h3>
-            <div class="row g-4 mb-4">
-                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-primary mb-0">{{ stats.utilizadores }}</h5><small class="text-muted">Total Utilizadores</small></div></div>
-                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-success mb-0">{{ stats.voluntarios }}</h5><small class="text-muted">Voluntários</small></div></div>
-                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-info mb-0">{{ stats.instituicoes }}</h5><small class="text-muted">Instituições</small></div></div>
-                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-warning mb-0">{{ stats.oportunidades_pendentes }}</h5><small class="text-muted">Pendentes</small></div></div>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_admin.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Dashboard Administrativo</h1>
             </div>
-            <div class="row g-4 mb-4">
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-secondary mb-0">{{ stats.inscricoes }}</h5><small class="text-muted">Total Inscrições</small></div></div>
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-danger mb-0">{{ stats.instituicoes_pendentes }}</h5><small class="text-muted">Inst. Pendentes</small></div></div>
-                <div class="col-md-4"><div class="card dashboard-card p-4"><h5 class="fw-bold text-primary mb-0">{{ stats.oportunidades }}</h5><small class="text-muted">Total Oportunidades</small></div></div>
+        </div>
+
+        <div class="stat-grid stat-grid-4">
+            <div class="stat-card">
+                <div class="stat-card-value">{{ stats.utilizadores }}</div>
+                <div class="stat-card-label">Total Utilizadores</div>
             </div>
-            {% if stats.oportunidades_pendentes > 0 %}
-            <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <div>
-                    Tens <strong>{{ stats.oportunidades_pendentes }}</strong> oportunidade(s) pendente(s) de aprovação.
-                    <a href="{% url 'accounts:admin_oportunidades' %}?filtro=pendentes" class="alert-link fw-bold">Rever agora</a>
+            <div class="stat-card">
+                <div class="stat-card-value" style="color:var(--color-success);">{{ stats.voluntarios }}</div>
+                <div class="stat-card-label">Voluntários</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-value" style="color:var(--color-info);">{{ stats.instituicoes }}</div>
+                <div class="stat-card-label">Instituições</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-value" style="color:var(--color-warning);">{{ stats.oportunidades_pendentes }}</div>
+                <div class="stat-card-label">Pendentes</div>
+            </div>
+        </div>
+
+        {% if stats.oportunidades_pendentes > 0 %}
+        <div class="alert alert-warning mb-6" role="alert">
+            <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+            Tens <strong>{{ stats.oportunidades_pendentes }}</strong> oportunidade(s) pendente(s) de aprovação.
+            <a href="{% url 'accounts:admin_oportunidades' %}?filtro=pendentes" style="text-decoration:underline;font-weight:600;">Rever agora</a>
+        </div>
+        {% endif %}
+
+        <div class="row g-4 mb-5">
+            <div class="col-sm-6">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">Inscrições por Estado</h3>
+                    </div>
+                    <canvas id="chartInscricoes" height="250" aria-label="Gráfico de inscrições por estado" role="img"></canvas>
                 </div>
             </div>
-            {% endif %}
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="card dashboard-card p-4">
-                        <h6 class="fw-bold mb-3">Inscrições por Estado</h6>
-                        <canvas id="chartInscricoes" height="250"></canvas>
+            <div class="col-sm-6">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">Oportunidades por Categoria</h3>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card dashboard-card p-4">
-                        <h6 class="fw-bold mb-3">Oportunidades por Categoria</h6>
-                        <canvas id="chartCategorias" height="250"></canvas>
-                    </div>
+                    <canvas id="chartCategorias" height="250" aria-label="Gráfico de oportunidades por categoria" role="img"></canvas>
                 </div>
             </div>
-            <div class="row g-4 mt-2">
-                <div class="col-md-6">
-                    <div class="card dashboard-card p-4">
-                        <h6 class="fw-bold mb-3">Utilizadores por Tipo</h6>
-                        <canvas id="chartUsers" height="200"></canvas>
+        </div>
+        <div class="row g-4">
+            <div class="col-sm-6">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">Utilizadores por Tipo</h3>
                     </div>
+                    <canvas id="chartUsers" height="200" aria-label="Gráfico de utilizadores por tipo" role="img"></canvas>
                 </div>
-                <div class="col-md-6">
-                    <div class="card dashboard-card p-4">
-                        <h6 class="fw-bold mb-3">Estado das Instituições</h6>
-                        <canvas id="chartInstituicoes" height="200"></canvas>
+            </div>
+            <div class="col-sm-6">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">Estado das Instituições</h3>
                     </div>
+                    <canvas id="chartInstituicoes" height="200" aria-label="Gráfico de estado das instituições" role="img"></canvas>
                 </div>
             </div>
         </div>
@@ -59,61 +77,68 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-const inscricoesData = {
-    labels: [{% for item in stats.inscricoes_por_estado %}'{{ item.estado }}'{% if not forloop.last %},{% endif %}{% endfor %}],
-    datasets: [{
-        data: [{% for item in stats.inscricoes_por_estado %}{{ item.total }}{% if not forloop.last %},{% endif %}{% endfor %}],
-        backgroundColor: ['#ffc107','#28a745','#dc3545','#6c757d','#17a2b8'],
-        borderWidth: 0
-    }]
-};
-new Chart(document.getElementById('chartInscricoes'), {
-    type: 'doughnut',
-    data: inscricoesData,
-    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-});
-
-const catData = {
-    labels: [{% for item in stats.oportunidades_por_categoria %}'{{ item.categoria__nome|default:"Sem" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
-    datasets: [{
-        label: 'Oportunidades',
-        data: [{% for item in stats.oportunidades_por_categoria %}{{ item.total }}{% if not forloop.last %},{% endif %}{% endfor %}],
-        backgroundColor: '#0d6efd',
-        borderRadius: 6
-    }]
-};
-new Chart(document.getElementById('chartCategorias'), {
-    type: 'bar',
-    data: catData,
-    options: { responsive: true, indexAxis: 'y', plugins: { legend: { display: false } } }
-});
-
-const usersData = {
-    labels: ['Voluntários', 'Instituições', 'Admins'],
-    datasets: [{
-        data: [{{ stats.voluntarios }}, {{ stats.instituicoes }}, {{ stats.utilizadores|add:"-"|add:stats.voluntarios|add:"-"|add:stats.instituicoes }}],
-        backgroundColor: ['#28a745','#17a2b8','#ffc107'],
-        borderWidth: 0
-    }]
-};
-new Chart(document.getElementById('chartUsers'), {
-    type: 'pie',
-    data: usersData,
-    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-});
-
-const instData = {
-    labels: ['Aprovadas', 'Pendentes', 'Recusadas'],
-    datasets: [{
-        data: [{{ stats.instituicoes|add:"-"|add:stats.instituicoes_pendentes }}, {{ stats.instituicoes_pendentes }}, 0],
-        backgroundColor: ['#28a745','#ffc107','#dc3545'],
-        borderWidth: 0
-    }]
-};
-new Chart(document.getElementById('chartInstituicoes'), {
-    type: 'doughnut',
-    data: instData,
-    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-});
+(function(){
+    var inscricoesLabels = [{% for item in stats.inscricoes_por_estado %}'{{ item.estado }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+    if(inscricoesLabels.length > 0) {
+        new Chart(document.getElementById('chartInscricoes'), {
+            type: 'doughnut',
+            data: {
+                labels: inscricoesLabels,
+                datasets: [{
+                    data: [{% for item in stats.inscricoes_por_estado %}{{ item.total }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                    backgroundColor: ['#f59e0b','#16a34a','#dc2626','#9ca3af','#0ea5e9'],
+                    borderWidth: 0
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    } else {
+        document.getElementById('chartInscricoes').parentElement.innerHTML = '<div class="empty-state"><p class="text-muted">Sem dados</p></div>';
+    }
+    var catLabels = [{% for item in stats.oportunidades_por_categoria %}'{{ item.categoria__nome|default:"Sem" }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+    if(catLabels.length > 0) {
+        new Chart(document.getElementById('chartCategorias'), {
+            type: 'bar',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    label: 'Oportunidades',
+                    data: [{% for item in stats.oportunidades_por_categoria %}{{ item.total }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                    backgroundColor: '#0d6efd',
+                    borderRadius: 6
+                }]
+            },
+            options: { responsive: true, indexAxis: 'y', plugins: { legend: { display: false } } }
+        });
+    } else {
+        document.getElementById('chartCategorias').parentElement.innerHTML = '<div class="empty-state"><p class="text-muted">Sem dados</p></div>';
+    }
+    new Chart(document.getElementById('chartUsers'), {
+        type: 'pie',
+        data: {
+            labels: ['Voluntários', 'Instituições', 'Admins'],
+            datasets: [{
+                data: [{{ stats.voluntarios }}, {{ stats.instituicoes }}, {{ stats.utilizadores|add:"-"|add:stats.voluntarios|add:"-"|add:stats.instituicoes }}],
+                backgroundColor: ['#16a34a','#0ea5e9','#f59e0b'],
+                borderWidth: 0
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+    var instPendentes = {{ stats.instituicoes_pendentes }};
+    var instAprovadas = {{ stats.instituicoes }} - instPendentes;
+    new Chart(document.getElementById('chartInstituicoes'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Aprovadas', 'Pendentes', 'Recusadas'],
+            datasets: [{
+                data: [instAprovadas, instPendentes, 0],
+                backgroundColor: ['#16a34a','#f59e0b','#dc2626'],
+                borderWidth: 0
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+})();
 </script>
 {% endblock %}

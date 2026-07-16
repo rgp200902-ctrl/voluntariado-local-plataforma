@@ -1,57 +1,77 @@
 {% extends 'base.html' %}
 {% block title %}Meu Perfil{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-3">{% include 'dashboard/sidebar_volunteer.html' %}</div>
-        <div class="col-md-9">
-            <h3 class="fw-bold mb-4">O Meu Perfil</h3>
-            <div class="card dashboard-card">
-                <div class="card-body p-4">
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="text-center mb-4">
-                            {% if volunteer.avatar %}
-                            <img src="{{ volunteer.avatar.url }}" alt="Avatar" class="rounded-circle mb-2" style="width:100px;height:100px;object-fit:cover;border:3px solid var(--primary);">
-                            {% else %}
-                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width:100px;height:100px;background:var(--primary);color:white;font-size:2.5rem;">
-                                {{ user.get_full_name|default:user.email|first|upper }}
-                            </div>
-                            {% endif %}
-                            <div>
-                                <label for="avatar" class="btn btn-outline-primary btn-sm mt-2" style="cursor:pointer;">
-                                    <i class="bi bi-camera me-1"></i>Alterar Foto
-                                </label>
-                                <input type="file" name="avatar" id="avatar" accept="image/*" class="d-none">
-                            </div>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_volunteer.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">O Meu Perfil</h1>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" autocomplete="on">
+                    {% csrf_token %}
+                    <div class="text-center mb-5">
+                        {% if volunteer.avatar %}
+                        <img src="{{ volunteer.avatar.url }}" alt="Foto de perfil" class="navbar-avatar" style="width:6rem;height:6rem;border:3px solid var(--color-primary);">
+                        {% else %}
+                        <div class="navbar-avatar-placeholder" style="width:6rem;height:6rem;font-size:2rem;margin:0 auto;">{{ user.get_full_name|default:user.email|first|upper }}</div>
+                        {% endif %}
+                        <div class="mt-2">
+                            <label for="avatar" class="btn btn-secondary btn-sm" style="cursor:pointer;">
+                                <i class="bi bi-camera" aria-hidden="true"></i>
+                                Alterar Foto
+                            </label>
+                            <input type="file" name="avatar" id="avatar" accept="image/*" class="d-none">
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Nome</label><input type="text" name="first_name" class="form-control" value="{{ user.first_name }}"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Email</label><input type="email" class="form-control" value="{{ user.email }}" disabled></div>
+                    </div>
+
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="form-label" for="first_name">Nome</label>
+                            <input type="text" name="first_name" id="first_name" class="form-input" value="{{ user.first_name }}" autocomplete="given-name">
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Telefone</label><input type="text" name="telefone" class="form-control" value="{{ volunteer.telefone|default:'' }}"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Localidade</label><input type="text" name="localidade" class="form-control" value="{{ volunteer.localidade|default:'' }}"></div>
+                        <div class="form-group">
+                            <label class="form-label" for="email">Email</label>
+                            <input type="email" id="email" class="form-input" value="{{ user.email }}" disabled>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Data de Nascimento</label><input type="date" name="data_nascimento" class="form-control" value="{% if volunteer.data_nascimento %}{{ volunteer.data_nascimento|date:'Y-m-d' }}{% endif %}"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Faixa Etária</label>
-                                <select name="faixa_etaria" class="form-select">
-                                    <option value="">Seleciona...</option>
-                                    <option value="<18" {% if volunteer.faixa_etaria == '<18' %}selected{% endif %}>Menos de 18</option>
-                                    <option value="18-25" {% if volunteer.faixa_etaria == '18-25' %}selected{% endif %}>18-25 anos</option>
-                                    <option value="26-35" {% if volunteer.faixa_etaria == '26-35' %}selected{% endif %}>26-35 anos</option>
-                                    <option value="36-50" {% if volunteer.faixa_etaria == '36-50' %}selected{% endif %}>36-50 anos</option>
-                                    <option value="50+" {% if volunteer.faixa_etaria == '50+' %}selected{% endif %}>Mais de 50</option>
-                                </select>
-                            </div>
+                    </div>
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="form-label" for="telefone">Telefone</label>
+                            <input type="tel" name="telefone" id="telefone" class="form-input" value="{{ volunteer.telefone|default:'' }}" autocomplete="tel">
                         </div>
-                        <div class="mb-3"><label class="form-label fw-medium">Disponibilidade</label><textarea name="disponibilidade" class="form-control" rows="2">{{ volunteer.disponibilidade|default:'' }}</textarea></div>
-                        <div class="mb-3"><label class="form-label fw-medium">Áreas de Interesse</label><textarea name="interesses" class="form-control" rows="2">{{ volunteer.interesses|default:'' }}</textarea></div>
-                        <div class="mb-3"><label class="form-label fw-medium">Competências</label><textarea name="competencias" class="form-control" rows="2">{{ volunteer.competencias|default:'' }}</textarea></div>
-                        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">Guardar Alterações</button>
-                    </form>
-                </div>
+                        <div class="form-group">
+                            <label class="form-label" for="localidade">Localidade</label>
+                            <input type="text" name="localidade" id="localidade" class="form-input" value="{{ volunteer.localidade|default:'' }}" autocomplete="address-level2">
+                        </div>
+                    </div>
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="form-label" for="data_nascimento">Data de Nascimento</label>
+                            <input type="date" name="data_nascimento" id="data_nascimento" class="form-input" value="{% if volunteer.data_nascimento %}{{ volunteer.data_nascimento|date:'Y-m-d' }}{% endif %}" autocomplete="bday">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="faixa_etaria">Faixa Etária</label>
+                            <select name="faixa_etaria" id="faixa_etaria" class="form-select">
+                                <option value="">Seleciona...</option>
+                                <option value="<18" {% if volunteer.faixa_etaria == '<18' %}selected{% endif %}>Menos de 18</option>
+                                <option value="18-25" {% if volunteer.faixa_etaria == '18-25' %}selected{% endif %}>18-25 anos</option>
+                                <option value="26-35" {% if volunteer.faixa_etaria == '26-35' %}selected{% endif %}>26-35 anos</option>
+                                <option value="36-50" {% if volunteer.faixa_etaria == '36-50' %}selected{% endif %}>36-50 anos</option>
+                                <option value="50+" {% if volunteer.faixa_etaria == '50+' %}selected{% endif %}>Mais de 50</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="disponibilidade">Disponibilidade</label>
+                        <textarea name="disponibilidade" id="disponibilidade" class="form-textarea" rows="2">{{ volunteer.disponibilidade|default:'' }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar Alterações</button>
+                </form>
             </div>
         </div>
     </div>

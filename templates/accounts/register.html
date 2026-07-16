@@ -1,29 +1,31 @@
 {% extends 'base.html' %}
 {% block title %}Registo{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 text-center">
-            <h2 class="fw-bold mb-5">Escolhe o tipo de conta</h2>
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="card op-card border-0 shadow-sm p-4 h-100" onclick="window.location='{% url 'accounts:register_volunteer' %}'" style="cursor:pointer;">
-                        <div class="display-3 mb-3">🙋</div>
-                        <h5 class="fw-bold">Sou Voluntário</h5>
-                        <p class="text-muted small">Quero ajudar e participar em atividades de voluntariado</p>
-                        <a href="{% url 'accounts:register_volunteer' %}" class="btn btn-primary mt-auto">Criar Conta</a>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card op-card border-0 shadow-sm p-4 h-100" onclick="window.location='{% url 'accounts:register_institution' %}'" style="cursor:pointer;">
-                        <div class="display-3 mb-3">🏛️</div>
-                        <h5 class="fw-bold">Sou Instituição</h5>
-                        <p class="text-muted small">Quero publicar oportunidades e encontrar voluntários</p>
-                        <a href="{% url 'accounts:register_institution' %}" class="btn btn-outline-primary mt-auto">Criar Conta</a>
-                    </div>
+<div class="container py-6">
+    <div class="text-center mb-6">
+        <h1 class="h1">Criar Conta</h1>
+        <p class="text-muted">Escolhe o tipo de conta que pretendes criar</p>
+    </div>
+    <div class="row justify-content-center g-4">
+        <div class="col-sm-6 col-lg-4">
+            <div class="card card-interactive" onclick="window.location='{% url 'accounts:register_volunteer' %}'" role="button" tabindex="0" aria-label="Registo como Voluntário" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="card-body text-center py-6">
+                    <div class="stat-card-icon mb-3"><i class="bi bi-person-plus" style="font-size:2.5rem;" aria-hidden="true"></i></div>
+                    <h3 class="h3 mb-2">Voluntário</h3>
+                    <p class="text-sm text-muted mb-4">Quero encontrar oportunidades de voluntariado perto de mim</p>
+                    <span class="btn btn-primary">Criar Conta</span>
                 </div>
             </div>
-            <div class="mt-4"><small>Já tens conta? <a href="{% url 'accounts:login' %}">Entrar</a></small></div>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="card card-interactive" onclick="window.location='{% url 'accounts:register_institution' %}'" role="button" tabindex="0" aria-label="Registo como Instituição" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="card-body text-center py-6">
+                    <div class="stat-card-icon mb-3" style="color:var(--color-success);"><i class="bi bi-building" style="font-size:2.5rem;" aria-hidden="true"></i></div>
+                    <h3 class="h3 mb-2">Instituição</h3>
+                    <p class="text-sm text-muted mb-4">Represento uma instituição e quero publicar oportunidades</p>
+                    <span class="btn btn-success">Criar Conta</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>

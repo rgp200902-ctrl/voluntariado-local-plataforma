@@ -1,101 +1,83 @@
 {% extends 'base.html' %}
 {% block title %}{{ profile_user.get_full_name|default:profile_user.email }}{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card dashboard-card p-4 text-center">
-                {% if volunteer and volunteer.avatar %}
-                <img src="{{ volunteer.avatar.url }}" alt="Avatar" class="rounded-circle mx-auto mb-3" style="width:120px;height:120px;object-fit:cover;">
-                {% elif institution and institution.logotipo %}
-                <img src="{{ institution.logotipo.url }}" alt="Logo" class="rounded-circle mx-auto mb-3" style="width:120px;height:120px;object-fit:cover;">
-                {% else %}
-                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width:120px;height:120px;font-size:3rem;">
-                    {{ profile_user.get_full_name|default:profile_user.email|first }}
+<div class="container py-6">
+    <div class="row g-5">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if volunteer and volunteer.avatar %}
+                    <img src="{{ volunteer.avatar.url }}" alt="Foto de perfil" class="navbar-avatar" style="width:7rem;height:7rem;margin:0 auto var(--space-3);">
+                    {% elif institution and institution.logotipo %}
+                    <img src="{{ institution.logotipo.url }}" alt="Logótipo" class="navbar-avatar" style="width:7rem;height:7rem;margin:0 auto var(--space-3);">
+                    {% else %}
+                    <div class="navbar-avatar-placeholder" style="width:7rem;height:7rem;font-size:2.5rem;margin:0 auto var(--space-3);">
+                        {{ profile_user.get_full_name|default:profile_user.email|first }}
+                    </div>
+                    {% endif %}
+                    <h2 class="h3 mb-1">{{ profile_user.get_full_name|default:profile_user.email }}</h2>
+                    <p class="text-sm text-muted mb-3">{{ profile_user.get_perfil_display }}</p>
+                    {% if media %}
+                    <div class="d-flex justify-content-center gap-1 mb-3" style="color:var(--color-warning);">
+                        {% for i in "12345" %}
+                        {% if forloop.counter <= media %}&#9733;{% elif forloop.counter <= media|add:"0.5" %}&#9733;{% else %}&#9734;{% endif %}
+                        {% endfor %}
+                        <span class="text-sm text-muted ms-1">({{ media }})</span>
+                    </div>
+                    {% endif %}
+                    {% if volunteer %}
+                    <p class="text-sm text-muted"><i class="bi bi-calendar" aria-hidden="true"></i> Membro desde {{ volunteer.user.date_joined|date:"M Y" }}</p>
+                    {% elif institution %}
+                    <p class="text-sm text-muted"><i class="bi bi-building" aria-hidden="true"></i> {{ institution.nome }}</p>
+                    <p class="text-sm text-muted"><i class="bi bi-geo-alt" aria-hidden="true"></i> {{ institution.morada|default:"—" }}</p>
+                    {% endif %}
                 </div>
-                {% endif %}
-                <h4 class="fw-bold">{{ profile_user.get_full_name|default:profile_user.email }}</h4>
-                <p class="text-muted">{{ profile_user.get_perfil_display }}</p>
-                {% if media %}
-                <div class="mb-2">
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= media %}<i class="bi bi-star-fill text-warning"></i>
-                        {% elif forloop.counter <= media|add:"0.5" %}<i class="bi bi-star-half text-warning"></i>
-                        {% else %}<i class="bi bi-star text-muted"></i>{% endif %}
-                    {% endfor %}
-                    <span class="ms-1 text-muted">({{ media }})</span>
-                </div>
-                {% endif %}
-                {% if volunteer %}
-                <p class="text-muted small mb-1"><i class="bi bi-calendar me-1"></i>Membro desde {{ volunteer.user.date_joined|date:"M Y" }}</p>
-                {% elif institution %}
-                <p class="text-muted small mb-1"><i class="bi bi-building me-1"></i>{{ institution.nome }}</p>
-                <p class="text-muted small mb-1"><i class="bi bi-geo-alt me-1"></i>{{ institution.localidade|default:"—" }}</p>
-                {% endif %}
-
-                {% if user.is_authenticated and user.id != profile_user.id %}
-                <div class="mt-3">
-                    <button class="btn reaction-btn {% if 'aplauso' in user_reactions %}btn-warning{% else %}btn-outline-secondary{% endif %} btn-sm"
-                            onclick="toggleReaction('aplauso', 'user', {{ profile_user.id }}, this)"
-                            title="Aplaudir este perfil">
-                        👏 <span class="reaction-count">{{ reaction_counts.aplauso|default:0 }}</span>
-                    </button>
-                </div>
-                {% elif not user.is_authenticated %}
-                <div class="mt-3">
-                    <span class="btn btn-outline-secondary btn-sm disabled" title="Faz login para reagir">
-                        👏 {{ reaction_counts.aplauso|default:0 }}
-                    </span>
-                </div>
-                {% else %}
-                <div class="mt-3">
-                    <span class="btn btn-outline-secondary btn-sm disabled">
-                        👏 {{ reaction_counts.aplauso|default:0 }}
-                    </span>
-                </div>
-                {% endif %}
             </div>
+
             {% if tags %}
-            <div class="card dashboard-card p-4 mt-3">
-                <h6 class="fw-bold mb-3">Tags</h6>
-                {% for vt in tags %}
-                <span class="badge me-1 mb-1" style="background-color:{{ vt.tag.cor }};color:#fff;">{{ vt.tag.nome }}</span>
-                {% endfor %}
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h3 class="h4 mb-3">Interesses</h3>
+                    <div class="d-flex gap-1 flex-wrap">
+                        {% for vt in tags %}
+                        <span class="tag-badge">{{ vt.tag.nome }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
             {% endif %}
         </div>
 
-        <div class="col-md-8">
+        <div class="col-lg-8">
             {% if volunteer %}
-            <div class="card dashboard-card p-4 mb-4">
-                <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Sobre</h5>
-                <p>{{ volunteer.bio|default:"Sem descrição." }}</p>
-                <div class="row g-3 mt-2">
-                    <div class="col-sm-6"><strong>Email:</strong> {{ profile_user.email }}</div>
-                    <div class="col-sm-6"><strong>Telemóvel:</strong> {{ volunteer.telemovel|default:"—" }}</div>
-                    <div class="col-sm-6"><strong>Localidade:</strong> {{ volunteer.localidade|default:"—" }}</div>
-                    <div class="col-sm-6"><strong>Inscrições concluídas:</strong> {{ inscricoes_concluidas }}</div>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="h4 mb-3"><i class="bi bi-info-circle" aria-hidden="true"></i> Sobre</h3>
+                    <p class="text-muted">{{ volunteer.interesses|default:"Sem descrição." }}</p>
+                    <div class="row g-3 mt-3">
+                        <div class="col-sm-6"><small class="text-caption">Email</small><br><span class="text-sm">{{ profile_user.email }}</span></div>
+                        <div class="col-sm-6"><small class="text-caption">Telemóvel</small><br><span class="text-sm">{{ volunteer.telefone|default:"—" }}</span></div>
+                        <div class="col-sm-6"><small class="text-caption">Localidade</small><br><span class="text-sm">{{ volunteer.localidade|default:"—" }}</span></div>
+                        <div class="col-sm-6"><small class="text-caption">Inscrições concluídas</small><br><span class="text-sm">{{ inscricoes_concluidas }}</span></div>
+                    </div>
                 </div>
             </div>
 
             {% if certificados %}
-            <div class="card dashboard-card p-4 mb-4">
-                <h5 class="fw-bold mb-3"><i class="bi bi-award text-warning me-2"></i>Certificados</h5>
-                <div class="list-group list-group-flush">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="chart-card-title" style="margin:0;"><i class="bi bi-award text-warning" aria-hidden="true"></i> Certificados</h3>
+                </div>
+                <div class="card-body" style="padding:var(--space-2);">
                     {% for cert in certificados %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center" style="padding:var(--space-3);border-bottom:1px solid var(--color-border);">
                         <div>
-                            <strong>{{ cert.oportunidade.titulo }}</strong>
-                            <br><small class="text-muted">{{ cert.data_emissao|date:"d/m/Y" }} | {{ cert.horas_voluntariado }}h</small>
+                            <div class="fw-medium text-sm">{{ cert.oportunidade.titulo }}</div>
+                            <small class="text-sm text-muted">{{ cert.data_emissao|date:"d/m/Y" }} | {{ cert.horas_voluntariado }}h</small>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <button class="btn btn-sm {% if cert.id in cert_user_reactions %}btn-danger{% else %}btn-outline-danger{% endif %} reaction-btn"
-                                    onclick="toggleReaction('coracao', 'certificado', {{ cert.id }}, this)"
-                                    title="Gostar deste certificado">
-                                ❤️ <span class="reaction-count">{{ cert_reaction_counts|default_if_none:"0" }}</span>
-                            </button>
-                            <a href="{% url 'accounts:certificado_download' cert.id %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i></a>
-                        </div>
+                        <a href="{% url 'accounts:download_certificado' cert.oportunidade.id %}" class="icon-btn icon-btn-sm" aria-label="Descarregar certificado" title="Descarregar">
+                            <i class="bi bi-download" aria-hidden="true"></i>
+                        </a>
                     </div>
                     {% endfor %}
                 </div>
@@ -103,28 +85,35 @@
             {% endif %}
 
             {% elif institution %}
-            <div class="card dashboard-card p-4 mb-4">
-                <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Sobre a Instituição</h5>
-                <p>{{ institution.descricao|default:"Sem descrição." }}</p>
-                <div class="row g-3 mt-2">
-                    <div class="col-sm-6"><strong>Email:</strong> {{ profile_user.email }}</div>
-                    <div class="col-sm-6"><strong>Telemóvel:</strong> {{ institution.telemovel|default:"—" }}</div>
-                    <div class="col-sm-6"><strong>Localidade:</strong> {{ institution.localidade|default:"—" }}</div>
-                    <div class="col-sm-6"><strong>Voluntários alcançados:</strong> {{ total_voluntarios }}</div>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="h4 mb-3"><i class="bi bi-info-circle" aria-hidden="true"></i> Sobre a Instituição</h3>
+                    <p class="text-muted">{{ institution.descricao|default:"Sem descrição." }}</p>
+                    <div class="row g-3 mt-3">
+                        <div class="col-sm-6"><small class="text-caption">Email</small><br><span class="text-sm">{{ profile_user.email }}</span></div>
+                        <div class="col-sm-6"><small class="text-caption">Contacto</small><br><span class="text-sm">{{ institution.telefone|default:"—" }}</span></div>
+                        <div class="col-sm-6"><small class="text-caption">Morada</small><br><span class="text-sm">{{ institution.morada|default:"—" }}</span></div>
+                        <div class="col-sm-6"><small class="text-caption">Voluntários alcançados</small><br><span class="text-sm">{{ total_voluntarios }}</span></div>
+                    </div>
                 </div>
             </div>
 
             {% if oportunidades %}
-            <div class="card dashboard-card p-4">
-                <h5 class="fw-bold mb-3"><i class="bi bi-megaphone text-success me-2"></i>Oportunidades</h5>
-                <div class="list-group list-group-flush">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="chart-card-title" style="margin:0;"><i class="bi bi-megaphone text-success" aria-hidden="true"></i> Oportunidades</h3>
+                </div>
+                <div class="card-body" style="padding:var(--space-2);">
                     {% for op in oportunidades %}
-                    <a href="{% url 'oportunidades:detail' op.id %}" class="list-group-item list-group-item-action">
-                        <div class="d-flex justify-content-between">
-                            <strong>{{ op.titulo }}</strong>
-                            <span class="badge bg-{{ op.estado|yesno:'success,secondary,warning,danger,info' }}">{{ op.get_estado_display }}</span>
+                    <a href="{% url 'oportunidades:detail' op.id %}" class="d-flex justify-content-between align-items-center" style="padding:var(--space-3);border-bottom:1px solid var(--color-border);text-decoration:none;">
+                        <div>
+                            <div class="fw-medium text-sm">{{ op.titulo }}</div>
+                            <small class="text-sm text-muted">{{ op.criada_em|date:"d/m/Y" }}</small>
                         </div>
-                        <small class="text-muted">{{ op.criada_em|date:"d/m/Y" }}</small>
+                        <span class="status-badge status-{% if op.estado == 'publicada' or op.estado == 'aberta' %}success{% elif op.estado == 'pendente' %}warning{% elif op.estado == 'concluida' %}info{% elif op.estado == 'cancelada' %}error{% else %}default{% endif %}">
+                            <span class="status-badge-dot"></span>
+                            {{ op.get_estado_display }}
+                        </span>
                     </a>
                     {% endfor %}
                 </div>
@@ -133,48 +122,30 @@
             {% endif %}
 
             {% if avaliacoes %}
-            <div class="card dashboard-card p-4 mt-4">
-                <h5 class="fw-bold mb-3"><i class="bi bi-chat-dots text-info me-2"></i>Avaliações</h5>
-                {% for av in avaliacoes %}
-                <div class="border-bottom pb-3 mb-3">
-                    <div class="d-flex justify-content-between">
-                        <strong>{{ av.autor.get_full_name|default:av.autor.email }}</strong>
-                        <span>{% for i in "12345" %}{% if forloop.counter <= av.classificacao %}<i class="bi bi-star-fill text-warning small"></i>{% else %}<i class="bi bi-star text-muted small"></i>{% endif %}{% endfor %}</span>
-                    </div>
-                    <small class="text-muted">{{ av.oportunidade.titulo }} | {{ av.data_criacao|date:"d/m/Y" }}</small>
-                    {% if av.comentario %}<p class="mt-1 mb-0">{{ av.comentario }}</p>{% endif %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="chart-card-title" style="margin:0;"><i class="bi bi-chat-dots" aria-hidden="true"></i> Avaliações</h3>
                 </div>
-                {% endfor %}
+                <div class="card-body" style="padding:var(--space-2);">
+                    {% for av in avaliacoes %}
+                    <div class="d-flex gap-3" style="padding:var(--space-3);border-bottom:1px solid var(--color-border);">
+                        <div class="navbar-avatar-placeholder" style="width:2.5rem;height:2.5rem;font-size:var(--text-body-sm);flex-shrink:0;">{{ av.autor.get_full_name|default:av.autor.email|first }}</div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="fw-medium text-sm">{{ av.autor.get_full_name|default:av.autor.email }}</span>
+                                <small class="text-sm text-muted">{{ av.data_criacao|date:"d/m/Y" }}</small>
+                            </div>
+                            <div class="mb-1" style="color:var(--color-warning);">
+                                {% for i in "12345" %}{% if forloop.counter <= av.classificacao %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}
+                            </div>
+                            {% if av.comentario %}<p class="text-sm text-muted" style="margin:0;">{{ av.comentario }}</p>{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
             {% endif %}
         </div>
     </div>
 </div>
-<script>
-function toggleReaction(tipo, modelName, objectId, btn) {
-    const formData = new FormData();
-    formData.append('tipo', tipo);
-    formData.append('model', modelName);
-    formData.append('object_id', objectId);
-    fetch("{% url 'core:toggle_reaction' %}", {
-        method: 'POST',
-        body: formData,
-        headers: {'X-CSRFToken': '{{ csrf_token }}'}
-    })
-    .then(r => r.json())
-    .then(data => {
-        const countEl = btn.querySelector('.reaction-count');
-        countEl.textContent = data.total;
-        if(data.action === 'added') {
-            if(tipo === 'aplauso') { btn.classList.remove('btn-outline-secondary'); btn.classList.add('btn-warning'); }
-            if(tipo === 'coracao') { btn.classList.remove('btn-outline-danger'); btn.classList.add('btn-danger'); }
-            if(tipo === 'fogo') { btn.classList.remove('btn-outline-warning'); btn.classList.add('btn-warning'); }
-        } else {
-            if(tipo === 'aplauso') { btn.classList.remove('btn-warning'); btn.classList.add('btn-outline-secondary'); }
-            if(tipo === 'coracao') { btn.classList.remove('btn-danger'); btn.classList.add('btn-outline-danger'); }
-            if(tipo === 'fogo') { btn.classList.remove('btn-warning'); btn.classList.add('btn-outline-warning'); }
-        }
-    });
-}
-</script>
 {% endblock %}

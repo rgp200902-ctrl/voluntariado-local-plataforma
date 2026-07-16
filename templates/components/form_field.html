@@ -1,0 +1,12 @@
+<div class="form-field{% if class %} {{ class }}{% endif %}{% if error %} has-error{% endif %}">
+    {% if label %}
+    <label class="form-field-label" for="{{ id }}">{{ label }}{% if required %} <span class="text-danger" aria-hidden="true">*</span>{% endif %}</label>
+    {% endif %}
+    {% if help_text %}
+    <p class="form-field-help" id="{{ id }}-help">{{ help_text }}</p>
+    {% endif %}
+    {{ field }}
+    {% if error %}
+    <p class="form-field-error" id="{{ id }}-error" role="alert">{{ error }}</p>
+    {% endif %}
+</div>

@@ -1,145 +1,144 @@
 {% extends 'base.html' %}
 {% block title %}{{ oportunidade.titulo }}{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'oportunidades:list' %}">Oportunidades</a></li>
-            <li class="breadcrumb-item active">{{ oportunidade.titulo }}</li>
+<div class="container py-6">
+    <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+            <li><a href="{% url 'oportunidades:list' %}">Oportunidades</a></li>
+            <li class="active" aria-current="page">{{ oportunidade.titulo }}</li>
         </ol>
     </nav>
 
     <div class="row">
         <div class="col-lg-8">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <h1 class="fw-bold">{{ oportunidade.titulo }}</h1>
+            <div class="d-flex justify-content-between align-items-start mb-4" style="gap:var(--space-3);">
+                <h1 class="h1" style="margin:0;">{{ oportunidade.titulo }}</h1>
                 {% if user.is_authenticated and user.perfil == 'voluntario' %}
-                <a href="{% url 'oportunidades:toggle_favorito' oportunidade.id %}" class="btn btn-lg p-0 ms-3" title="{% if favoritado %}Remover dos favoritos{% else %}Adicionar aos favoritos{% endif %}" style="border:none;background:none;">
-                    {% if favoritado %}
-                    <i class="bi bi-heart-fill text-danger"></i>
-                    {% else %}
-                    <i class="bi bi-heart text-muted"></i>
-                    {% endif %}
+                <a href="{% url 'oportunidades:toggle_favorito' oportunidade.id %}"
+                   class="icon-btn icon-btn-primary"
+                   aria-label="{% if favoritado %}Remover dos favoritos{% else %}Adicionar aos favoritos{% endif %}"
+                   title="{% if favoritado %}Remover dos favoritos{% else %}Adicionar aos favoritos{% endif %}"
+                   style="flex-shrink:0;">
+                    <i class="bi {% if favoritado %}bi-heart-fill{% else %}bi-heart{% endif %}" aria-hidden="true"></i>
                 </a>
                 {% endif %}
             </div>
-            <p class="lead text-muted">{{ oportunidade.descricao }}</p>
+
+            <p class="text-muted mb-4">{{ oportunidade.descricao }}</p>
 
             {% if oportunidade.tags.all %}
-            <div class="mb-3">
+            <div class="d-flex gap-1 flex-wrap mb-4">
                 {% for tag in oportunidade.tags.all %}
-                <span class="badge me-1" style="background-color:{{ tag.cor }};color:#fff;">{{ tag.nome }}</span>
+                <span class="tag-badge">{{ tag.nome }}</span>
                 {% endfor %}
             </div>
             {% endif %}
 
-            <div class="row g-3 my-4">
-                <div class="col-md-4">
-                    <div class="card border-0 bg-light p-3 text-center">
-                        <small class="text-muted">Instituição</small>
-                        <strong>{{ oportunidade.instituicao.nome }}</strong>
+            <div class="row g-4 mb-5">
+                <div class="col-sm-4">
+                    <div class="stat-card">
+                        <div class="stat-card-label">Instituição</div>
+                        <div class="stat-card-value" style="font-size:var(--text-body);font-weight:600;">{{ oportunidade.instituicao.nome }}</div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card border-0 bg-light p-3 text-center">
-                        <small class="text-muted">Local</small>
-                        <strong>{{ oportunidade.local|default:'Portugal' }}</strong>
+                <div class="col-sm-4">
+                    <div class="stat-card">
+                        <div class="stat-card-label">Local</div>
+                        <div class="stat-card-value" style="font-size:var(--text-body);font-weight:600;">{{ oportunidade.local|default:'Portugal' }}</div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card border-0 bg-light p-3 text-center">
-                        <small class="text-muted">Data</small>
-                        <strong>{% if oportunidade.data_inicio %}{{ oportunidade.data_inicio|date:'d/m/Y' }}{% else %}A definir{% endif %}</strong>
+                <div class="col-sm-4">
+                    <div class="stat-card">
+                        <div class="stat-card-label">Data</div>
+                        <div class="stat-card-value" style="font-size:var(--text-body);font-weight:600;">{% if oportunidade.data_inicio %}{{ oportunidade.data_inicio|date:'d/m/Y' }}{% else %}A definir{% endif %}</div>
                     </div>
                 </div>
             </div>
 
-            <div class="mb-4">
-                <h6 class="fw-bold">Vagas</h6>
-                <div class="d-flex justify-content-between small text-muted"><span>{{ oportunidade.registrations.count }} inscritos</span><span>{{ oportunidade.vagas }} vagas</span></div>
-                <div class="progress" style="height:8px;">
+            <div class="mb-5">
+                <h3 class="h4">Vagas</h3>
+                <div class="d-flex justify-content-between text-sm text-muted mb-1">
+                    <span>{{ oportunidade.registrations.count }} inscritos</span>
+                    <span>{{ oportunidade.vagas }} vagas</span>
+                </div>
+                <div class="progress">
                     <div class="progress-bar" style="width:{% widthratio oportunidade.registrations.count oportunidade.vagas 100 %}%"></div>
                 </div>
             </div>
 
             {% if oportunidade.requisitos %}
-            <div class="mb-4">
-                <h6 class="fw-bold">Requisitos</h6>
+            <div class="mb-5">
+                <h3 class="h4">Requisitos</h3>
                 <p class="text-muted">{{ oportunidade.requisitos }}</p>
             </div>
             {% endif %}
+
             {% if oportunidade.horario %}
-            <div class="mb-4">
-                <h6 class="fw-bold">Horário</h6>
+            <div class="mb-5">
+                <h3 class="h4">Horário</h3>
                 <p class="text-muted">{{ oportunidade.horario }}</p>
             </div>
             {% endif %}
 
-            <div class="mb-4">
-                <h6 class="fw-bold mb-3">Partilhar</h6>
+            <div>
+                <h3 class="h4 mb-3">Partilhar</h3>
                 <div class="d-flex gap-2 flex-wrap">
                     {% with share_url=request.build_absolute_uri share_text=oportunidade.titulo %}
-                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ share_url|urlencode }}" target="_blank" class="btn btn-outline-primary btn-sm" title="Facebook">
-                        <i class="bi bi-facebook"></i> Facebook
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ share_url|urlencode }}" target="_blank" class="icon-btn icon-btn-primary" aria-label="Partilhar no Facebook" title="Facebook">
+                        <i class="bi bi-facebook" aria-hidden="true"></i>
                     </a>
-                    <a href="https://twitter.com/intent/tweet?url={{ share_url|urlencode }}&text={{ share_text|urlencode }}" target="_blank" class="btn btn-outline-info btn-sm" title="Twitter/X">
-                        <i class="bi bi-twitter-x"></i> Twitter
+                    <a href="https://twitter.com/intent/tweet?url={{ share_url|urlencode }}&text={{ share_text|urlencode }}" target="_blank" class="icon-btn" aria-label="Partilhar no X (Twitter)" title="X (Twitter)">
+                        <i class="bi bi-twitter-x" aria-hidden="true"></i>
                     </a>
-                    <a href="https://wa.me/?text={{ share_text|urlencode }}%20{{ share_url|urlencode }}" target="_blank" class="btn btn-outline-success btn-sm" title="WhatsApp">
-                        <i class="bi bi-whatsapp"></i> WhatsApp
+                    <a href="https://wa.me/?text={{ share_text|urlencode }}%20{{ share_url|urlencode }}" target="_blank" class="icon-btn" aria-label="Partilhar no WhatsApp" title="WhatsApp" style="color:var(--color-success);">
+                        <i class="bi bi-whatsapp" aria-hidden="true"></i>
                     </a>
-                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ share_url|urlencode }}" target="_blank" class="btn btn-outline-secondary btn-sm" title="LinkedIn">
-                        <i class="bi bi-linkedin"></i> LinkedIn
+                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ share_url|urlencode }}" target="_blank" class="icon-btn" aria-label="Partilhar no LinkedIn" title="LinkedIn">
+                        <i class="bi bi-linkedin" aria-hidden="true"></i>
                     </a>
                     {% endwith %}
-                    <a href="{% url 'oportunidades:avaliacoes' oportunidade.id %}" class="btn btn-outline-warning btn-sm" title="Ver avaliações">
-                        <i class="bi bi-star"></i> Avaliações
+                    <a href="{% url 'oportunidades:avaliacoes' oportunidade.id %}" class="icon-btn icon-btn-primary" aria-label="Ver avaliações" title="Avaliações">
+                        <i class="bi bi-star" aria-hidden="true"></i>
                     </a>
-                    {% if user.is_authenticated %}
-                    <button class="btn btn-sm {% if 'fogo' in user_reactions %}btn-warning{% else %}btn-outline-warning{% endif %} reaction-btn"
-                            onclick="toggleReaction('fogo', 'oportunidade', {{ oportunidade.id }}, this)"
-                            title="{% if 'fogo' in user_reactions %}Remover fogo{% else %}Dar fogo!{% endif %}">
-                        🔥 <span class="reaction-count">{{ reaction_counts.fogo|default:0 }}</span>
-                    </button>
-                    {% else %}
-                    <span class="btn btn-outline-warning btn-sm disabled" title="Faz login para reagir">
-                        🔥 {{ reaction_counts.fogo|default:0 }}
-                    </span>
-                    {% endif %}
                 </div>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4 text-center">
+            <div class="card mt-4 mt-lg-0">
+                <div class="card-body">
                     {% if user.is_authenticated and user.perfil == 'voluntario' %}
                         {% if inscrito %}
-                            <div class="alert alert-success mb-3">
-                                <i class="bi bi-check-circle-fill me-1"></i>Inscrito com sucesso!
-                            </div>
+                        <div class="alert alert-success mb-3" role="status">
+                            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                            Inscrito com sucesso!
+                        </div>
                         {% else %}
-                            <form method="post" action="{% url 'oportunidades:inscrever' oportunidade.id %}">
-                                {% csrf_token %}
-                                <div class="mb-3">
-                                    <label class="form-label fw-medium">Mensagem (opcional)</label>
-                                    <textarea name="mensagem" class="form-control" rows="3" placeholder="Diz porque queres participar..."></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Inscrever-me</button>
-                            </form>
+                        <form method="post" action="{% url 'oportunidades:inscrever' oportunidade.id %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label class="form-label" for="mensagem">Mensagem <span class="text-muted" style="font-weight:400;">(opcional)</span></label>
+                                <textarea name="mensagem" id="mensagem" class="form-textarea" rows="3" placeholder="Diz porque queres participar..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Inscrever-me</button>
+                        </form>
                         {% endif %}
                     {% elif user.is_authenticated %}
-                        <p class="text-muted">Apenas voluntários podem inscrever-se.</p>
+                        <p class="text-sm text-muted text-center">Apenas voluntários podem inscrever-se.</p>
                     {% else %}
-                        <p class="text-muted">Faz login para te inscreveres.</p>
-                        <a href="{% url 'accounts:login' %}" class="btn btn-primary w-100 py-2 fw-bold">Entrar</a>
+                        <p class="text-sm text-muted text-center mb-4">Faz login para te inscreveres.</p>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-primary w-100">Entrar</a>
                     {% endif %}
-                    <hr>
-                    <button onclick="saveForOffline()" class="btn btn-outline-primary w-100 py-2" id="saveBtn">
-                        <i class="bi bi-download me-1"></i>Guardar para offline
-                    </button>
-                    <div id="savedMsg" class="text-success small mt-2" style="display:none;">
-                        <i class="bi bi-check-circle me-1"></i>Guardado com sucesso!
+
+                    <div class="mt-4 pt-4" style="border-top:1px solid var(--color-border);">
+                        <button onclick="saveForOffline()" class="btn btn-secondary w-100 btn-sm" id="saveBtn">
+                            <i class="bi bi-download" aria-hidden="true"></i>
+                            Guardar para offline
+                        </button>
+                        <div id="savedMsg" class="text-sm text-success mt-2 text-center" style="display:none;">
+                            <i class="bi bi-check-circle" aria-hidden="true"></i>
+                            Guardado com sucesso!
+                        </div>
                     </div>
                 </div>
             </div>
@@ -147,29 +146,8 @@
     </div>
 </div>
 <script>
-function toggleReaction(tipo, modelName, objectId, btn) {
-    const formData = new FormData();
-    formData.append('tipo', tipo);
-    formData.append('model', modelName);
-    formData.append('object_id', objectId);
-    fetch("{% url 'core:toggle_reaction' %}", {
-        method: 'POST',
-        body: formData,
-        headers: {'X-CSRFToken': '{{ csrf_token }}'}
-    })
-    .then(r => r.json())
-    .then(data => {
-        const countEl = btn.querySelector('.reaction-count');
-        countEl.textContent = data.total;
-        if(data.action === 'added') {
-            if(tipo === 'fogo') { btn.classList.remove('btn-outline-warning'); btn.classList.add('btn-warning'); }
-        } else {
-            if(tipo === 'fogo') { btn.classList.remove('btn-warning'); btn.classList.add('btn-outline-warning'); }
-        }
-    });
-}
 function saveForOffline() {
-    const opp = {
+    var opp = {
         id: {{ oportunidade.id }},
         titulo: '{{ oportunidade.titulo|escapejs }}',
         descricao: '{{ oportunidade.descricao|escapejs|truncatewords:50 }}',
@@ -178,13 +156,11 @@ function saveForOffline() {
     };
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage({ type: 'SAVE_OPPORTUNITY', opportunity: opp });
-        document.getElementById('saveBtn').style.display = 'none';
-        document.getElementById('savedMsg').style.display = 'block';
     } else {
         localStorage.setItem('opp_' + opp.id, JSON.stringify(opp));
-        document.getElementById('saveBtn').style.display = 'none';
-        document.getElementById('savedMsg').style.display = 'block';
     }
+    document.getElementById('saveBtn').style.display = 'none';
+    document.getElementById('savedMsg').style.display = 'block';
 }
 </script>
 {% endblock %}

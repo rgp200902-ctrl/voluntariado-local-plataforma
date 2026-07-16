@@ -1,44 +1,67 @@
 {% extends 'base.html' %}
 {% block title %}Oportunidades{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <h1 class="fw-bold mb-4">
-        {% if is_recomendadas %}<i class="bi bi-stars text-warning me-2"></i>Recomendadas para Ti{% else %}Oportunidades de Voluntariado{% endif %}
-    </h1>
+<div class="container py-6">
+    <div class="page-header">
+        <div>
+            <h1 class="page-header-title">
+                {% if is_recomendadas %}Recomendadas para Ti{% else %}Oportunidades de Voluntariado{% endif %}
+            </h1>
+            {% if is_recomendadas %}
+            <p class="page-header-description">Oportunidades que correspondem aos teus interesses</p>
+            {% endif %}
+        </div>
+        <div class="page-header-actions">
+            {% if user.is_authenticated and user.perfil == 'voluntario' %}
+            <a href="{% url 'oportunidades:favoritos' %}" class="btn btn-secondary btn-sm">
+                <i class="bi bi-heart" aria-hidden="true"></i>
+                Favoritos
+            </a>
+            {% endif %}
+        </div>
+    </div>
 
-    <form class="row g-3 mb-4" method="get">
-        <div class="col-md-3">
-            <input type="text" name="q" class="form-control" placeholder="Pesquisar..." value="{{ request.GET.q }}">
+    <form class="mb-5" method="get" role="search" aria-label="Filtrar oportunidades">
+        <div class="form-row form-row-4">
+            <div class="form-group">
+                <label class="form-label text-caption" for="search-q">Pesquisar</label>
+                <input type="text" name="q" id="search-q" class="form-input" placeholder="Pesquisar..." value="{{ request.GET.q }}">
+            </div>
+            <div class="form-group">
+                <label class="form-label text-caption" for="search-categoria">Categoria</label>
+                <select name="categoria" id="search-categoria" class="form-select">
+                    <option value="">Todas as categorias</option>
+                    {% for cat in categorias %}
+                    <option value="{{ cat.id }}" {% if request.GET.categoria == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label text-caption" for="search-local">Localidade</label>
+                <input type="text" name="local" id="search-local" class="form-input" placeholder="Localidade..." value="{{ request.GET.local }}">
+            </div>
+            <div class="form-group">
+                <label class="form-label text-caption" for="search-tag">Tag</label>
+                <select name="tag" id="search-tag" class="form-select">
+                    <option value="">Todas as tags</option>
+                    {% for tag in all_tags %}
+                    <option value="{{ tag.id }}" {% if selected_tag == tag.id|stringformat:'s' %}selected{% endif %}>{{ tag.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
-        <div class="col-md-2">
-            <select name="categoria" class="form-select">
-                <option value="">Todas as categorias</option>
-                {% for cat in categorias %}
-                <option value="{{ cat.id }}" {% if request.GET.categoria == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.nome }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <input type="text" name="local" class="form-control" placeholder="Localidade..." value="{{ request.GET.local }}">
-        </div>
-        <div class="col-md-2">
-            <select name="tag" class="form-select">
-                <option value="">Todas as tags</option>
-                {% for tag in all_tags %}
-                <option value="{{ tag.id }}" {% if selected_tag == tag.id|stringformat:'s' %}selected{% endif %}>{{ tag.nome }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-1">
-            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i></button>
-        </div>
-        <div class="col-md-2">
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-sm">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                Filtrar
+            </button>
             {% if user.is_authenticated and user.perfil == 'voluntario' %}
             {% if is_recomendadas %}
-            <a href="{% url 'oportunidades:list' %}" class="btn btn-outline-secondary w-100">Todas</a>
+            <a href="{% url 'oportunidades:list' %}" class="btn btn-ghost btn-sm">Ver Todas</a>
             {% else %}
-            <a href="{% url 'oportunidades:list' %}?recomendadas=1" class="btn btn-outline-warning w-100">
-                <i class="bi bi-stars me-1"></i>Recomendadas
+            <a href="{% url 'oportunidades:list' %}?recomendadas=1" class="btn btn-secondary btn-sm">
+                <i class="bi bi-stars" aria-hidden="true"></i>
+                Recomendadas
             </a>
             {% endif %}
             {% endif %}
@@ -46,77 +69,92 @@
     </form>
 
     {% if is_recomendadas and user.is_authenticated and user.perfil == 'voluntario' %}
-    <div class="alert alert-info mb-4">
-        <i class="bi bi-info-circle me-1"></i>
-        A mostrar oportunidades que correspondem às tuas <strong>tags de interesse</strong>. 
-        <a href="{% url 'accounts:voluntario_tags' %}">Gerir as minhas tags</a>
+    <div class="alert alert-info mb-5" role="alert">
+        <i class="bi bi-info-circle" aria-hidden="true"></i>
+        A mostrar oportunidades que correspondem às tuas <strong>tags de interesse</strong>.
+        <a href="{% url 'accounts:voluntario_tags' %}" style="text-decoration:underline;">Gerir interesses</a>
     </div>
     {% endif %}
 
-    {% if user.is_authenticated and user.perfil == 'voluntario' %}
-    <div class="mb-3">
-        <a href="{% url 'oportunidades:favoritos' %}" class="btn btn-outline-danger btn-sm">
-            <i class="bi bi-heart-fill me-1"></i>Os Meus Favoritos
-        </a>
-    </div>
-    {% endif %}
-
-    <div class="row g-4">
+    <div class="opportunity-grid">
         {% for op in oportunidades %}
-        <div class="col-md-4">
-            <div class="card op-card h-100 border-0 shadow-sm">
-                <div class="card-body p-4 d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="fw-bold mb-0">{{ op.titulo }}</h5>
-                        <div class="d-flex gap-1 align-items-center">
-                            {% if op.match_score > 0 %}
-                            <span class="badge bg-success" style="font-size:0.65rem;" title="Tag(s) em comum">
-                                <i class="bi bi-stars"></i> {{ op.match_score }}x match
-                            </span>
-                            {% endif %}
-                            {% if op.categoria %}<span class="badge bg-primary-subtle text-primary">{{ op.categoria.nome }}</span>{% endif %}
-                            {% if user.is_authenticated and user.perfil == 'voluntario' %}
-                            <a href="{% url 'oportunidades:toggle_favorito' op.id %}" class="btn btn-sm p-0" title="{% if op.id in favoritos_ids %}Remover dos favoritos{% else %}Adicionar aos favoritos{% endif %}" style="border:none;background:none;">
-                                {% if op.id in favoritos_ids %}
-                                <i class="bi bi-heart-fill text-danger"></i>
-                                {% else %}
-                                <i class="bi bi-heart text-muted"></i>
-                                {% endif %}
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <p class="text-primary small mb-1 fw-medium">{{ op.instituicao.nome }}</p>
-                    <p class="text-muted small mb-2"><i class="bi bi-geo-alt"></i> {{ op.local|default:'Portugal' }} {% if op.data_inicio %} &bull; {{ op.data_inicio|date:'d/m/Y' }}{% endif %}</p>
-                    <p class="text-muted small flex-grow-1">{{ op.descricao|truncatewords:25 }}</p>
-                    {% if op.tags.all %}
-                    <div class="mb-2">
-                        {% for tag in op.tags.all|slice:":3" %}
-                        <span class="badge" style="background-color:{{ tag.cor }};color:#fff;font-size:0.7em;">{{ tag.nome }}</span>
-                        {% endfor %}
-                        {% if op.tags.count > 3 %}<span class="badge bg-secondary" style="font-size:0.7em;">+{{ op.tags.count|add:"-3" }}</span>{% endif %}
-                    </div>
+        <div class="opportunity-card">
+            <div class="d-flex justify-content-between align-items-start" style="gap:var(--space-2);">
+                <div>
+                    <h3 class="opportunity-card-title">{{ op.titulo }}</h3>
+                    <p class="text-sm" style="color:var(--color-text-link);margin-top:2px;">{{ op.instituicao.nome }}</p>
+                </div>
+                <div class="d-flex gap-1 align-items-center" style="flex-shrink:0;">
+                    {% if op.match_score > 0 %}
+                    <span class="status-badge status-success" title="Tags em comum">
+                        <span class="status-badge-dot" aria-hidden="true"></span>
+                        {{ op.match_score }}x match
+                    </span>
                     {% endif %}
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between text-muted small"><span>{{ op.registrations.count }} inscritos</span><span>{{ op.vagas }} vagas</span></div>
-                        <div class="progress" style="height:6px;">
-                            <div class="progress-bar" style="width:{% widthratio op.registrations.count op.vagas 100 %}%"></div>
-                        </div>
-                    </div>
-                    <a href="{% url 'oportunidades:detail' op.id %}" class="btn btn-primary w-100">Saber Mais</a>
+                    {% if user.is_authenticated and user.perfil == 'voluntario' %}
+                    <a href="{% url 'oportunidades:toggle_favorito' op.id %}"
+                       class="icon-btn icon-btn-sm icon-btn-primary"
+                       aria-label="{% if op.id in favoritos_ids %}Remover dos favoritos{% else %}Adicionar aos favoritos{% endif %}"
+                       title="{% if op.id in favoritos_ids %}Remover dos favoritos{% else %}Adicionar aos favoritos{% endif %}">
+                        <i class="bi {% if op.id in favoritos_ids %}bi-heart-fill{% else %}bi-heart{% endif %}" aria-hidden="true"></i>
+                    </a>
+                    {% endif %}
                 </div>
             </div>
+            <div class="opportunity-card-meta">
+                <span><i class="bi bi-geo-alt" aria-hidden="true"></i> {{ op.local|default:'Portugal' }}</span>
+                {% if op.data_inicio %}
+                <span><i class="bi bi-calendar" aria-hidden="true"></i> {{ op.data_inicio|date:'d/m/Y' }}</span>
+                {% endif %}
+                {% if op.categoria %}
+                <span class="tag-badge">{{ op.categoria.nome }}</span>
+                {% endif %}
+            </div>
+            <p class="text-sm text-muted" style="margin:0;flex-grow:1;">{{ op.descricao|truncatewords:25 }}</p>
+            {% if op.tags.all %}
+            <div class="d-flex gap-1 flex-wrap">
+                {% for tag in op.tags.all|slice:":3" %}
+                <span class="tag-badge">{{ tag.nome }}</span>
+                {% endfor %}
+                {% if op.tags.count > 3 %}
+                <span class="tag-badge">+{{ op.tags.count|add:"-3" }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+            <div>
+                <div class="d-flex justify-content-between text-sm text-muted">
+                    <span>{{ op.registrations.count }} inscritos</span>
+                    <span>{{ op.vagas }} vagas</span>
+                </div>
+                <div class="progress mt-1">
+                    <div class="progress-bar" style="width:{% widthratio op.registrations.count op.vagas 100 %}%"></div>
+                </div>
+            </div>
+            <a href="{% url 'oportunidades:detail' op.id %}" class="btn btn-primary btn-sm w-100">Saber Mais</a>
         </div>
         {% empty %}
-        <div class="col-12 text-center py-5">
-            <i class="bi bi-inbox text-muted" style="font-size:3rem;"></i>
-            <p class="text-muted mt-3">
+        <div class="empty-state" style="grid-column:1/-1;">
+            <div class="empty-state-icon"><i class="bi bi-search" style="font-size:3rem;" aria-hidden="true"></i></div>
+            <h3 class="empty-state-title">
                 {% if is_recomendadas %}
-                Nenhuma oportunidade recomendada. <a href="{% url 'accounts:voluntario_tags' %}">Adiciona tags ao teu perfil</a> para receber recomendações.
+                Nenhuma recomendação disponível
                 {% else %}
-                Nenhuma oportunidade encontrada.
+                Nenhuma oportunidade encontrada
+                {% endif %}
+            </h3>
+            <p class="empty-state-description">
+                {% if is_recomendadas %}
+                Adiciona tags ao teu perfil para receberes recomendações personalizadas.
+                {% else %}
+                Tenta alterar os filtros de pesquisa ou verifica mais tarde.
                 {% endif %}
             </p>
+            <div class="empty-state-actions">
+                {% if is_recomendadas %}
+                <a href="{% url 'accounts:voluntario_tags' %}" class="btn btn-primary btn-sm">Gerir Interesses</a>
+                <a href="{% url 'oportunidades:list' %}" class="btn btn-secondary btn-sm">Ver Todas</a>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>

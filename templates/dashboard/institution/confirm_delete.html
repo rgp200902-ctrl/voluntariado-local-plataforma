@@ -1,22 +1,25 @@
 {% extends 'base.html' %}
-{% block title %}Apagar Oportunidade{% endblock %}
+{% block title %}Confirmar Eliminação{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-3">{% include 'dashboard/sidebar_institution.html' %}</div>
-        <div class="col-md-9">
-            <div class="card dashboard-card border-danger">
-                <div class="card-body p-4 text-center">
-                    <div class="mb-3"><i class="bi bi-exclamation-triangle text-danger" style="font-size:3rem;"></i></div>
-                    <h4 class="fw-bold text-danger mb-2">Apagar Oportunidade</h4>
-                    <p class="text-muted mb-4">Tem a certeza que deseja apagar a oportunidade <strong>{{ oportunidade.titulo }}</strong>?</p>
-                    <p class="text-muted small mb-4">Esta ação não pode ser desfeita. Todas as inscrições associadas serão também apagadas.</p>
-                    <form method="post">
-                        {% csrf_token %}
-                        <a href="{% url 'accounts:institution_dashboard' %}" class="btn btn-outline-secondary px-4 me-2">Cancelar</a>
-                        <button type="submit" class="btn btn-danger px-4">Sim, Apagar</button>
-                    </form>
-                </div>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_institution.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Apagar Oportunidade</h1>
+            </div>
+        </div>
+
+        <div class="card" style="max-width:500px;border-color:var(--color-error);">
+            <div class="card-body text-center py-6">
+                <i class="bi bi-exclamation-triangle" style="font-size:3rem;color:var(--color-error);" aria-hidden="true"></i>
+                <h3 class="h3 mt-4 mb-2">Tens a certeza?</h3>
+                <p class="text-sm text-muted mb-5">Vais apagar a oportunidade <strong>"{{ oportunidade.titulo }}"</strong>. Esta ação não pode ser desfeita.</p>
+                <form method="post" class="d-flex gap-2 justify-content-center">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Sim, Apagar</button>
+                    <a href="{% url 'accounts:institution_dashboard' %}" class="btn btn-secondary">Cancelar</a>
+                </form>
             </div>
         </div>
     </div>

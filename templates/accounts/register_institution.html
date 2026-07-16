@@ -1,89 +1,102 @@
 {% extends 'base.html' %}
 {% block title %}Registo Instituição{% endblock %}
 {% block content %}
-<div class="container py-5">
+<div class="container py-6">
     <div class="row justify-content-center">
         <div class="col-lg-7">
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
-                    <h3 class="fw-bold mb-1">Registo Instituição</h3>
-                    <p class="text-muted mb-4">Cria a conta da tua instituição para publicar oportunidades</p>
-                    <form method="post" novalidate>
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="h2 mb-1">Registo Instituição</h1>
+                    <p class="text-sm text-muted mb-5">Cria a conta da tua instituição para publicar oportunidades</p>
+                    <form method="post" novalidate autocomplete="on">
                         {% csrf_token %}
-                        <h6 class="fw-bold mb-3">Conta</h6>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium">{{ form.first_name.label }}</label>
-                                {{ form.first_name }}
-                                {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>{% endif %}
+                        <div class="mb-4">
+                            <h3 class="h4 mb-3">Conta de Acesso</h3>
+                            <div class="form-row form-row-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }} <span class="required" aria-hidden="true">*</span></label>
+                                    <input type="text" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}" class="form-input{% if form.first_name.errors %} has-error{% endif %}" value="{{ form.first_name.value|default:'' }}" required autocomplete="given-name" placeholder="Nome do responsável">
+                                    {% if form.first_name.errors %}<p class="form-error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ form.first_name.errors.0 }}</p>{% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.email.id_for_label }}">{{ form.email.label }} <span class="required" aria-hidden="true">*</span></label>
+                                    <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-input{% if form.email.errors %} has-error{% endif %}" value="{{ form.email.value|default:'' }}" required autocomplete="email" placeholder="email@instituicao.pt">
+                                    {% if form.email.errors %}<p class="form-error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ form.email.errors.0 }}</p>{% endif %}
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium">{{ form.email.label }}</label>
-                                {{ form.email }}
-                                {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium">{{ form.password1.label }}</label>
-                                {{ form.password1 }}
-                                {% if form.password1.errors %}<div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>{% endif %}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium">{{ form.password2.label }}</label>
-                                {{ form.password2 }}
-                                {% if form.password2.errors %}<div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>{% endif %}
-                            </div>
-                        </div>
-                        <hr>
-                        <h6 class="fw-bold mb-3">Instituição</h6>
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">{{ form.nome.label }}</label>
-                            {{ form.nome }}
-                            {% if form.nome.errors %}<div class="text-danger small mt-1">{{ form.nome.errors.0 }}</div>{% endif %}
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium">{{ form.nif.label }}</label>
-                                {{ form.nif }}
-                                {% if form.nif.errors %}<div class="text-danger small mt-1">{{ form.nif.errors.0 }}</div>{% endif %}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium">{{ form.tipo.label }}</label>
-                                {{ form.tipo }}
-                                {% if form.tipo.errors %}<div class="text-danger small mt-1">{{ form.tipo.errors.0 }}</div>{% endif %}
+                            <div class="form-row form-row-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.password1.id_for_label }}">{{ form.password1.label }} <span class="required" aria-hidden="true">*</span></label>
+                                    <input type="password" name="{{ form.password1.name }}" id="{{ form.password1.id_for_label }}" class="form-input{% if form.password1.errors %} has-error{% endif %}" required autocomplete="new-password" placeholder="Mínimo 8 caracteres">
+                                    {% if form.password1.errors %}<p class="form-error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ form.password1.errors.0 }}</p>{% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.password2.id_for_label }}">{{ form.password2.label }} <span class="required" aria-hidden="true">*</span></label>
+                                    <input type="password" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" class="form-input{% if form.password2.errors %} has-error{% endif %}" required autocomplete="new-password" placeholder="Repete a palavra-passe">
+                                    {% if form.password2.errors %}<p class="form-error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ form.password2.errors.0 }}</p>{% endif %}
+                                </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">{{ form.descricao.label }}</label>
-                            {{ form.descricao }}
-                            {% if form.descricao.errors %}<div class="text-danger small mt-1">{{ form.descricao.errors.0 }}</div>{% endif %}
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium">{{ form.morada.label }}</label>
-                                {{ form.morada }}
-                                {% if form.morada.errors %}<div class="text-danger small mt-1">{{ form.morada.errors.0 }}</div>{% endif %}
+                        <div class="mb-4">
+                            <h3 class="h4 mb-3">Instituição</h3>
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.nome.id_for_label }}">{{ form.nome.label }} <span class="required" aria-hidden="true">*</span></label>
+                                <input type="text" name="{{ form.nome.name }}" id="{{ form.nome.id_for_label }}" class="form-input{% if form.nome.errors %} has-error{% endif %}" value="{{ form.nome.value|default:'' }}" required autocomplete="organization" placeholder="Nome da instituição">
+                                {% if form.nome.errors %}<p class="form-error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ form.nome.errors.0 }}</p>{% endif %}
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium">{{ form.telefone.label }}</label>
-                                {{ form.telefone }}
-                                {% if form.telefone.errors %}<div class="text-danger small mt-1">{{ form.telefone.errors.0 }}</div>{% endif %}
+                            <div class="form-row form-row-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.nif.id_for_label }}">{{ form.nif.label }}</label>
+                                    <input type="text" name="{{ form.nif.name }}" id="{{ form.nif.id_for_label }}" class="form-input{% if form.nif.errors %} has-error{% endif %}" value="{{ form.nif.value|default:'' }}" autocomplete="off" placeholder="NIF">
+                                    {% if form.nif.errors %}<p class="form-error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ form.nif.errors.0 }}</p>{% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+                                    <select name="{{ form.tipo.name }}" id="{{ form.tipo.id_for_label }}" class="form-select{% if form.tipo.errors %} has-error{% endif %}">
+                                        <option value="">Seleciona...</option>
+                                        <option value="ipss" {% if form.tipo.value == 'ipss' %}selected{% endif %}>IPSS</option>
+                                        <option value="ong" {% if form.tipo.value == 'ong' %}selected{% endif %}>ONG</option>
+                                        <option value="associacao" {% if form.tipo.value == 'associacao' %}selected{% endif %}>Associação</option>
+                                        <option value="fundacao" {% if form.tipo.value == 'fundacao' %}selected{% endif %}>Fundação</option>
+                                        <option value="outro" {% if form.tipo.value == 'outro' %}selected{% endif %}>Outro</option>
+                                    </select>
+                                    {% if form.tipo.errors %}<p class="form-error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ form.tipo.errors.0 }}</p>{% endif %}
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">{{ form.website.label }}</label>
-                            {{ form.website }}
-                            {% if form.website.errors %}<div class="text-danger small mt-1">{{ form.website.errors.0 }}</div>{% endif %}
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.descricao.id_for_label }}">{{ form.descricao.label }}</label>
+                                <textarea name="{{ form.descricao.name }}" id="{{ form.descricao.id_for_label }}" class="form-textarea{% if form.descricao.errors %} has-error{% endif %}" rows="3" placeholder="Descreve brevemente a tua instituição">{{ form.descricao.value|default:'' }}</textarea>
+                                {% if form.descricao.errors %}<p class="form-error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ form.descricao.errors.0 }}</p>{% endif %}
+                            </div>
+                            <div class="form-row form-row-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.morada.id_for_label }}">{{ form.morada.label }}</label>
+                                    <input type="text" name="{{ form.morada.name }}" id="{{ form.morada.id_for_label }}" class="form-input{% if form.morada.errors %} has-error{% endif %}" value="{{ form.morada.value|default:'' }}" autocomplete="street-address" placeholder="Morada">
+                                    {% if form.morada.errors %}<p class="form-error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ form.morada.errors.0 }}</p>{% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="{{ form.telefone.id_for_label }}">{{ form.telefone.label }}</label>
+                                    <input type="tel" name="{{ form.telefone.name }}" id="{{ form.telefone.id_for_label }}" class="form-input{% if form.telefone.errors %} has-error{% endif %}" value="{{ form.telefone.value|default:'' }}" autocomplete="tel" placeholder="Contacto telefónico">
+                                    {% if form.telefone.errors %}<p class="form-error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ form.telefone.errors.0 }}</p>{% endif %}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.website.id_for_label }}">{{ form.website.label }}</label>
+                                <input type="url" name="{{ form.website.name }}" id="{{ form.website.id_for_label }}" class="form-input{% if form.website.errors %} has-error{% endif %}" value="{{ form.website.value|default:'' }}" autocomplete="url" placeholder="https://www.instituicao.pt">
+                                {% if form.website.errors %}<p class="form-error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ form.website.errors.0 }}</p>{% endif %}
+                            </div>
                         </div>
                         {% if form.non_field_errors %}
-                        <div class="alert alert-danger py-2">
+                        <div class="alert alert-error" role="alert">
                             {% for error in form.non_field_errors %}<small>{{ error }}</small><br>{% endfor %}
                         </div>
                         {% endif %}
-                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Criar Conta</button>
+                        <button type="submit" class="btn btn-primary w-100">Criar Conta</button>
                     </form>
-                    <div class="text-center mt-3"><small>Já tens conta? <a href="{% url 'accounts:login' %}">Entrar</a></small></div>
+                    <div class="text-center mt-4">
+                        <span class="text-sm text-muted">Já tens conta?</span>
+                        <a href="{% url 'accounts:login' %}" class="text-sm">Entrar</a>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,61 +1,41 @@
 {% extends 'base.html' %}
-{% block title %}Certificado de Voluntariado{% endblock %}
+{% block title %}Certificado{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card dashboard-card border-0 shadow">
-                <div class="card-body p-0">
-                    <div style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); color: white; padding: 40px; text-align: center; border-radius: 12px 12px 0 0;">
-                        <i class="bi bi-award-fill" style="font-size: 3rem;"></i>
-                        <h2 class="fw-bold mt-3 mb-1">Certificado de Voluntariado</h2>
-                        <p class="mb-0 opacity-75">Este certificado atesta a participação em atividade de voluntariado</p>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_volunteer.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Certificado de Voluntariado</h1>
+            </div>
+            <div class="page-header-actions">
+                <a href="{% url 'accounts:download_certificado' oportunidade.id %}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-download" aria-hidden="true"></i>
+                    Descarregar PDF
+                </a>
+            </div>
+        </div>
+
+        <div class="card" style="border:2px solid var(--color-border);border-radius:var(--radius-xl);">
+            <div class="card-body text-center py-6">
+                <i class="bi bi-award" style="font-size:4rem;color:var(--color-warning);" aria-hidden="true"></i>
+                <h2 class="h1 mb-2">Certificado</h2>
+                <p class="text-muted mb-5">Certificamos que</p>
+                <h3 class="h1" style="font-size:2rem;">{{ user.get_full_name|default:user.email }}</h3>
+                <p class="text-muted mb-5">participou na atividade de voluntariado</p>
+                <h3 class="h2">{{ oportunidade.titulo }}</h3>
+                <div class="d-flex justify-content-center gap-5 mt-5 mb-5">
+                    <div class="text-center">
+                        <div class="fw-bold" style="font-size:1.5rem;">{{ certificado.horas_voluntariado }}</div>
+                        <small class="text-muted">Horas</small>
                     </div>
-                    <div class="p-4">
-                        <div class="text-center mb-4">
-                            <h4 class="fw-bold text-primary">{{ certificado.voluntario.get_full_name|default:certificado.voluntario.email }}</h4>
-                            <p class="text-muted mb-1">participou na oportunidade</p>
-                            <h5 class="fw-bold">{{ oportunidade.titulo }}</h5>
-                        </div>
-                        <div class="row text-center mb-4">
-                            <div class="col-md-4 mb-3">
-                                <div class="p-3 rounded bg-light">
-                                    <i class="bi bi-building text-primary" style="font-size:1.5rem;"></i>
-                                    <p class="small text-muted mb-0 mt-1">Instituição</p>
-                                    <p class="fw-bold mb-0">{{ certificado.instituicao_nome }}</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="p-3 rounded bg-light">
-                                    <i class="bi bi-clock text-primary" style="font-size:1.5rem;"></i>
-                                    <p class="small text-muted mb-0 mt-1">Duração</p>
-                                    <p class="fw-bold mb-0">{{ certificado.horas_voluntariado }} horas</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="p-3 rounded bg-light">
-                                    <i class="bi bi-calendar-check text-primary" style="font-size:1.5rem;"></i>
-                                    <p class="small text-muted mb-0 mt-1">Data de Emissão</p>
-                                    <p class="fw-bold mb-0">{{ certificado.data_emissao|date:'d/m/Y' }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        {% if certificado.descricao_atividade %}
-                        <div class="mb-4">
-                            <h6 class="fw-bold">Descrição da Atividade</h6>
-                            <p class="text-muted">{{ certificado.descricao_atividade }}</p>
-                        </div>
-                        {% endif %}
-                        <div class="text-center mb-3">
-                            <small class="text-muted">Código de verificação: <code>{{ certificado.codigo_verificacao }}</code></small>
-                        </div>
-                        <div class="text-center">
-                            <a href="{% url 'accounts:download_certificado' oportunidade.id %}" class="btn btn-primary px-4 py-2 fw-bold">
-                                <i class="bi bi-download me-1"></i>Descarregar PDF
-                            </a>
-                            <a href="{% url 'accounts:volunteer_dashboard' %}" class="btn btn-outline-secondary px-4 py-2">Voltar</a>
-                        </div>
+                    <div class="text-center">
+                        <div class="fw-bold" style="font-size:1.5rem;">{{ certificado.instituicao_nome }}</div>
+                        <small class="text-muted">Instituição</small>
                     </div>
+                </div>
+                <div class="mt-5" style="border-top:1px solid var(--color-border);padding-top:var(--space-4);">
+                    <small class="text-muted">Código de verificação: <span class="text-mono fw-bold">{{ certificado.codigo_verificacao }}</span></small>
                 </div>
             </div>
         </div>

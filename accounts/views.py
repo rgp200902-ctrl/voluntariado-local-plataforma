@@ -4,24 +4,38 @@ from django.contrib.auth import login, logout, authenticate, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count
+from django.core.paginator import Paginator
 from django.utils import timezone
+from django.core.cache import cache
+from .decorators import perfil_requerido
+from .services import NotificacaoService, PasswordResetService, RegistoAtividadeService
 from .forms import LoginForm, VolunteerRegisterForm, InstitutionRegisterForm
-from .models import User, Volunteer, Institution
-from oportunidades.models import Inscricao, Oportunidade
-from core.models import RegistoAtividade, Notificacao, Certificado
+from .models import User, Volunteer, Institution, Tag, VolunteerTag
+from oportunidades.models import Inscricao, Oportunidade, Categoria
+from core.models import RegistoAtividade, Notificacao, Certificado, Avaliacao
+
+# --- Auth ---
 
 def login_view(request):
     if request.user.is_authenticated:
         return redirect_to_dashboard(request.user)
     if request.method == 'POST':
+        ip = request.META.get('REMOTE_ADDR', '')
+        cache_key = f'login_attempts_{ip}'
+        attempts = cache.get(cache_key, 0)
+        if attempts >= 5:
+            messages.error(request, 'Demasiadas tentativas. Tenta novamente dentro de 5 minutos.')
+            return render(request, 'accounts/login.html', {'form': LoginForm()})
         form = LoginForm(request.POST)
         if form.is_valid():
             user = authenticate(email=form.cleaned_data['email'], password=form.cleaned_data['password'])
             if user and user.is_active:
+                cache.delete(cache_key)
                 login(request, user)
-                RegistoAtividade.objects.create(utilizador=user, acao='login', entidade='User', entidade_id=str(user.id))
+                RegistoAtividadeService.registar(user, 'login', 'User', user.id)
                 return redirect_to_dashboard(user)
             messages.error(request, 'Email ou palavra-passe inválidos.')
+        cache.set(cache_key, attempts + 1, 300)
     else:
         form = LoginForm()
     return render(request, 'accounts/login.html', {'form': form})
@@ -31,8 +45,7 @@ def redirect_to_dashboard(user):
         return redirect('accounts:admin_dashboard')
     elif user.perfil == 'instituicao':
         return redirect('accounts:institution_dashboard')
-    else:
-        return redirect('accounts:volunteer_dashboard')
+    return redirect('accounts:volunteer_dashboard')
 
 def logout_view(request):
     logout(request)
@@ -66,13 +79,44 @@ def register_institution(request):
 def register(request):
     return render(request, 'accounts/register.html')
 
+# --- Password Reset ---
+
+def password_reset(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        user = User.objects.filter(email=email).first()
+        if user:
+            PasswordResetService.enviar_email_reset(request, user)
+        messages.success(request, 'Se o email existir na plataforma, receberá um link de recuperação.')
+        return redirect('accounts:login')
+    return render(request, 'accounts/password_reset.html')
+
+def password_reset_confirm(request, uidb64, token):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        password_confirm = request.POST.get('password_confirm')
+        if not password or password != password_confirm:
+            messages.error(request, 'As palavras-passe não coincidem.')
+            return render(request, 'accounts/password_reset_confirm.html', {'validlink': True, 'uidb64': uidb64, 'token': token})
+        if len(password) < 8:
+            messages.error(request, 'A palavra-passe deve ter pelo menos 8 caracteres.')
+            return render(request, 'accounts/password_reset_confirm.html', {'validlink': True, 'uidb64': uidb64, 'token': token})
+        user = PasswordResetService.confirmar_reset(uidb64, token, password)
+        if user is None:
+            messages.error(request, 'O link de recuperação é inválido ou expirou.')
+            return redirect('accounts:password_reset')
+        messages.success(request, 'Palavra-passe redefinida com sucesso! Já podes entrar.')
+        return redirect('accounts:login')
+    user = PasswordResetService.confirmar_reset(uidb64, token, None)
+    validlink = user is not None
+    return render(request, 'accounts/password_reset_confirm.html', {
+        'validlink': validlink, 'uidb64': uidb64, 'token': token,
+    })
+
 # --- Volunteer Dashboard ---
 
-@login_required
+@perfil_requerido('voluntario')
 def volunteer_dashboard(request):
-    if request.user.perfil != 'voluntario':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
     volunteer, _ = Volunteer.objects.get_or_create(user=request.user)
     inscricoes = Inscricao.objects.filter(voluntario=request.user).select_related('oportunidade')
     certificados = Certificado.objects.filter(voluntario=request.user).select_related('oportunidade', 'oportunidade__instituicao')
@@ -83,15 +127,15 @@ def volunteer_dashboard(request):
         'certificados': certificados.count(),
     }
     atividades_recentes = RegistoAtividade.objects.filter(utilizador=request.user).order_by('-data_hora')[:5]
-    from oportunidades.views import get_recommended_oportunidades
-    recomendadas = get_recommended_oportunidades(request.user, limit=6)
+    from oportunidades.services import RecomendacaoService
+    recomendadas = RecomendacaoService.get_recommended(request.user, limit=6)
     return render(request, 'dashboard/volunteer/dashboard.html', {
         'volunteer': volunteer, 'inscricoes': inscricoes, 'stats': stats,
         'atividades': atividades_recentes, 'certificados': certificados,
         'recomendadas': recomendadas,
     })
 
-@login_required
+@perfil_requerido('voluntario')
 def volunteer_profile(request):
     volunteer, _ = Volunteer.objects.get_or_create(user=request.user)
     if request.method == 'POST':
@@ -113,23 +157,22 @@ def volunteer_profile(request):
         return redirect('accounts:volunteer_profile')
     return render(request, 'dashboard/volunteer/profile.html', {'volunteer': volunteer})
 
-@login_required
+@perfil_requerido('voluntario')
 def volunteer_registrations(request):
-    inscricoes = Inscricao.objects.filter(voluntario=request.user).select_related('oportunidade', 'oportunidade__instituicao').order_by('-data_inscricao')
+    inscricoes = Inscricao.objects.filter(voluntario=request.user).select_related(
+        'oportunidade', 'oportunidade__instituicao'
+    ).order_by('-data_inscricao')
     return render(request, 'dashboard/volunteer/registrations.html', {'inscricoes': inscricoes})
 
-@login_required
+@perfil_requerido('voluntario')
 def volunteer_history(request):
     atividades = RegistoAtividade.objects.filter(utilizador=request.user).order_by('-data_hora')
     return render(request, 'dashboard/volunteer/history.html', {'atividades': atividades})
 
 # --- Institution Dashboard ---
 
-@login_required
+@perfil_requerido('instituicao')
 def institution_dashboard(request):
-    if request.user.perfil != 'instituicao':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
     institution = get_object_or_404(Institution, user=request.user)
     oportunidades = Oportunidade.objects.filter(instituicao=institution).annotate(num_inscricoes=Count('registrations'))
     stats = {
@@ -142,7 +185,7 @@ def institution_dashboard(request):
         'institution': institution, 'oportunidades': oportunidades, 'stats': stats,
     })
 
-@login_required
+@perfil_requerido('instituicao')
 def institution_profile(request):
     institution = get_object_or_404(Institution, user=request.user)
     if request.method == 'POST':
@@ -163,11 +206,8 @@ def institution_profile(request):
 
 # --- Admin Dashboard ---
 
-@login_required
+@perfil_requerido('administrador')
 def admin_dashboard(request):
-    if request.user.perfil != 'administrador':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
     stats = {
         'utilizadores': User.objects.count(),
         'voluntarios': User.objects.filter(perfil='voluntario').count(),
@@ -179,20 +219,20 @@ def admin_dashboard(request):
     }
     return render(request, 'dashboard/admin/dashboard.html', {'stats': stats})
 
-@login_required
+@perfil_requerido('administrador')
 def admin_users(request):
-    if request.user.perfil != 'administrador':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
-    users = User.objects.all().order_by('-data_criacao')
+    users_list = User.objects.all().order_by('-data_criacao')
+    paginator = Paginator(users_list, 25)
+    page = request.GET.get('page')
+    users = paginator.get_page(page)
     return render(request, 'dashboard/admin/users.html', {'users': users})
 
-@login_required
+@perfil_requerido('administrador')
 def admin_institutions(request):
-    if request.user.perfil != 'administrador':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
-    institutions = Institution.objects.all().order_by('-data_criacao')
+    institutions_list = Institution.objects.all().order_by('-data_criacao')
+    paginator = Paginator(institutions_list, 25)
+    page = request.GET.get('page')
+    institutions = paginator.get_page(page)
     if request.method == 'POST':
         inst_id = request.POST.get('institution_id')
         new_status = request.POST.get('status')
@@ -202,30 +242,15 @@ def admin_institutions(request):
         if new_status == 'aprovada':
             inst.user.is_active = True
             inst.user.save()
-            Notificacao.objects.create(
-                utilizador=inst.user,
-                titulo='Instituição Aprovada',
-                mensagem=f'A tua instituição "{inst.nome}" foi aprovada. Já podes publicar oportunidades.',
-                tipo='instituicao_aprovada',
-                link='/dashboard/instituicao/',
-            )
+            NotificacaoService.instituicao_aprovada(inst)
         elif new_status == 'recusada':
-            Notificacao.objects.create(
-                utilizador=inst.user,
-                titulo='Instituição Recusada',
-                mensagem=f'A tua instituição "{inst.nome}" não foi aprovada. Contacta o administrador para mais informações.',
-                tipo='instituicao_recusada',
-            )
+            NotificacaoService.instituicao_recusada(inst)
         messages.success(request, f'Instituição {inst.nome} atualizada para {inst.get_estado_validacao_display()}.')
         return redirect('accounts:admin_institutions')
     return render(request, 'dashboard/admin/institutions.html', {'institutions': institutions})
 
-@login_required
+@perfil_requerido('administrador')
 def admin_categories(request):
-    if request.user.perfil != 'administrador':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
-    from oportunidades.models import Categoria
     categorias = Categoria.objects.all().order_by('nome')
     if request.method == 'POST':
         nome = request.POST.get('nome')
@@ -236,164 +261,105 @@ def admin_categories(request):
         return redirect('accounts:admin_categories')
     return render(request, 'dashboard/admin/categories.html', {'categorias': categorias})
 
-@login_required
+@perfil_requerido('administrador')
 def admin_reports(request):
-    if request.user.perfil != 'administrador':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
-    from django.db.models import Count
-    from oportunidades.models import Oportunidade, Inscricao, Categoria
     stats = {
         'total_utilizadores': User.objects.count(),
         'total_voluntarios': User.objects.filter(perfil='voluntario').count(),
         'total_instituicoes': Institution.objects.count(),
         'total_oportunidades': Oportunidade.objects.count(),
         'total_inscricoes': Inscricao.objects.count(),
-        'inscricoes_por_estado': Inscricao.objects.values('estado').annotate(total=Count('id')),
-        'oportunidades_por_categoria': Oportunidade.objects.values('categoria__nome').annotate(total=Count('id')),
+        'inscricoes_por_estado': list(Inscricao.objects.values('estado').annotate(total=Count('id'))),
+        'oportunidades_por_categoria': list(Oportunidade.objects.values('categoria__nome').annotate(total=Count('id'))),
     }
     return render(request, 'dashboard/admin/reports.html', {'stats': stats})
 
-@login_required
+@perfil_requerido('administrador')
 def admin_oportunidades(request):
-    if request.user.perfil != 'administrador':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
-    from oportunidades.models import Oportunidade
     filtro = request.GET.get('filtro', 'pendentes')
+    base_qs = Oportunidade.objects.select_related('instituicao', 'categoria')
     if filtro == 'pendentes':
-        oportunidades = Oportunidade.objects.filter(estado='pendente').select_related('instituicao', 'categoria').order_by('-criada_em')
+        oportunidades_list = base_qs.filter(estado='pendente').order_by('-criada_em')
     elif filtro == 'aprovadas':
-        oportunidades = Oportunidade.objects.filter(estado__in=['publicada', 'aberta']).select_related('instituicao', 'categoria').order_by('-criada_em')
+        oportunidades_list = base_qs.filter(estado__in=['publicada', 'aberta']).order_by('-criada_em')
     elif filtro == 'recusadas':
-        oportunidades = Oportunidade.objects.filter(estado='cancelada').select_related('instituicao', 'categoria').order_by('-criada_em')
+        oportunidades_list = base_qs.filter(estado='cancelada').order_by('-criada_em')
     else:
-        oportunidades = Oportunidade.objects.all().select_related('instituicao', 'categoria').order_by('-criada_em')
+        oportunidades_list = base_qs.all().order_by('-criada_em')
+    paginator = Paginator(oportunidades_list, 25)
+    page = request.GET.get('page')
+    oportunidades = paginator.get_page(page)
     pendentes_count = Oportunidade.objects.filter(estado='pendente').count()
     return render(request, 'dashboard/admin/oportunidades.html', {
         'oportunidades': oportunidades, 'filtro': filtro, 'pendentes_count': pendentes_count,
     })
 
-@login_required
+@perfil_requerido('administrador')
 def admin_aprovar_oportunidade(request, id):
-    if request.user.perfil != 'administrador':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
-    from oportunidades.models import Oportunidade
     oportunidade = get_object_or_404(Oportunidade, id=id)
     if request.method == 'POST':
         acao = request.POST.get('acao')
         if acao == 'aprovar':
             oportunidade.estado = 'publicada'
             oportunidade.save()
-            Notificacao.objects.create(
-                utilizador=oportunidade.instituicao.user,
-                titulo='Oportunidade Aprovada',
-                mensagem=f'A tua oportunidade "{oportunidade.titulo}" foi aprovada e está agora pública.',
-                tipo='nova_oportunidade',
-                link=f'/oportunidades/{oportunidade.id}/',
-            )
+            NotificacaoService.oportunidade_aprovada(oportunidade)
             messages.success(request, f'Oportunidade "{oportunidade.titulo}" aprovada com sucesso.')
         elif acao == 'recusar':
             oportunidade.estado = 'cancelada'
             oportunidade.save()
-            Notificacao.objects.create(
-                utilizador=oportunidade.instituicao.user,
-                titulo='Oportunidade Recusada',
-                mensagem=f'A tua oportunidade "{oportunidade.titulo}" não foi aprovada pelo administrador. Motivo: {request.POST.get("motivo", "Não especificado.")}',
-                tipo='sistema',
-            )
+            motivo = request.POST.get("motivo", "Não especificado.")
+            NotificacaoService.oportunidade_recusada(oportunidade, motivo)
             messages.warning(request, f'Oportunidade "{oportunidade.titulo}" recusada.')
         return redirect('accounts:admin_oportunidades')
     return render(request, 'dashboard/admin/detalhe_oportunidade.html', {'oportunidade': oportunidade})
 
-# -- Institution Opportunity Management --
+# --- Institution Opportunity Management ---
 
-@login_required
+@perfil_requerido('instituicao')
 def criar_oportunidade(request):
-    if request.user.perfil != 'instituicao':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
     institution = get_object_or_404(Institution, user=request.user)
-    from oportunidades.models import Categoria
-    from accounts.models import Tag
     categorias = Categoria.objects.filter(ativa=True)
     all_tags = Tag.objects.all()
 
     if request.method == 'POST':
-        oportunidade = Oportunidade.objects.create(
-            instituicao=institution,
-            categoria_id=request.POST.get('categoria') or None,
-            titulo=request.POST['titulo'],
-            descricao=request.POST['descricao'],
-            local=request.POST.get('local', ''),
-            freguesia=request.POST.get('freguesia', ''),
-            data_inicio=request.POST.get('data_inicio') or None,
-            data_fim=request.POST.get('data_fim') or None,
-            horario=request.POST.get('horario', ''),
-            vagas=request.POST.get('vagas', 1),
-            requisitos=request.POST.get('requisitos', ''),
-            idade_minima=request.POST.get('idade_minima') or None,
-            estado='pendente',
-        )
+        from oportunidades.services import OportunidadeService
+        oportunidade = OportunidadeService.criar(institution, request.POST)
         tag_ids = request.POST.getlist('tags')
         if tag_ids:
             oportunidade.tags.set(Tag.objects.filter(id__in=tag_ids))
-        Notificacao.objects.create(
-            utilizador=institution.user,
-            titulo='Oportunidade Submetida',
-            mensagem=f'A tua oportunidade "{oportunidade.titulo}" foi submetida para aprovação pelo administrador.',
-            tipo='sistema',
-        )
+        NotificacaoService.oportunidade_submetida(oportunidade)
         messages.success(request, 'Oportunidade criada e enviada para aprovação!')
         return redirect('accounts:institution_dashboard')
 
     return render(request, 'dashboard/institution/create_opportunity.html', {'categorias': categorias, 'all_tags': all_tags})
 
-@login_required
+@perfil_requerido('instituicao')
 def editar_oportunidade(request, id):
-    if request.user.perfil != 'instituicao':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
     institution = get_object_or_404(Institution, user=request.user)
     oportunidade = get_object_or_404(Oportunidade, id=id, instituicao=institution)
-    from oportunidades.models import Categoria
-    from accounts.models import Tag
     categorias = Categoria.objects.filter(ativa=True)
     all_tags = Tag.objects.all()
     tags_atuais = set(oportunidade.tags.values_list('id', flat=True))
 
     if request.method == 'POST':
-        oportunidade.titulo = request.POST['titulo']
-        oportunidade.descricao = request.POST['descricao']
-        oportunidade.local = request.POST.get('local', '')
-        oportunidade.freguesia = request.POST.get('freguesia', '')
-        oportunidade.data_inicio = request.POST.get('data_inicio') or None
-        oportunidade.data_fim = request.POST.get('data_fim') or None
-        oportunidade.horario = request.POST.get('horario', '')
-        oportunidade.vagas = request.POST.get('vagas', 1)
-        oportunidade.requisitos = request.POST.get('requisitos', '')
-        oportunidade.idade_minima = request.POST.get('idade_minima') or None
-        oportunidade.categoria_id = request.POST.get('categoria') or None
-        oportunidade.estado = request.POST.get('estado', 'publicada')
-        oportunidade.save()
+        from oportunidades.services import OportunidadeService
+        OportunidadeService.atualizar(oportunidade, request.POST)
         tag_ids = request.POST.getlist('tags')
-        oportunidade.tags.set(Tag.objects.filter(id__in=tag_ids))
+        if tag_ids:
+            oportunidade.tags.set(Tag.objects.filter(id__in=tag_ids))
+        else:
+            oportunidade.tags.clear()
         messages.success(request, 'Oportunidade atualizada com sucesso!')
         return redirect('accounts:institution_dashboard')
 
-    from oportunidades.models import Oportunidade as OpModel
     return render(request, 'dashboard/institution/edit_opportunity.html', {
         'oportunidade': oportunidade, 'categorias': categorias, 'all_tags': all_tags,
         'tags_atuais': tags_atuais,
-        'estado_choices': OpModel.ESTADO_CHOICES,
+        'estado_choices': Oportunidade.ESTADO_CHOICES,
     })
 
-@login_required
+@perfil_requerido('instituicao')
 def apagar_oportunidade(request, id):
-    if request.user.perfil != 'instituicao':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
     institution = get_object_or_404(Institution, user=request.user)
     oportunidade = get_object_or_404(Oportunidade, id=id, instituicao=institution)
     if request.method == 'POST':
@@ -403,11 +369,8 @@ def apagar_oportunidade(request, id):
         return redirect('accounts:institution_dashboard')
     return render(request, 'dashboard/institution/confirm_delete.html', {'oportunidade': oportunidade})
 
-@login_required
+@perfil_requerido('instituicao')
 def gerir_inscricoes(request, id):
-    if request.user.perfil != 'instituicao':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
     institution = get_object_or_404(Institution, user=request.user)
     oportunidade = get_object_or_404(Oportunidade, id=id, instituicao=institution)
     inscricoes = Inscricao.objects.filter(oportunidade=oportunidade).select_related('voluntario').order_by('-data_inscricao')
@@ -420,29 +383,11 @@ def gerir_inscricoes(request, id):
         inscricao.data_decisao = timezone.now()
         inscricao.save()
         if novo_estado == 'aceite':
-            Notificacao.objects.create(
-                utilizador=inscricao.voluntario,
-                titulo='Inscrição Aceite',
-                mensagem=f'A tua inscrição na oportunidade "{oportunidade.titulo}" foi aceite pela instituição {oportunidade.instituicao.nome}.',
-                tipo='inscricao_aceite',
-                link=f'/oportunidades/{oportunidade.id}/',
-            )
+            NotificacaoService.inscricao_aceite(inscricao)
         elif novo_estado == 'recusada':
-            Notificacao.objects.create(
-                utilizador=inscricao.voluntario,
-                titulo='Inscrição Recusada',
-                mensagem=f'A tua inscrição na oportunidade "{oportunidade.titulo}" não foi aceite.',
-                tipo='inscricao_recusada',
-                link=f'/oportunidades/{oportunidade.id}/',
-            )
+            NotificacaoService.inscricao_recusada(inscricao)
         elif novo_estado == 'concluida':
-            Notificacao.objects.create(
-                utilizador=inscricao.voluntario,
-                titulo='Oportunidade Concluída',
-                mensagem=f'Parabéns! Completaste a oportunidade "{oportunidade.titulo}". Podes gerar o teu certificado.',
-                tipo='inscricao_concluida',
-                link=f'/certificados/{oportunidade.id}/gerar/',
-            )
+            NotificacaoService.inscricao_concluida(inscricao)
         messages.success(request, f'Inscrição atualizada para "{inscricao.get_estado_display()}".')
         return redirect('accounts:gerir_inscricoes', id=id)
 
@@ -450,11 +395,8 @@ def gerir_inscricoes(request, id):
         'oportunidade': oportunidade, 'inscricoes': inscricoes,
     })
 
-@login_required
+@perfil_requerido('instituicao')
 def exportar_inscricoes(request, id):
-    if request.user.perfil != 'instituicao':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
     institution = get_object_or_404(Institution, user=request.user)
     oportunidade = get_object_or_404(Oportunidade, id=id, instituicao=institution)
     inscricoes = Inscricao.objects.filter(oportunidade=oportunidade).select_related('voluntario')
@@ -478,29 +420,14 @@ def exportar_inscricoes(request, id):
         ])
     return response
 
-def password_reset(request):
-    if request.method == 'POST':
-        email = request.POST.get('email', '').strip()
-        try:
-            user = User.objects.get(email=email)
-            import secrets
-            nova_password = secrets.token_urlsafe(10)
-            user.set_password(nova_password)
-            user.save()
-            messages.success(request, f'Nova palavra-passe gerada para {email}: <strong>{nova_password}</strong>. Guarda-a e altera-a após o login.')
-        except User.DoesNotExist:
-            messages.warning(request, 'Email não encontrado na plataforma.')
-        return redirect('accounts:login')
-    return render(request, 'accounts/password_reset.html')
-
 # --- Notificações ---
 
 @login_required
 def notificacoes(request):
-    notificacoes = Notificacao.objects.filter(utilizador=request.user)
-    nao_lidas = notificacoes.filter(lida=False).count()
+    notificacoes_list = Notificacao.objects.filter(utilizador=request.user)
+    nao_lidas = notificacoes_list.filter(lida=False).count()
     return render(request, 'dashboard/notificacoes.html', {
-        'notificacoes': notificacoes, 'nao_lidas': nao_lidas,
+        'notificacoes': notificacoes_list, 'nao_lidas': nao_lidas,
     })
 
 @login_required
@@ -519,11 +446,8 @@ def marcar_todas_lidas(request):
 
 # --- Certificados ---
 
-@login_required
+@perfil_requerido('voluntario')
 def gerar_certificado(request, oportunidade_id):
-    if request.user.perfil != 'voluntario':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
     inscricao = get_object_or_404(Inscricao, oportunidade_id=oportunidade_id, voluntario=request.user, estado='concluida')
     oportunidade = inscricao.oportunidade
 
@@ -540,11 +464,8 @@ def gerar_certificado(request, oportunidade_id):
         'certificado': certificado, 'oportunidade': oportunidade,
     })
 
-@login_required
+@perfil_requerido('voluntario')
 def download_certificado(request, oportunidade_id):
-    if request.user.perfil != 'voluntario':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
     inscricao = get_object_or_404(Inscricao, oportunidade_id=oportunidade_id, voluntario=request.user, estado='concluida')
     oportunidade = inscricao.oportunidade
 
@@ -558,92 +479,13 @@ def download_certificado(request, oportunidade_id):
         }
     )
 
-    from reportlab.lib.pagesizes import A4, landscape
-    from reportlab.lib.units import cm
-    from reportlab.lib.colors import HexColor
-    from reportlab.pdfgen import canvas
-    from reportlab.lib.utils import simpleSplit
-
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="certificado-{oportunidade.titulo}.pdf"'
-
-    c = canvas.Canvas(response, pagesize=landscape(A4))
-    width, height = landscape(A4)
-
-    c.setFillColor(HexColor('#0d6efd'))
-    c.rect(0, 0, width, height, fill=True)
-
-    c.setFillColor(HexColor('#ffffff'))
-    c.setStrokeColor(HexColor('#ffffff'))
-
-    margin = 2 * cm
-    inner_w = width - 2 * margin
-    inner_h = height - 2 * margin
-    c.roundRect(margin, margin, inner_w, inner_h, 15, fill=False, stroke=True)
-
-    y = height - 3 * cm
-
-    c.setFont('Helvetica-Bold', 32)
-    c.drawCentredString(width / 2, y, 'Certificado de Voluntariado')
-
-    y -= 1.5 * cm
-    c.setFont('Helvetica', 14)
-    c.drawCentredString(width / 2, y, 'Este certificado atesta a participação em atividade de voluntariado')
-
-    y -= 2 * cm
-    c.setFont('Helvetica-Bold', 20)
-    nome_voluntario = certificado.voluntario.get_full_name() or certificado.voluntario.email
-    c.drawCentredString(width / 2, y, nome_voluntario)
-
-    y -= 1.5 * cm
-    c.setFont('Helvetica', 13)
-    c.drawCentredString(width / 2, y, f'participou na oportunidade')
-
-    y -= 1.2 * cm
-    c.setFont('Helvetica-Bold', 16)
-    c.setFillColor(HexColor('#ffd700'))
-    c.drawCentredString(width / 2, y, f'"{oportunidade.titulo}"')
-
-    c.setFillColor(HexColor('#ffffff'))
-    y -= 1.5 * cm
-    c.setFont('Helvetica', 12)
-    c.drawCentredString(width / 2, y, f'organizada por {certificado.instituicao_nome}')
-
-    if certificado.horas_voluntariado:
-        y -= 1 * cm
-        c.setFont('Helvetica', 12)
-        c.drawCentredString(width / 2, y, f'Duração: {certificado.horas_voluntariado} horas')
-
-    y -= 2.5 * cm
-    c.setFont('Helvetica', 10)
-    c.drawCentredString(width / 2, y, f'Certificado emitido em {certificado.data_emissao.strftime("%d/%m/%Y")}')
-    y -= 0.6 * cm
-    c.setFont('Helvetica', 9)
-    c.drawCentredString(width / 2, y, f'Código de verificação: {certificado.codigo_verificacao}')
-
-    c.save()
-    return response
-
-@login_required
-def minhas_notificacoes_count(request):
-    if request.user.is_authenticated:
-        return Notificacao.objects.filter(utilizador=request.user, lida=False).count()
-    return 0
+    from core.pdf_utils import CertificadoPDF
+    return CertificadoPDF(certificado, oportunidade).gerar()
 
 # --- Relatório PDF ---
 
-@login_required
+@perfil_requerido('administrador', 'instituicao')
 def relatorio_pdf(request):
-    if request.user.perfil not in ['administrador', 'instituicao']:
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
-    from oportunidades.models import Oportunidade, Inscricao, Categoria
-    from django.db.models import Count
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.units import cm
-    from reportlab.lib.colors import HexColor
-    from reportlab.pdfgen import canvas
-
     if request.user.perfil == 'administrador':
         total_users = User.objects.count()
         total_voluntarios = User.objects.filter(perfil='voluntario').count()
@@ -667,96 +509,26 @@ def relatorio_pdf(request):
         total_users = total_voluntarios
         total_instituicoes = 1
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-
-    c = canvas.Canvas(response, pagesize=A4)
-    width, height = A4
-    y = height - 2 * cm
-
-    c.setFillColor(HexColor('#0d6efd'))
-    c.rect(0, height - 3 * cm, width, 3 * cm, fill=True)
-    c.setFillColor(HexColor('#ffffff'))
-    c.setFont('Helvetica-Bold', 20)
-    c.drawCentredString(width / 2, height - 2 * cm, titulo_relatorio)
-    c.setFont('Helvetica', 10)
-    c.drawCentredString(width / 2, height - 2.7 * cm, 'Plataforma de Voluntariado Local')
-
-    y = height - 4.5 * cm
-    c.setFillColor(HexColor('#212529'))
-    c.setFont('Helvetica-Bold', 14)
-    c.drawString(2 * cm, y, 'Resumo Geral')
-    y -= 0.8 * cm
-
-    stats = [
-        ('Total Utilizadores', str(total_users)),
-        ('Voluntários', str(total_voluntarios)),
-        ('Instituições', str(total_instituicoes)),
-        ('Total Oportunidades', str(total_oportunidades)),
-        ('Total Inscrições', str(total_inscricoes)),
-    ]
-
-    c.setFont('Helvetica', 11)
-    for label, value in stats:
-        c.setFillColor(HexColor('#6c757d'))
-        c.drawString(2.5 * cm, y, f'{label}:')
-        c.setFillColor(HexColor('#0d6efd'))
-        c.setFont('Helvetica-Bold', 11)
-        c.drawString(8 * cm, y, value)
-        c.setFont('Helvetica', 11)
-        y -= 0.6 * cm
-
-    y -= 0.5 * cm
-    c.setFillColor(HexColor('#212529'))
-    c.setFont('Helvetica-Bold', 14)
-    c.drawString(2 * cm, y, 'Inscrições por Estado')
-    y -= 0.8 * cm
-
-    c.setFont('Helvetica', 11)
-    for item in inscricoes_estado:
-        c.setFillColor(HexColor('#6c757d'))
-        c.drawString(2.5 * cm, y, f'{item["estado"]}:')
-        c.setFillColor(HexColor('#0d6efd'))
-        c.setFont('Helvetica-Bold', 11)
-        c.drawString(8 * cm, y, str(item['total']))
-        c.setFont('Helvetica', 11)
-        y -= 0.6 * cm
-
-    y -= 0.5 * cm
-    c.setFillColor(HexColor('#212529'))
-    c.setFont('Helvetica-Bold', 14)
-    c.drawString(2 * cm, y, 'Oportunidades por Categoria')
-    y -= 0.8 * cm
-
-    c.setFont('Helvetica', 11)
-    for item in ops_categoria:
-        cat = item['categoria__nome'] or 'Sem categoria'
-        c.setFillColor(HexColor('#6c757d'))
-        c.drawString(2.5 * cm, y, f'{cat}:')
-        c.setFillColor(HexColor('#0d6efd'))
-        c.setFont('Helvetica-Bold', 11)
-        c.drawString(8 * cm, y, str(item['total']))
-        c.setFont('Helvetica', 11)
-        y -= 0.6 * cm
-
-    y -= 1 * cm
-    c.setFillColor(HexColor('#6c757d'))
-    c.setFont('Helvetica', 9)
-    c.drawCentredString(width / 2, 2 * cm, f'Relatório gerado em {timezone.now().strftime("%d/%m/%Y %H:%M")} | Plataforma de Voluntariado Local')
-
-    c.save()
-    return response
+    from core.pdf_utils import RelatorioPDF
+    stats = {
+        'resumo': [
+            ('Total Utilizadores', str(total_users)),
+            ('Voluntários', str(total_voluntarios)),
+            ('Instituições', str(total_instituicoes)),
+            ('Total Oportunidades', str(total_oportunidades)),
+            ('Total Inscrições', str(total_inscricoes)),
+        ],
+        'inscricoes_estado': inscricoes_estado,
+        'oportunidades_categoria': ops_categoria,
+    }
+    return RelatorioPDF(titulo_relatorio, filename, stats).gerar()
 
 # --- Avaliações ---
 
-@login_required
+@perfil_requerido('voluntario')
 def avaliar_oportunidade(request, oportunidade_id):
-    if request.user.perfil != 'voluntario':
-        messages.error(request, 'Apenas voluntários podem avaliar.')
-        return redirect('core:home')
     inscricao = get_object_or_404(Inscricao, oportunidade_id=oportunidade_id, voluntario=request.user, estado='concluida')
     oportunidade = inscricao.oportunidade
-    from core.models import Avaliacao
 
     if Avaliacao.objects.filter(autor=request.user, oportunidade=oportunidade).exists():
         messages.warning(request, 'Já avaliaste esta oportunidade.')
@@ -766,20 +538,14 @@ def avaliar_oportunidade(request, oportunidade_id):
         classificacao = int(request.POST.get('classificacao', 5))
         comentario = request.POST.get('comentario', '')
         instituicao_user = oportunidade.instituicao.user
-        Avaliacao.objects.create(
+        avaliacao = Avaliacao.objects.create(
             autor=request.user,
             destinatario=instituicao_user,
             oportunidade=oportunidade,
             classificacao=classificacao,
             comentario=comentario,
         )
-        Notificacao.objects.create(
-            utilizador=instituicao_user,
-            titulo='Nova Avaliação',
-            mensagem=f'O voluntário {request.user.get_full_name() or request.user.email} avaliou a oportunidade "{oportunidade.titulo}" com {classificacao}/5 estrelas.',
-            tipo='sistema',
-            link=f'/oportunidades/{oportunidade.id}/',
-        )
+        NotificacaoService.nova_avaliacao(avaliacao, instituicao_user)
         messages.success(request, 'Avaliação submetida com sucesso!')
         return redirect('accounts:volunteer_dashboard')
 
@@ -787,12 +553,10 @@ def avaliar_oportunidade(request, oportunidade_id):
         'oportunidade': oportunidade, 'inscricao': inscricao,
     })
 
-@login_required
 def ver_avaliacoes(request, oportunidade_id):
-    from core.models import Avaliacao
+    from django.db.models import Avg
     oportunidade = get_object_or_404(Oportunidade, id=oportunidade_id)
     avaliacoes = Avaliacao.objects.filter(oportunidade=oportunidade).select_related('autor')
-    from django.db.models import Avg
     media = avaliacoes.aggregate(media=Avg('classificacao'))['media'] or 0
     return render(request, 'oportunidades/avaliacoes.html', {
         'oportunidade': oportunidade, 'avaliacoes': avaliacoes, 'media': round(media, 1),
@@ -800,13 +564,8 @@ def ver_avaliacoes(request, oportunidade_id):
 
 # --- Tags ---
 
-@login_required
+@perfil_requerido('administrador')
 def gerir_tags(request):
-    if request.user.perfil != 'administrador':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
-    from accounts.models import Tag
-    from django.db.models import Count
     tags = Tag.objects.annotate(
         total_voluntarios=Count('voluntarios'),
         total_oportunidades=Count('oportunidades')
@@ -823,11 +582,8 @@ def gerir_tags(request):
         return redirect('accounts:gerir_tags')
     return render(request, 'dashboard/admin/tags.html', {'tags': tags})
 
-@login_required
+@perfil_requerido('voluntario')
 def voluntario_tags(request):
-    if request.user.perfil != 'voluntario':
-        messages.error(request, 'Acesso negado.')
-        return redirect('core:home')
     volunteer = get_object_or_404(Volunteer, user=request.user)
     todas_tags = Tag.objects.all()
     tags_atuais = set(VolunteerTag.objects.filter(voluntario=volunteer).values_list('tag_id', flat=True))
@@ -842,3 +598,5 @@ def voluntario_tags(request):
     return render(request, 'dashboard/volunteer/tags.html', {
         'todas_tags': todas_tags, 'tags_atuais': tags_atuais,
     })
+
+

@@ -1,0 +1,10 @@
+<div class="stat-card{% if class %} {{ class }}{% endif %}">
+    <div class="stat-card-icon" aria-hidden="true">{% if icon %}<i class="bi {{ icon }}"></i>{% endif %}</div>
+    <div class="stat-card-value">{{ value }}</div>
+    <div class="stat-card-label">{{ label }}</div>
+    {% if trend %}
+    <div class="stat-card-trend {% if trend.direction == 'up' %}trend-up{% elif trend.direction == 'down' %}trend-down{% endif %}">
+        <i class="bi bi-arrow-{{ trend.direction }}"></i> {{ trend.value }}
+    </div>
+    {% endif %}
+</div>

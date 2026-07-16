@@ -1,94 +1,98 @@
 {% extends 'base.html' %}
 {% block title %}Nova Oportunidade{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-3">{% include 'dashboard/sidebar_institution.html' %}</div>
-        <div class="col-md-9">
-            <h3 class="fw-bold mb-4">Nova Oportunidade</h3>
-            <div class="card dashboard-card">
-                <div class="card-body p-4">
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        {% if form.errors %}
-                        <div class="alert alert-danger py-2 mb-3">
-                            <small>Corrige os erros abaixo.</small>
-                        </div>
-                        {% endif %}
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">Título <span class="text-danger">*</span></label>
-                            <input type="text" name="titulo" class="form-control {% if form.titulo.errors %}is-invalid{% endif %}" value="{{ form.titulo.value|default:'' }}" required>
-                            {% if form.titulo.errors %}<div class="invalid-feedback">{{ form.titulo.errors.0 }}</div>{% endif %}
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">Descrição <span class="text-danger">*</span></label>
-                            <textarea name="descricao" class="form-control {% if form.descricao.errors %}is-invalid{% endif %}" rows="4" required>{{ form.descricao.value|default:'' }}</textarea>
-                            {% if form.descricao.errors %}<div class="invalid-feedback">{{ form.descricao.errors.0 }}</div>{% endif %}
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Categoria</label>
-                                <select name="categoria" class="form-select">
-                                    <option value="">Sem categoria</option>
-                                    {% for cat in categorias %}<option value="{{ cat.id }}">{{ cat.nome }}</option>{% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Local</label>
-                                <input type="text" name="local" class="form-control" value="{{ form.local.value|default:'' }}">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Freguesia</label>
-                                <input type="text" name="freguesia" class="form-control" value="{{ form.freguesia.value|default:'' }}">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Data Início</label>
-                                <input type="date" name="data_inicio" class="form-control" value="{{ form.data_inicio.value|default:'' }}">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Data Fim</label>
-                                <input type="date" name="data_fim" class="form-control" value="{{ form.data_fim.value|default:'' }}">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Horário</label>
-                                <input type="text" name="horario" class="form-control" placeholder="Ex: Sábados das 10h às 13h" value="{{ form.horario.value|default:'' }}">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Vagas <span class="text-danger">*</span></label>
-                                <input type="number" name="vagas" class="form-control" value="{{ form.vagas.value|default:'1' }}" min="1" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Idade Mínima</label>
-                                <input type="number" name="idade_minima" class="form-control" value="{{ form.idade_minima.value|default:'' }}" min="0">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">Requisitos</label>
-                            <textarea name="requisitos" class="form-control" rows="2">{{ form.requisitos.value|default:'' }}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">Tags</label>
-                            <div class="row g-2">
-                                {% for tag in all_tags %}
-                                <div class="col-auto">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="tags" value="{{ tag.id }}" id="tag-{{ tag.id }}">
-                                        <label class="form-check-label" for="tag-{{ tag.id }}">
-                                            <span class="badge" style="background-color:{{ tag.cor }};color:#fff;">{{ tag.nome }}</span>
-                                        </label>
-                                    </div>
-                                </div>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_institution.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Nova Oportunidade</h1>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% if form.errors %}
+                    <div class="alert alert-error mb-4" role="alert">
+                        <small>Corrige os erros abaixo para submeter a oportunidade.</small>
+                    </div>
+                    {% endif %}
+                    <div class="form-group">
+                        <label class="form-label" for="titulo">Título <span class="required" aria-hidden="true">*</span></label>
+                        <input type="text" name="titulo" id="titulo" class="form-input{% if form.titulo.errors %} has-error{% endif %}" value="{{ form.titulo.value|default:'' }}" required placeholder="Ex: Apoio ao Estudo">
+                        {% if form.titulo.errors %}<p class="form-error" role="alert">{{ form.titulo.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="descricao">Descrição <span class="required" aria-hidden="true">*</span></label>
+                        <textarea name="descricao" id="descricao" class="form-textarea{% if form.descricao.errors %} has-error{% endif %}" rows="4" required placeholder="Descreve a oportunidade em detalhe...">{{ form.descricao.value|default:'' }}</textarea>
+                        {% if form.descricao.errors %}<p class="form-error" role="alert">{{ form.descricao.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="form-row form-row-3">
+                        <div class="form-group">
+                            <label class="form-label" for="categoria">Categoria</label>
+                            <select name="categoria" id="categoria" class="form-select">
+                                <option value="">Sem categoria</option>
+                                {% for cat in categorias %}
+                                <option value="{{ cat.id }}" {% if form.categoria.value|stringformat:'s' == cat.id|stringformat:'s' %}selected{% endif %}>{{ cat.nome }}</option>
                                 {% endfor %}
-                            </div>
+                            </select>
                         </div>
-                        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">Criar Oportunidade</button>
-                        <a href="{% url 'accounts:institution_dashboard' %}" class="btn btn-outline-secondary px-4 py-2">Cancelar</a>
-                    </form>
-                </div>
+                        <div class="form-group">
+                            <label class="form-label" for="local">Local</label>
+                            <input type="text" name="local" id="local" class="form-input" value="{{ form.local.value|default:'' }}" placeholder="Ex: Lisboa">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="freguesia">Freguesia</label>
+                            <input type="text" name="freguesia" id="freguesia" class="form-input" value="{{ form.freguesia.value|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="form-row form-row-3">
+                        <div class="form-group">
+                            <label class="form-label" for="data_inicio">Data de Início</label>
+                            <input type="date" name="data_inicio" id="data_inicio" class="form-input" value="{{ form.data_inicio.value|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="data_fim">Data de Fim</label>
+                            <input type="date" name="data_fim" id="data_fim" class="form-input" value="{{ form.data_fim.value|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="horario">Horário</label>
+                            <input type="text" name="horario" id="horario" class="form-input" value="{{ form.horario.value|default:'' }}" placeholder="Ex: Sábados das 10h às 13h">
+                        </div>
+                    </div>
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="form-label" for="vagas">Vagas <span class="required" aria-hidden="true">*</span></label>
+                            <input type="number" name="vagas" id="vagas" class="form-input{% if form.vagas.errors %} has-error{% endif %}" value="{{ form.vagas.value|default:'1' }}" min="1" required>
+                            {% if form.vagas.errors %}<p class="form-error" role="alert">{{ form.vagas.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="idade_minima">Idade Mínima</label>
+                            <input type="number" name="idade_minima" id="idade_minima" class="form-input" value="{{ form.idade_minima.value|default:'' }}" min="0" placeholder="Opcional">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="requisitos">Requisitos</label>
+                        <textarea name="requisitos" id="requisitos" class="form-textarea" rows="2" placeholder="Requisitos necessários para participar...">{{ form.requisitos.value|default:'' }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tags</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% for tag in all_tags %}
+                            <label class="form-check" style="display:inline-flex;align-items:center;gap:var(--space-1);padding:var(--space-1) var(--space-2);border:1px solid var(--color-border);border-radius:var(--radius-full);cursor:pointer;">
+                                <input class="form-check-input" type="checkbox" name="tags" value="{{ tag.id }}" id="tag-{{ tag.id }}" style="display:none;" onchange="this.parentElement.style.borderColor=this.checked ? 'var(--color-primary)' : 'var(--color-border)'">
+                                <span class="tag-badge">{{ tag.nome }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Criar Oportunidade</button>
+                        <a href="{% url 'accounts:institution_dashboard' %}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

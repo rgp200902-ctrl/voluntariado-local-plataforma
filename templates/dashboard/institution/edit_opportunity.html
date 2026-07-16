@@ -1,101 +1,98 @@
 {% extends 'base.html' %}
 {% block title %}Editar Oportunidade{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-3">{% include 'dashboard/sidebar_institution.html' %}</div>
-        <div class="col-md-9">
-            <h3 class="fw-bold mb-4">Editar Oportunidade</h3>
-            <div class="card dashboard-card">
-                <div class="card-body p-4">
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        {% if form.errors %}
-                        <div class="alert alert-danger py-2 mb-3">
-                            <small>Corrige os erros abaixo.</small>
-                        </div>
-                        {% endif %}
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">Título <span class="text-danger">*</span></label>
-                            <input type="text" name="titulo" class="form-control {% if form.titulo.errors %}is-invalid{% endif %}" value="{{ oportunidade.titulo }}" required>
-                            {% if form.titulo.errors %}<div class="invalid-feedback">{{ form.titulo.errors.0 }}</div>{% endif %}
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">Descrição <span class="text-danger">*</span></label>
-                            <textarea name="descricao" class="form-control {% if form.descricao.errors %}is-invalid{% endif %}" rows="4" required>{{ oportunidade.descricao }}</textarea>
-                            {% if form.descricao.errors %}<div class="invalid-feedback">{{ form.descricao.errors.0 }}</div>{% endif %}
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Categoria</label>
-                                <select name="categoria" class="form-select">
-                                    <option value="">Sem categoria</option>
-                                    {% for cat in categorias %}<option value="{{ cat.id }}" {% if oportunidade.categoria_id == cat.id %}selected{% endif %}>{{ cat.nome }}</option>{% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Local</label>
-                                <input type="text" name="local" class="form-control" value="{{ oportunidade.local|default:'' }}">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Freguesia</label>
-                                <input type="text" name="freguesia" class="form-control" value="{{ oportunidade.freguesia|default:'' }}">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Data Início</label>
-                                <input type="date" name="data_inicio" class="form-control" value="{% if oportunidade.data_inicio %}{{ oportunidade.data_inicio|date:'Y-m-d' }}{% endif %}">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Data Fim</label>
-                                <input type="date" name="data_fim" class="form-control" value="{% if oportunidade.data_fim %}{{ oportunidade.data_fim|date:'Y-m-d' }}{% endif %}">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Horário</label>
-                                <input type="text" name="horario" class="form-control" value="{{ oportunidade.horario|default:'' }}">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Vagas <span class="text-danger">*</span></label>
-                                <input type="number" name="vagas" class="form-control" value="{{ oportunidade.vagas }}" min="1" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Idade Mínima</label>
-                                <input type="number" name="idade_minima" class="form-control" value="{{ oportunidade.idade_minima|default:'' }}" min="0">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label fw-medium">Estado</label>
-                                <select name="estado" class="form-select">
-                                    {% for k, v in estado_choices %}<option value="{{ k }}" {% if oportunidade.estado == k %}selected{% endif %}>{{ v }}</option>{% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">Requisitos</label>
-                            <textarea name="requisitos" class="form-control" rows="2">{{ oportunidade.requisitos|default:'' }}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-medium">Tags</label>
-                            <div class="row g-2">
-                                {% for tag in all_tags %}
-                                <div class="col-auto">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="tags" value="{{ tag.id }}" id="tag-{{ tag.id }}" {% if tag.id in tags_atuais %}checked{% endif %}>
-                                        <label class="form-check-label" for="tag-{{ tag.id }}">
-                                            <span class="badge" style="background-color:{{ tag.cor }};color:#fff;">{{ tag.nome }}</span>
-                                        </label>
-                                    </div>
-                                </div>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_institution.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Editar Oportunidade</h1>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% if form.errors %}
+                    <div class="alert alert-error mb-4" role="alert">
+                        <small>Corrige os erros abaixo.</small>
+                    </div>
+                    {% endif %}
+                    <div class="form-group">
+                        <label class="form-label" for="titulo">Título <span class="required" aria-hidden="true">*</span></label>
+                        <input type="text" name="titulo" id="titulo" class="form-input{% if form.titulo.errors %} has-error{% endif %}" value="{{ oportunidade.titulo }}" required>
+                        {% if form.titulo.errors %}<p class="form-error" role="alert">{{ form.titulo.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="descricao">Descrição <span class="required" aria-hidden="true">*</span></label>
+                        <textarea name="descricao" id="descricao" class="form-textarea{% if form.descricao.errors %} has-error{% endif %}" rows="4" required>{{ oportunidade.descricao }}</textarea>
+                        {% if form.descricao.errors %}<p class="form-error" role="alert">{{ form.descricao.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div class="form-row form-row-3">
+                        <div class="form-group">
+                            <label class="form-label" for="categoria">Categoria</label>
+                            <select name="categoria" id="categoria" class="form-select{% if form.categoria.errors %} has-error{% endif %}">
+                                <option value="">Sem categoria</option>
+                                {% for cat in categorias %}
+                                <option value="{{ cat.id }}" {% if oportunidade.categoria_id == cat.id %}selected{% endif %}>{{ cat.nome }}</option>
                                 {% endfor %}
-                            </div>
+                            </select>
                         </div>
-                        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">Guardar Alterações</button>
-                        <a href="{% url 'accounts:gerir_inscricoes' oportunidade.id %}" class="btn btn-outline-info px-4 py-2">Gerir Inscrições</a>
-                        <a href="{% url 'accounts:institution_dashboard' %}" class="btn btn-outline-secondary px-4 py-2">Cancelar</a>
-                    </form>
-                </div>
+                        <div class="form-group">
+                            <label class="form-label" for="local">Local</label>
+                            <input type="text" name="local" id="local" class="form-input" value="{{ oportunidade.local|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="freguesia">Freguesia</label>
+                            <input type="text" name="freguesia" id="freguesia" class="form-input" value="{{ oportunidade.freguesia|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="form-row form-row-3">
+                        <div class="form-group">
+                            <label class="form-label" for="data_inicio">Data de Início</label>
+                            <input type="date" name="data_inicio" id="data_inicio" class="form-input" value="{{ oportunidade.data_inicio|date:'Y-m-d'|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="data_fim">Data de Fim</label>
+                            <input type="date" name="data_fim" id="data_fim" class="form-input" value="{{ oportunidade.data_fim|date:'Y-m-d'|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="horario">Horário</label>
+                            <input type="text" name="horario" id="horario" class="form-input" value="{{ oportunidade.horario|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="form-label" for="vagas">Vagas <span class="required" aria-hidden="true">*</span></label>
+                            <input type="number" name="vagas" id="vagas" class="form-input{% if form.vagas.errors %} has-error{% endif %}" value="{{ oportunidade.vagas }}" min="1" required>
+                            {% if form.vagas.errors %}<p class="form-error" role="alert">{{ form.vagas.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="idade_minima">Idade Mínima</label>
+                            <input type="number" name="idade_minima" id="idade_minima" class="form-input" value="{{ oportunidade.idade_minima|default:'' }}" min="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="requisitos">Requisitos</label>
+                        <textarea name="requisitos" id="requisitos" class="form-textarea" rows="2">{{ oportunidade.requisitos|default:'' }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tags</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% for tag in all_tags %}
+                            <label class="form-check" style="display:inline-flex;align-items:center;gap:var(--space-1);padding:var(--space-1) var(--space-2);border:1px solid var(--color-border);border-radius:var(--radius-full);cursor:pointer;{% if tag.id in tags_atuais %}border-color:var(--color-primary);{% endif %}">
+                                <input class="form-check-input" type="checkbox" name="tags" value="{{ tag.id }}" id="tag-{{ tag.id }}" {% if tag.id in tags_atuais %}checked{% endif %} style="display:none;" onchange="this.parentElement.style.borderColor=this.checked ? 'var(--color-primary)' : 'var(--color-border)'">
+                                <span class="tag-badge">{{ tag.nome }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Guardar Alterações</button>
+                        <a href="{% url 'accounts:institution_dashboard' %}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

@@ -1,0 +1,105 @@
+/* ==========================================================================
+   DESIGN TOKENS — SEMANTIC COLOUR ALIASES
+   These are the ONLY colour tokens components should reference.
+   ========================================================================== */
+
+:root {
+  /* Background layers */
+  --color-bg-base:      var(--color-neutral-50);      /* page background */
+  --color-bg-elevated:  var(--color-neutral-0);       /* cards, modals, dropdowns */
+  --color-bg-overlay:   rgba(15, 23, 42, 0.6);        /* modal/backdrop overlay */
+  --color-bg-hover:     var(--color-neutral-100);     /* hover on interactive rows */
+  --color-bg-active:    var(--color-neutral-200);     /* active/pressed */
+  --color-bg-disabled:  var(--color-neutral-100);     /* disabled inputs */
+
+  /* Border */
+  --color-border-subtle:  var(--color-neutral-200);   /* hairline borders */
+  --color-border-default: var(--color-neutral-300);   /* input borders, card edges */
+  --color-border-focus:   var(--color-brand-500);     /* focus rings */
+  --color-border-error:   var(--color-error-500);     /* error state borders */
+
+  /* Text */
+  --color-text-primary:   var(--color-neutral-900);   /* headings, body */
+  --color-text-secondary: var(--color-neutral-600);   /* meta, captions, placeholders */
+  --color-text-tertiary:  var(--color-neutral-400);   /* disabled, very subtle */
+  --color-text-inverse:   var(--color-neutral-0);     /* on dark/brand backgrounds */
+  --color-text-link:      var(--color-brand-600);     /* links */
+  --color-text-link-hover: var(--color-brand-700);
+
+  /* Brand / Primary actions */
+  --color-brand-bg:           var(--color-brand-600);
+  --color-brand-bg-hover:     var(--color-brand-700);
+  --color-brand-bg-active:    var(--color-brand-800);
+  --color-brand-bg-disabled:  var(--color-brand-300);
+  --color-brand-text:         var(--color-neutral-0);
+  --color-brand-border:       var(--color-brand-600);
+  --color-brand-border-hover: var(--color-brand-700);
+
+  /* Status — success */
+  --color-status-success-bg:      rgba(22, 163, 74, 0.1);
+  --color-status-success-border:  var(--color-success-500);
+  --color-status-success-text:    var(--color-success-600);
+  --color-status-success-icon:    var(--color-success-500);
+
+  /* Status — warning */
+  --color-status-warning-bg:      rgba(245, 158, 11, 0.1);
+  --color-status-warning-border:  var(--color-warning-500);
+  --color-status-warning-text:    var(--color-warning-600);
+  --color-status-warning-icon:    var(--color-warning-500);
+
+  /* Status — error */
+  --color-status-error-bg:      rgba(220, 38, 38, 0.1);
+  --color-status-error-border:  var(--color-error-500);
+  --color-status-error-text:    var(--color-error-600);
+  --color-status-error-icon:    var(--color-error-500);
+
+  /* Status — info */
+  --color-status-info-bg:      rgba(14, 165, 233, 0.1);
+  --color-status-info-border:  var(--color-info-500);
+  --color-status-info-text:    var(--color-info-600);
+  --color-status-info-icon:    var(--color-info-500);
+
+  /* Focus ring (used by all interactive elements) */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: var(--color-brand-500);
+  --focus-ring-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+
+  /* Shadow tokens */
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.1), 0 2px 4px -2px rgb(15 23 42 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.1), 0 4px 6px -4px rgb(15 23 42 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(15 23 42 / 0.1), 0 8px 10px -6px rgb(15 23 42 / 0.1);
+}
+
+/* Dark mode semantic overrides */
+[data-theme="dark"] {
+  --color-bg-base:      var(--color-neutral-950);
+  --color-bg-elevated:  var(--color-neutral-900);
+  --color-bg-hover:     var(--color-neutral-800);
+  --color-bg-active:    var(--color-neutral-700);
+  --color-bg-disabled:  var(--color-neutral-800);
+
+  --color-border-subtle:  var(--color-neutral-800);
+  --color-border-default: var(--color-neutral-700);
+  --color-border-focus:   var(--color-brand-400);
+
+  --color-text-primary:   var(--color-neutral-100);
+  --color-text-secondary: var(--color-neutral-400);
+  --color-text-tertiary:  var(--color-neutral-500);
+  --color-text-link:      var(--color-brand-400);
+  --color-text-link-hover: var(--color-brand-300);
+
+  --color-brand-bg:           var(--color-brand-500);
+  --color-brand-bg-hover:     var(--color-brand-400);
+  --color-brand-bg-active:    var(--color-brand-600);
+  --color-brand-bg-disabled:  var(--color-brand-800);
+
+  --focus-ring-color: var(--color-brand-400);
+  --focus-ring-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+}

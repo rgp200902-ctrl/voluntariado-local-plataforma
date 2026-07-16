@@ -1,0 +1,9 @@
+<button type="{% if type %}{{ type }}{% else %}button{% endif %}"
+        class="icon-btn {% if variant %}icon-btn-{{ variant }}{% else %}icon-btn-ghost{% endif %}{% if class %} {{ class }}{% endif %}{% if loading %} loading{% endif %}"
+        {% if label %}aria-label="{{ label }}"{% endif %}
+        {% if title %}title="{{ title }}"{% endif %}
+        {% if disabled %}disabled{% endif %}
+        {% for attr, val in attrs.items %}{{ attr }}="{{ val }}"{% endfor %}>
+    {% if icon %}<i class="bi {{ icon }}" aria-hidden="true"></i>{% endif %}
+    {% if label and show_label %}<span class="icon-btn-label">{{ label }}</span>{% endif %}
+</button>

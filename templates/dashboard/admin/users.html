@@ -1,30 +1,64 @@
 {% extends 'base.html' %}
-{% block title %}Utilizadores{% endblock %}
+{% block title %}Gerir Utilizadores{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-3">{% include 'dashboard/sidebar_admin.html' %}</div>
-        <div class="col-md-9">
-            <h3 class="fw-bold mb-4">Utilizadores</h3>
-            <div class="card dashboard-card">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light"><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Ativo</th><th>Data</th></tr></thead>
-                        <tbody>
-                            {% for u in users %}
-                            <tr>
-                                <td class="fw-medium">{{ u.get_full_name|default:'-' }}</td>
-                                <td>{{ u.email }}</td>
-                                <td><span class="badge bg-{% if u.perfil == 'administrador' %}danger{% elif u.perfil == 'instituicao' %}primary{% else %}success{% endif %}">{{ u.get_perfil_display }}</span></td>
-                                <td>{% if u.is_active %}<span class="badge bg-success">Sim</span>{% else %}<span class="badge bg-secondary">Não</span>{% endif %}</td>
-                                <td><small class="text-muted">{{ u.data_criacao|date:'d/m/Y' }}</small></td>
-                            </tr>
-                            {% empty %}<tr><td colspan="5" class="text-center text-muted py-4">Nenhum utilizador.</td></tr>{% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_admin.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Utilizadores</h1>
+                <p class="page-header-description">{{ users.paginator.count }} utilizadores registados</p>
             </div>
         </div>
+
+        {% if users %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Tipo</th>
+                        <th>Ativo</th>
+                        <th>Registo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td class="fw-medium">{{ u.get_full_name|default:'—' }}</td>
+                        <td><small class="text-muted">{{ u.email }}</small></td>
+                        <td><span class="status-badge">{{ u.get_perfil_display }}</span></td>
+                        <td>
+                            <span class="status-badge status-{% if u.is_active %}success{% else %}error{% endif %}">
+                                <span class="status-badge-dot"></span>
+                                {% if u.is_active %}Sim{% else %}Não{% endif %}
+                            </span>
+                        </td>
+                        <td><small class="text-muted">{{ u.data_criacao|date:'d/m/Y' }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if users.paginator.num_pages > 1 %}
+        <div class="pagination mt-4">
+            {% if users.has_previous %}
+            <a href="?page={{ users.previous_page_number }}" class="btn btn-secondary btn-sm">Anterior</a>
+            {% endif %}
+            <span class="text-sm text-muted px-3">Página {{ users.number }} de {{ users.paginator.num_pages }}</span>
+            {% if users.has_next %}
+            <a href="?page={{ users.next_page_number }}" class="btn btn-secondary btn-sm">Seguinte</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-people" style="font-size:3rem;" aria-hidden="true"></i></div>
+            <h3 class="empty-state-title">Nenhum utilizador encontrado</h3>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

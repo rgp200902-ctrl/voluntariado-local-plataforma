@@ -28,6 +28,7 @@ urlpatterns = [
     path('dashboard/admin/oportunidades/', views.admin_oportunidades, name='admin_oportunidades'),
     path('dashboard/admin/oportunidades/<int:id>/', views.admin_aprovar_oportunidade, name='admin_aprovar_oportunidade'),
     path('password-reset/', views.password_reset, name='password_reset'),
+    path('password-reset/<uidb64>/<token>/', views.password_reset_confirm, name='password_reset_confirm'),
     path('notificacoes/', views.notificacoes, name='notificacoes'),
     path('notificacoes/<int:id>/ler/', views.marcar_notificacao_lida, name='marcar_notificacao_lida'),
     path('notificacoes/todas-lidas/', views.marcar_todas_lidas, name='marcar_todas_lidas'),

@@ -2,97 +2,154 @@
 {% load static %}
 {% block title %}Dashboard Instituição{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-3">{% include 'dashboard/sidebar_institution.html' %}</div>
-        <div class="col-md-9">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold mb-0">Dashboard</h3>
-                <div class="d-flex gap-2">
-                    <a href="{% url 'accounts:relatorio_pdf' %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-file-earmark-pdf me-1"></i>Relatório PDF</a>
-                    <a href="{% url 'accounts:criar_oportunidade' %}" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Nova Oportunidade</a>
-                </div>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_institution.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Dashboard</h1>
+                <p class="page-header-description">{{ institution.nome }}</p>
             </div>
-            <div class="row g-4 mb-4">
-                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-primary mb-0">{{ stats.total }}</h5><small class="text-muted">Total Oportunidades</small></div></div>
-                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-success mb-0">{{ stats.ativas }}</h5><small class="text-muted">Ativas</small></div></div>
-                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-warning mb-0">{{ stats.pendentes }}</h5><small class="text-muted">Pendentes</small></div></div>
-                <div class="col-md-3"><div class="card dashboard-card p-4"><h5 class="fw-bold text-info mb-0">{{ stats.inscricoes }}</h5><small class="text-muted">Total Inscrições</small></div></div>
+            <div class="page-header-actions">
+                <a href="{% url 'accounts:relatorio_pdf' %}" class="btn btn-secondary btn-sm">
+                    <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i>
+                    PDF
+                </a>
+                <a href="{% url 'accounts:criar_oportunidade' %}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-circle" aria-hidden="true"></i>
+                    Nova Oportunidade
+                </a>
             </div>
-            <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <div class="card dashboard-card p-4">
-                        <h6 class="fw-bold mb-3">Oportunidades por Estado</h6>
-                        <canvas id="chartOportunidades" height="200"></canvas>
+        </div>
+
+        <div class="stat-grid stat-grid-4">
+            <div class="stat-card">
+                <div class="stat-card-value">{{ stats.total }}</div>
+                <div class="stat-card-label">Total Oportunidades</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-value" style="color:var(--color-success);">{{ stats.ativas }}</div>
+                <div class="stat-card-label">Ativas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-value" style="color:var(--color-warning);">{{ stats.pendentes }}</div>
+                <div class="stat-card-label">Pendentes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-value" style="color:var(--color-info);">{{ stats.inscricoes }}</div>
+                <div class="stat-card-label">Total Inscrições</div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-6">
+            <div class="col-sm-6">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">Oportunidades por Estado</h3>
                     </div>
+                    <canvas id="chartOportunidades" height="200" aria-label="Gráfico de oportunidades por estado" role="img"></canvas>
                 </div>
-                <div class="col-md-6">
-                    <div class="card dashboard-card p-4">
-                        <h6 class="fw-bold mb-3">Inscrições por Oportunidade</h6>
-                        <canvas id="chartInscricoes" height="200"></canvas>
+            </div>
+            <div class="col-sm-6">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">Inscrições por Oportunidade</h3>
                     </div>
+                    <canvas id="chartInscricoes" height="200" aria-label="Gráfico de inscrições por oportunidade" role="img"></canvas>
                 </div>
             </div>
-            <h6 class="fw-bold mb-3">As Minhas Oportunidades</h6>
-            <div class="card dashboard-card">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light"><tr><th>Título</th><th>Categoria</th><th>Vagas</th><th>Inscrições</th><th>Estado</th><th></th></tr></thead>
-                        <tbody>
-                            {% for op in oportunidades %}
-                            <tr>
-                                <td class="fw-medium">{{ op.titulo }}</td>
-                                <td>{% if op.categoria %}{{ op.categoria.nome }}{% else %}-{% endif %}</td>
-                                <td>{{ op.vagas }}</td>
-                                <td>{{ op.num_inscricoes }}</td>
-                                <td><span class="badge bg-{% if op.estado == 'publicada' or op.estado == 'aberta' %}success{% elif op.estado == 'rascunho' %}secondary{% elif op.estado == 'concluida' %}info{% elif op.estado == 'cancelada' %}danger{% else %}warning{% endif %}">{{ op.get_estado_display }}</span></td>
-                                <td>
-                                    <a href="{% url 'accounts:editar_oportunidade' op.id %}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
-                                    <a href="{% url 'accounts:gerir_inscricoes' op.id %}" class="btn btn-sm btn-outline-info" title="Inscrições"><i class="bi bi-people"></i></a>
-                                    <a href="{% url 'accounts:apagar_oportunidade' op.id %}" class="btn btn-sm btn-outline-danger" title="Apagar"><i class="bi bi-trash"></i></a>
-                                </td>
-                            </tr>
-                            {% empty %}<tr><td colspan="6" class="text-center text-muted py-4">Nenhuma oportunidade criada.</td></tr>{% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h3" style="margin:0;">As Minhas Oportunidades</h2>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Categoria</th>
+                        <th>Vagas</th>
+                        <th>Inscrições</th>
+                        <th>Estado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for op in oportunidades %}
+                    <tr>
+                        <td class="fw-medium">{{ op.titulo }}</td>
+                        <td>{% if op.categoria %}{{ op.categoria.nome }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                        <td>{{ op.vagas }}</td>
+                        <td>{{ op.num_inscricoes }}</td>
+                        <td>
+                            <span class="status-badge status-{% if op.estado == 'publicada' or op.estado == 'aberta' %}success{% elif op.estado == 'pendente' %}warning{% elif op.estado == 'concluida' %}info{% elif op.estado == 'cancelada' %}error{% else %}default{% endif %}">
+                                <span class="status-badge-dot"></span>
+                                {{ op.get_estado_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'accounts:editar_oportunidade' op.id %}" class="icon-btn icon-btn-sm" aria-label="Editar" title="Editar">
+                                    <i class="bi bi-pencil" aria-hidden="true"></i>
+                                </a>
+                                <a href="{% url 'accounts:gerir_inscricoes' op.id %}" class="icon-btn icon-btn-sm" aria-label="Gerir inscrições" title="Inscrições">
+                                    <i class="bi bi-people" aria-hidden="true"></i>
+                                </a>
+                                <a href="{% url 'accounts:apagar_oportunidade' op.id %}" class="icon-btn icon-btn-sm icon-btn-danger" aria-label="Apagar" title="Apagar">
+                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Nenhuma oportunidade criada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-const estadoData = {
-    labels: [{% for op in oportunidades %}'{{ op.get_estado_display }}'{% if not forloop.last %},{% endif %}{% endfor %}],
-    datasets: [{
-        data: [{% for op in oportunidades %}1{% if not forloop.last %},{% endif %}{% endfor %}],
-        backgroundColor: [{% for op in oportunidades %}'{% if op.estado == 'publicada' or op.estado == 'aberta' %}#28a745{% elif op.estado == 'pendente' %}#ffc107{% elif op.estado == 'cancelada' %}#dc3545{% else %}#6c757d{% endif %}'{% if not forloop.last %},{% endif %}{% endfor %}],
-        borderWidth: 0
-    }]
-};
-if(estadoData.labels.length > 0) {
-    new Chart(document.getElementById('chartOportunidades'), {
-        type: 'doughnut',
-        data: estadoData,
-        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-    });
-}
-
-const inscData = {
-    labels: [{% for op in oportunidades %}'{{ op.titulo|truncatewords:3 }}'{% if not forloop.last %},{% endif %}{% endfor %}],
-    datasets: [{
-        label: 'Inscrições',
-        data: [{% for op in oportunidades %}{{ op.num_inscricoes }}{% if not forloop.last %},{% endif %}{% endfor %}],
-        backgroundColor: '#0d6efd',
-        borderRadius: 6
-    }]
-};
-if(inscData.labels.length > 0) {
-    new Chart(document.getElementById('chartInscricoes'), {
-        type: 'bar',
-        data: inscData,
-        options: { responsive: true, plugins: { legend: { display: false } } }
-    });
-}
+(function(){
+    var estadoData = {
+        labels: [{% for op in oportunidades %}'{{ op.get_estado_display }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for op in oportunidades %}1{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: [{% for op in oportunidades %}'{% if op.estado == 'publicada' or op.estado == 'aberta' %}#16a34a{% elif op.estado == 'pendente' %}#f59e0b{% elif op.estado == 'cancelada' %}#dc2626{% else %}#9ca3af{% endif %}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            borderWidth: 0
+        }]
+    };
+    if(estadoData.labels.length > 0) {
+        new Chart(document.getElementById('chartOportunidades'), {
+            type: 'doughnut',
+            data: estadoData,
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
+    } else {
+        document.getElementById('chartOportunidades').parentElement.innerHTML = '<div class="empty-state"><p class="text-muted">Sem dados para exibir</p></div>';
+    }
+    var inscData = {
+        labels: [{% for op in oportunidades %}'{{ op.titulo|truncatewords:3 }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Inscrições',
+            data: [{% for op in oportunidades %}{{ op.num_inscricoes }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: '#0d6efd',
+            borderRadius: 6
+        }]
+    };
+    if(inscData.labels.length > 0) {
+        new Chart(document.getElementById('chartInscricoes'), {
+            type: 'bar',
+            data: inscData,
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+    } else {
+        document.getElementById('chartInscricoes').parentElement.innerHTML = '<div class="empty-state"><p class="text-muted">Sem dados para exibir</p></div>';
+    }
+})();
 </script>
 {% endblock %}

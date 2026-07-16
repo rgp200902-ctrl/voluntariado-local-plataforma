@@ -1,66 +1,61 @@
 {% extends 'base.html' %}
-{% block title %}Avaliações - {{ oportunidade.titulo }}{% endblock %}
+{% block title %}Avaliações{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'oportunidades:list' %}">Oportunidades</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'oportunidades:detail' oportunidade.id %}">{{ oportunidade.titulo }}</a></li>
-            <li class="breadcrumb-item active">Avaliações</li>
+<div class="container py-6">
+    <nav aria-label="Breadcrumb">
+        <ol class="breadcrumbs">
+            <li><a href="{% url 'oportunidades:list' %}">Oportunidades</a></li>
+            <li><a href="{% url 'oportunidades:detail' oportunidade.id %}">{{ oportunidade.titulo }}</a></li>
+            <li class="active" aria-current="page">Avaliações</li>
         </ol>
     </nav>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold mb-0">Avaliações</h3>
-        <a href="{% url 'oportunidades:detail' oportunidade.id %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
+    <div class="page-header">
+        <div>
+            <h1 class="page-header-title">Avaliações</h1>
+            <p class="page-header-description">{{ oportunidade.titulo }}</p>
+        </div>
+        <div class="page-header-actions">
+            <div class="stat-card" style="padding:var(--space-2) var(--space-4);">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold" style="font-size:1.25rem;">{{ media }}</span>
+                    <span class="text-sm text-muted">/ 5</span>
+                    <span class="text-sm text-muted">({{ avaliacoes.count }} avaliações)</span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="card dashboard-card mb-4">
-        <div class="card-body p-4 text-center">
-            <h1 class="fw-bold text-primary mb-0">{{ media }}</h1>
-            <div class="mb-2">
-                {% for i in "12345" %}
-                    {% if forloop.counter <= media %}
-                    <i class="bi bi-star-fill text-warning" style="font-size:1.5rem;"></i>
-                    {% elif forloop.counter <= media|add:"0.5" %}
-                    <i class="bi bi-star-half text-warning" style="font-size:1.5rem;"></i>
-                    {% else %}
-                    <i class="bi bi-star text-warning" style="font-size:1.5rem;"></i>
+    {% if avaliacoes %}
+    <div class="card">
+        <div class="card-body" style="padding:var(--space-2);">
+            {% for av in avaliacoes %}
+            <div class="d-flex gap-3" style="padding:var(--space-4);border-bottom:1px solid var(--color-border);">
+                <div class="navbar-avatar-placeholder" style="width:2.5rem;height:2.5rem;font-size:var(--text-body-sm);flex-shrink:0;">{{ av.autor.get_full_name|default:av.autor.email|first|upper }}</div>
+                <div style="flex:1;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-medium text-sm">{{ av.autor.get_full_name|default:av.autor.email }}</span>
+                        <small class="text-muted text-sm">{{ av.data_criacao|date:'d/m/Y' }}</small>
+                    </div>
+                    <div class="mb-1" style="color:var(--color-warning);">
+                        {% for i in "12345" %}
+                        {% if forloop.counter <= av.classificacao %}&#9733;{% else %}&#9734;{% endif %}
+                        {% endfor %}
+                    </div>
+                    {% if av.comentario %}
+                    <p class="text-sm text-muted" style="margin:0;">{{ av.comentario }}</p>
                     {% endif %}
-                {% endfor %}
-            </div>
-            <small class="text-muted">{{ avaliacoes.count }} avaliação(ões)</small>
-        </div>
-    </div>
-
-    {% for av in avaliacoes %}
-    <div class="card dashboard-card mb-3">
-        <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                    <h6 class="fw-bold mb-0">{{ av.autor.get_full_name|default:av.autor.email }}</h6>
-                    <small class="text-muted">{{ av.data_criacao|date:'d/m/Y' }}</small>
-                </div>
-                <div>
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= av.classificacao %}
-                        <i class="bi bi-star-fill text-warning"></i>
-                        {% else %}
-                        <i class="bi bi-star text-muted"></i>
-                        {% endif %}
-                    {% endfor %}
                 </div>
             </div>
-            {% if av.comentario %}
-            <p class="text-muted mb-0 mt-2">{{ av.comentario }}</p>
-            {% endif %}
+            {% endfor %}
         </div>
     </div>
-    {% empty %}
-    <div class="text-center py-5">
-        <i class="bi bi-chat-dots" style="font-size:3rem;color:#dee2e6;"></i>
-        <p class="text-muted mt-3">Ainda não há avaliações para esta oportunidade.</p>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon"><i class="bi bi-star" style="font-size:3rem;" aria-hidden="true"></i></div>
+        <h3 class="empty-state-title">Nenhuma avaliação</h3>
+        <p class="empty-state-description">Ainda não há avaliações para esta oportunidade.</p>
     </div>
-    {% endfor %}
+    {% endif %}
 </div>
 {% endblock %}

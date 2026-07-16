@@ -1,49 +1,39 @@
 {% extends 'base.html' %}
 {% block title %}Avaliar Oportunidade{% endblock %}
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
-                    <h3 class="fw-bold mb-1">Avaliar Oportunidade</h3>
-                    <p class="text-muted mb-4">{{ oportunidade.titulo }}</p>
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-4 text-center">
-                            <label class="form-label fw-bold">Classificação</label>
-                            <div class="d-flex justify-content-center gap-2 mb-2" id="starRating">
-                                {% for i in "12345" %}
-                                <button type="button" class="btn btn-lg p-0 star-btn" data-value="{{ forloop.counter }}" onclick="setRating({{ forloop.counter }})" style="background:none;border:none;">
-                                    <i class="bi bi-star-fill" style="font-size:2rem;color:#dee2e6;" id="star{{ forloop.counter }}"></i>
-                                </button>
-                                {% endfor %}
-                            </div>
-                            <input type="hidden" name="classificacao" id="classificacaoInput" value="5">
-                            <small class="text-muted" id="ratingText">5/5 - Excelente</small>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_volunteer.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Avaliar Oportunidade</h1>
+                <p class="page-header-description">{{ oportunidade.titulo }}</p>
+            </div>
+        </div>
+
+        <div class="card" style="max-width:500px;">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="form-label" for="classificacao">Classificação</label>
+                        <div class="d-flex gap-2" id="classificacao" role="radiogroup" aria-label="Classificação">
+                            {% for i in "12345" %}
+                            <label class="form-check" style="cursor:pointer;font-size:1.5rem;">
+                                <input type="radio" name="classificacao" value="{{ i }}" class="form-check-input" style="display:none;" onchange="document.querySelectorAll('.star-rating').forEach(function(el){el.style.color='var(--color-text-muted)'});this.parentElement.querySelector('.star-rating').style.color='var(--color-warning)'">
+                                <span class="star-rating" style="color:{% if forloop.first %}var(--color-warning){% else %}var(--color-text-muted){% endif %};">&#9733;</span>
+                            </label>
+                            {% endfor %}
                         </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Comentário (opcional)</label>
-                            <textarea name="comentario" class="form-control" rows="4" placeholder="Partilha a tua experiência..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Submeter Avaliação</button>
-                        <a href="{% url 'accounts:volunteer_dashboard' %}" class="btn btn-outline-secondary w-100 mt-2">Cancelar</a>
-                    </form>
-                </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="comentario">Comentário <span class="text-muted" style="font-weight:400;">(opcional)</span></label>
+                        <textarea name="comentario" id="comentario" class="form-textarea" rows="4" placeholder="Partilha a tua experiência..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submeter Avaliação</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
-<script>
-function setRating(val) {
-    document.getElementById('classificacaoInput').value = val;
-    const labels = ['', 'Mau', 'Fraco', 'Bom', 'Muito Bom', 'Excelente'];
-    document.getElementById('ratingText').textContent = val + '/5 - ' + labels[val];
-    for(let i = 1; i <= 5; i++) {
-        const star = document.getElementById('star' + i);
-        star.style.color = i <= val ? '#ffc107' : '#dee2e6';
-    }
-}
-setRating(5);
-</script>
 {% endblock %}

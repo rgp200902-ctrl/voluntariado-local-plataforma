@@ -1,57 +1,76 @@
 {% extends 'base.html' %}
 {% block title %}Perfil Instituição{% endblock %}
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-md-3">{% include 'dashboard/sidebar_institution.html' %}</div>
-        <div class="col-md-9">
-            <h3 class="fw-bold mb-4">Perfil da Instituição</h3>
-            <div class="card dashboard-card">
-                <div class="card-body p-4">
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="text-center mb-4">
-                            {% if institution.logotipo %}
-                            <img src="{{ institution.logotipo.url }}" alt="Logótipo" class="rounded-circle mb-2" style="width:100px;height:100px;object-fit:cover;border:3px solid var(--primary);">
-                            {% else %}
-                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width:100px;height:100px;background:var(--primary);color:white;font-size:2.5rem;">
-                                <i class="bi bi-building"></i>
-                            </div>
-                            {% endif %}
-                            <div>
-                                <label for="logotipo" class="btn btn-outline-primary btn-sm mt-2" style="cursor:pointer;">
-                                    <i class="bi bi-camera me-1"></i>Alterar Logótipo
-                                </label>
-                                <input type="file" name="logotipo" id="logotipo" accept="image/*" class="d-none">
-                            </div>
+<div class="dashboard-layout">
+    {% include 'dashboard/sidebar_institution.html' %}
+    <div class="dashboard-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header-title">Perfil da Instituição</h1>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" autocomplete="on">
+                    {% csrf_token %}
+                    <div class="text-center mb-5">
+                        {% if institution.logotipo %}
+                        <img src="{{ institution.logotipo.url }}" alt="Logótipo" style="width:6rem;height:6rem;object-fit:cover;border-radius:var(--radius-lg);border:3px solid var(--color-border);">
+                        {% else %}
+                        <div style="width:6rem;height:6rem;border-radius:var(--radius-lg);background:var(--color-bg-subtle);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:2rem;color:var(--color-text-muted);">
+                            <i class="bi bi-building" aria-hidden="true"></i>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Nome</label><input type="text" name="nome" class="form-control" value="{{ institution.nome }}"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">NIF</label><input type="text" name="nif" class="form-control" value="{{ institution.nif|default:'' }}"></div>
+                        {% endif %}
+                        <div class="mt-2">
+                            <label for="logotipo" class="btn btn-secondary btn-sm" style="cursor:pointer;">
+                                <i class="bi bi-camera" aria-hidden="true"></i>
+                                Alterar Logótipo
+                            </label>
+                            <input type="file" name="logotipo" id="logotipo" accept="image/*" class="d-none">
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Tipo</label>
-                                <select name="tipo" class="form-select">
-                                    <option value="">Seleciona...</option>
-                                    <option value="ipss" {% if institution.tipo == 'ipss' %}selected{% endif %}>IPSS</option>
-                                    <option value="ong" {% if institution.tipo == 'ong' %}selected{% endif %}>ONG</option>
-                                    <option value="associacao" {% if institution.tipo == 'associacao' %}selected{% endif %}>Associação</option>
-                                    <option value="fundacao" {% if institution.tipo == 'fundacao' %}selected{% endif %}>Fundação</option>
-                                    <option value="outro" {% if institution.tipo == 'outro' %}selected{% endif %}>Outro</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Telefone</label><input type="text" name="telefone" class="form-control" value="{{ institution.telefone|default:'' }}"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="nome">Nome da Instituição</label>
+                        <input type="text" name="nome" id="nome" class="form-input" value="{{ institution.nome }}" autocomplete="organization">
+                    </div>
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="form-label" for="nif">NIF</label>
+                            <input type="text" name="nif" id="nif" class="form-input" value="{{ institution.nif|default:'' }}">
                         </div>
-                        <div class="mb-3"><label class="form-label fw-medium">Morada</label><input type="text" name="morada" class="form-control" value="{{ institution.morada|default:'' }}"></div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Pessoa de Contacto</label><input type="text" name="pessoa_contacto" class="form-control" value="{{ institution.pessoa_contacto|default:'' }}"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label fw-medium">Website</label><input type="url" name="website" class="form-control" value="{{ institution.website|default:'' }}"></div>
+                        <div class="form-group">
+                            <label class="form-label" for="tipo">Tipo</label>
+                            <select name="tipo" id="tipo" class="form-select">
+                                <option value="">Seleciona...</option>
+                                <option value="ipss" {% if institution.tipo == 'ipss' %}selected{% endif %}>IPSS</option>
+                                <option value="ong" {% if institution.tipo == 'ong' %}selected{% endif %}>ONG</option>
+                                <option value="associacao" {% if institution.tipo == 'associacao' %}selected{% endif %}>Associação</option>
+                                <option value="fundacao" {% if institution.tipo == 'fundacao' %}selected{% endif %}>Fundação</option>
+                                <option value="outro" {% if institution.tipo == 'outro' %}selected{% endif %}>Outro</option>
+                            </select>
                         </div>
-                        <div class="mb-3"><label class="form-label fw-medium">Descrição</label><textarea name="descricao" class="form-control" rows="3">{{ institution.descricao|default:'' }}</textarea></div>
-                        <div class="mb-3"><span class="badge bg-{% if institution.estado_validacao == 'aprovada' %}success{% elif institution.estado_validacao == 'pendente' %}warning{% else %}danger{% endif %}">{{ institution.get_estado_validacao_display }}</span></div>
-                        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">Guardar Alterações</button>
-                    </form>
-                </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="descricao">Descrição</label>
+                        <textarea name="descricao" id="descricao" class="form-textarea" rows="3">{{ institution.descricao|default:'' }}</textarea>
+                    </div>
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label class="form-label" for="morada">Morada</label>
+                            <input type="text" name="morada" id="morada" class="form-input" value="{{ institution.morada|default:'' }}" autocomplete="street-address">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="telefone">Telefone</label>
+                            <input type="tel" name="telefone" id="telefone" class="form-input" value="{{ institution.telefone|default:'' }}" autocomplete="tel">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="website">Website</label>
+                        <input type="url" name="website" id="website" class="form-input" value="{{ institution.website|default:'' }}" autocomplete="url" placeholder="https://...">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar Alterações</button>
+                </form>
             </div>
         </div>
     </div>
