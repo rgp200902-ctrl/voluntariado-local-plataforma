@@ -1,102 +1,111 @@
 {% extends 'base.html' %}
 {% block title %}Impacto Social{% endblock %}
 {% block content %}
-<div class="container py-6">
-    <div class="text-center mb-6">
-        <h1 class="h1">Impacto Social</h1>
-        <p class="text-muted">O impacto coletivo do voluntariado na nossa comunidade</p>
-    </div>
+<div class="dashboard-layout">
+    {% if user.perfil == 'voluntario' %}
+        {% include 'dashboard/sidebar_volunteer.html' %}
+    {% elif user.perfil == 'instituicao' %}
+        {% include 'dashboard/sidebar_institution.html' %}
+    {% elif user.perfil == 'administrador' %}
+        {% include 'dashboard/sidebar_admin.html' %}
+    {% endif %}
+    <div class="dashboard-content">
+        <div class="text-center mb-6">
+            <h1 class="h1">Impacto Social</h1>
+            <p class="text-muted">O impacto coletivo do voluntariado na nossa comunidade</p>
+        </div>
 
-    <div class="stat-grid stat-grid-4 mb-6">
-        <div class="stat-card">
-            <div class="stat-card-icon"><i class="bi bi-clock-history" aria-hidden="true"></i></div>
-            <div class="stat-card-value">{{ total_horas }}</div>
-            <div class="stat-card-label">Horas de Voluntariado</div>
+        <div class="stat-grid stat-grid-4 mb-6">
+            <div class="stat-card">
+                <div class="stat-card-icon"><i class="bi bi-clock-history" aria-hidden="true"></i></div>
+                <div class="stat-card-value">{{ total_horas }}</div>
+                <div class="stat-card-label">Horas de Voluntariado</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon" style="color:var(--color-success);"><i class="bi bi-people" aria-hidden="true"></i></div>
+                <div class="stat-card-value" style="color:var(--color-success);">{{ total_voluntarios }}</div>
+                <div class="stat-card-label">Voluntários</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon" style="color:var(--color-info);"><i class="bi bi-building" aria-hidden="true"></i></div>
+                <div class="stat-card-value" style="color:var(--color-info);">{{ total_instituicoes }}</div>
+                <div class="stat-card-label">Instituições</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon" style="color:var(--color-success);"><i class="bi bi-check-circle" aria-hidden="true"></i></div>
+                <div class="stat-card-value" style="color:var(--color-success);">{{ inscricoes_concluidas }}</div>
+                <div class="stat-card-label">Inscrições Concluídas</div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-card-icon" style="color:var(--color-success);"><i class="bi bi-people" aria-hidden="true"></i></div>
-            <div class="stat-card-value" style="color:var(--color-success);">{{ total_voluntarios }}</div>
-            <div class="stat-card-label">Voluntários</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-card-icon" style="color:var(--color-info);"><i class="bi bi-building" aria-hidden="true"></i></div>
-            <div class="stat-card-value" style="color:var(--color-info);">{{ total_instituicoes }}</div>
-            <div class="stat-card-label">Instituições</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-card-icon" style="color:var(--color-success);"><i class="bi bi-check-circle" aria-hidden="true"></i></div>
-            <div class="stat-card-value" style="color:var(--color-success);">{{ inscricoes_concluidas }}</div>
-            <div class="stat-card-label">Inscrições Concluídas</div>
-        </div>
-    </div>
 
-    <div class="row g-4 mb-6">
-        <div class="col-sm-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="chart-card-title" style="margin:0;"><i class="bi bi-geo-alt" aria-hidden="true"></i> Top Localidades</h3>
-                </div>
-                <div class="card-body" style="padding:var(--space-2);">
-                    {% if localidades %}
-                    {% for loc in localidades %}
-                    <div class="d-flex justify-content-between align-items-center" style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);">
-                        <span class="text-sm">{{ loc.oportunidade__local }}</span>
-                        <span class="status-badge">{{ loc.total }}</span>
+        <div class="row g-4 mb-6">
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="chart-card-title" style="margin:0;"><i class="bi bi-geo-alt" aria-hidden="true"></i> Top Localidades</h3>
                     </div>
-                    {% endfor %}
-                    {% else %}
-                    <div class="empty-state" style="padding:var(--space-6);"><p class="text-muted" style="margin:0;">Sem dados</p></div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="chart-card-title" style="margin:0;"><i class="bi bi-tags" aria-hidden="true"></i> Top Categorias</h3>
-                </div>
-                <div class="card-body" style="padding:var(--space-2);">
-                    {% if categorias_top %}
-                    {% for cat in categorias_top %}
-                    <div class="d-flex justify-content-between align-items-center" style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);">
-                        <span class="text-sm">{{ cat.nome }}</span>
-                        <span class="status-badge status-success">{{ cat.total }}</span>
+                    <div class="card-body" style="padding:var(--space-2);">
+                        {% if localidades %}
+                        {% for loc in localidades %}
+                        <div class="d-flex justify-content-between align-items-center" style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);">
+                            <span class="text-sm">{{ loc.oportunidade__local }}</span>
+                            <span class="status-badge">{{ loc.total }}</span>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="empty-state" style="padding:var(--space-6);"><p class="text-muted" style="margin:0;">Sem dados</p></div>
+                        {% endif %}
                     </div>
-                    {% endfor %}
-                    {% else %}
-                    <div class="empty-state" style="padding:var(--space-6);"><p class="text-muted" style="margin:0;">Sem dados</p></div>
-                    {% endif %}
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="chart-card-title" style="margin:0;"><i class="bi bi-tags" aria-hidden="true"></i> Top Categorias</h3>
+                    </div>
+                    <div class="card-body" style="padding:var(--space-2);">
+                        {% if categorias_top %}
+                        {% for cat in categorias_top %}
+                        <div class="d-flex justify-content-between align-items-center" style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);">
+                            <span class="text-sm">{{ cat.nome }}</span>
+                            <span class="status-badge status-success">{{ cat.total }}</span>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="empty-state" style="padding:var(--space-6);"><p class="text-muted" style="margin:0;">Sem dados</p></div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row g-4">
-        <div class="col-sm-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="chart-card-title" style="margin:0;"><i class="bi bi-trophy" aria-hidden="true"></i> Voluntários Mais Ativos</h3>
-                </div>
-                <div class="card-body" style="padding:var(--space-2);">
-                    {% if voluntarios_ativos %}
-                    {% for v in voluntarios_ativos %}
-                    <a href="{% url 'core:perfil_publico' v.id %}" class="d-flex justify-content-between align-items-center" style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);text-decoration:none;">
-                        <span class="text-sm">{{ v.get_full_name|default:v.email }}</span>
-                        <span class="status-badge status-warning">{{ v.total_inscricoes }} inscrições</span>
-                    </a>
-                    {% endfor %}
-                    {% else %}
-                    <div class="empty-state" style="padding:var(--space-6);"><p class="text-muted" style="margin:0;">Sem dados</p></div>
-                    {% endif %}
+        <div class="row g-4">
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="chart-card-title" style="margin:0;"><i class="bi bi-trophy" aria-hidden="true"></i> Voluntários Mais Ativos</h3>
+                    </div>
+                    <div class="card-body" style="padding:var(--space-2);">
+                        {% if voluntarios_ativos %}
+                        {% for v in voluntarios_ativos %}
+                        <a href="{% url 'core:perfil_publico' v.id %}" class="d-flex justify-content-between align-items-center" style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);text-decoration:none;">
+                            <span class="text-sm">{{ v.get_full_name|default:v.email }}</span>
+                            <span class="status-badge status-warning">{{ v.total_inscricoes }} inscrições</span>
+                        </a>
+                        {% endfor %}
+                        {% else %}
+                        <div class="empty-state" style="padding:var(--space-6);"><p class="text-muted" style="margin:0;">Sem dados</p></div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-6">
-            <div class="chart-card">
-                <div class="chart-card-header">
-                    <h3 class="chart-card-title"><i class="bi bi-graph-up" aria-hidden="true"></i> Inscrições por Mês</h3>
+            <div class="col-sm-6">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title"><i class="bi bi-graph-up" aria-hidden="true"></i> Inscrições por Mês</h3>
+                    </div>
+                    <canvas id="chartMensal" height="200" aria-label="Inscrições por mês" role="img"></canvas>
                 </div>
-                <canvas id="chartMensal" height="200" aria-label="Inscrições por mês" role="img"></canvas>
             </div>
         </div>
     </div>
