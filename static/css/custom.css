@@ -918,6 +918,7 @@ table tbody tr:hover {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     margin-left: 240px;
+    transition: margin-left var(--motion-base) var(--ease-out);
 }
 .navbar-inner {
     display: flex;
@@ -1092,6 +1093,10 @@ table tbody tr:hover {
     height: 100vh;
     overflow-y: auto;
     z-index: 100;
+    transition: left var(--motion-base) var(--ease-out), width var(--motion-base) var(--ease-out);
+}
+.sidebar.collapsed {
+    left: -240px;
 }
 .sidebar-section-label {
     font-size: var(--text-caption);
@@ -1644,6 +1649,13 @@ table tbody tr:hover {
     min-width: 0;
     max-width: 100%;
     margin-left: 240px;
+    transition: margin-left var(--motion-base) var(--ease-out);
+}
+body.sidebar-collapsed .navbar {
+    margin-left: 0;
+}
+body.sidebar-collapsed .dashboard-content {
+    margin-left: 0;
 }
 @media (max-width: 767px) {
     .dashboard-layout {
